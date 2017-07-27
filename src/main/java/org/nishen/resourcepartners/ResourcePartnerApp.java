@@ -24,21 +24,14 @@ public class ResourcePartnerApp
 
 	public void run()
 	{
-		log.debug("application execution starting");
-
-		if (args == null || args.length == 0)
-		{
-			System.out.println("java -jar resource-partners.jar [options]\n");
-
-			return;
-		}
-
 		if (log.isDebugEnabled())
 			for (String a : args)
 				log.debug("cmdline: {}", a);
-		
-		
 
+		log.debug("application execution starting");
+
+		
+		
 		log.debug("application execution complete");
 	}
 }

@@ -2,9 +2,7 @@ package org.nishen.resourcepartners;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,30 +27,11 @@ public class ResourcePartnerLauncher
 
 	public static void main(String[] args)
 	{
-		Map<String, String> options = null;
-
-		try
-		{
-			options = parseArgs(args);
-		}
-		catch (Exception e)
-		{
-			System.out.println("unable to process command line: " + e.getMessage());
-			log.error("error processing command line: {}", e.getMessage());
-			printUsage();
-		}
-
-		if (options.containsKey("h"))
-		{
-			printUsage();
-			return;
-		}
-
 		// list for injector modules
 		List<Module> modules = new ArrayList<Module>();
 
 		// module (main configuration)
-		modules.add(new ResourcePartnerModule(args));
+		modules.add(new ResourcePartnerModule());
 
 		// create the injector
 		log.debug("creating injector");
@@ -73,29 +52,5 @@ public class ResourcePartnerLauncher
 
 		long diff = (timeEnd.getTimeInMillis() - timeStart.getTimeInMillis()) / 1000;
 		log.info("time taken (seconds): {}", diff);
-	}
-
-	private static Map<String, String> parseArgs(String[] args) throws Exception
-	{
-		Map<String, String> options = new HashMap<String, String>();
-
-		if (args.length == 0)
-			return options;
-
-		for (int x = 0; x < args.length; x++)
-		{
-			options.put("", "");
-			if (args[x].equals("-h"))
-			{
-				options.put("h", "true");
-			}
-		}
-
-		return options;
-	}
-
-	private static void printUsage()
-	{
-		System.out.println("java -jar alma-tookit.jar [options]");
 	}
 }

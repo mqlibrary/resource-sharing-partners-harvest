@@ -5,15 +5,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.nishen.resourcepartners.util.ILRSScraperUtil;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gargoylesoftware.htmlunit.ProxyConfig;
-import com.gargoylesoftware.htmlunit.WebClient;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 public class ResourcePartnerModule extends AbstractModule
@@ -24,12 +25,9 @@ public class ResourcePartnerModule extends AbstractModule
 
 	private static final Properties config = new Properties();
 
-	private static String[] args;
+	private WebTarget elasticTarget = null;
 
-	public ResourcePartnerModule(final String[] args)
-	{
-		ResourcePartnerModule.args = args;
-	}
+	private WebTarget ilrsTarget = null;
 
 	@Override
 	protected void configure()
@@ -57,30 +55,33 @@ public class ResourcePartnerModule extends AbstractModule
 		}
 
 		// bind instances
-		TypeLiteral<String[]> argsType = new TypeLiteral<String[]>() {};
-		bind(argsType).annotatedWith(Names.named("app.cmdline")).toInstance(args);
 		bind(Properties.class).annotatedWith(Names.named("app.config")).toInstance(config);
-		bind(ILRSScraperUtil.class).to(ILRSScraperUtil.class);
+		// bind(ILRSScraperUtil.class).to(ILRSScraperUtil.class);
 	}
 
 	@Provides
-	protected WebClient provideWebClient()
+	@Named("ws.url.elastic.index")
+	protected WebTarget provideWebTargetAlma()
 	{
-		WebClient webClient = new WebClient();
-
-		String proxyHost = config.getProperty("ws.proxy.host");
-		String proxyPort = config.getProperty("ws.proxy.port");
-		if (proxyHost != null && !"".equals(proxyHost) && proxyPort != null && !"".equals(proxyPort))
+		if (elasticTarget == null)
 		{
-			ProxyConfig proxyConfig = new ProxyConfig(proxyHost, Integer.parseInt(proxyPort));
-			webClient.getOptions().setProxyConfig(proxyConfig);
+			Client client = ClientBuilder.newClient();
+			elasticTarget = client.target(config.getProperty("ws.url.elastic.index"));
 		}
 
-		webClient.getOptions().setActiveXNative(false);
-		webClient.getOptions().setJavaScriptEnabled(false);
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setUseInsecureSSL(true);
+		return elasticTarget;
+	}
 
-		return webClient;
+	@Provides
+	@Named("ws.url.ilrs")
+	protected WebTarget provideWebTargetIlrs()
+	{
+		if (ilrsTarget == null)
+		{
+			Client client = ClientBuilder.newClient();
+			ilrsTarget = client.target(config.getProperty("ws.url.ilrs"));
+		}
+
+		return ilrsTarget;
 	}
 }

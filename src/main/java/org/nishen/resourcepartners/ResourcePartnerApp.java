@@ -30,8 +30,6 @@ public class ResourcePartnerApp
 
 		log.debug("application execution starting");
 
-		
-		
 		log.debug("application execution complete");
 	}
 }

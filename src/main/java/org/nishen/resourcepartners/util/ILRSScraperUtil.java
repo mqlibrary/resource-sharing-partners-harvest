@@ -1,6 +1,5 @@
 package org.nishen.resourcepartners.util;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,16 +10,19 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Whitelist;
 import org.nishen.resourcepartners.entity.Address;
 import org.nishen.resourcepartners.entity.Address.Country;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
-import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -30,20 +32,18 @@ public class ILRSScraperUtil
 	private static final Logger log = LoggerFactory.getLogger(ILRSScraperUtil.class);
 
 	private static final String REGEX = "(.+) +(ACT|NT|NSW|VIC|TAS|QLD|WA|SA) +(\\d{4})";
+	
+	private static final String REGEX2 = "<P><B>(\\w+) address:</B>\\s*<BR>(.*)</P>";
 
-	private static final Pattern p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
+	private static final Pattern p = Pattern.compile(REGEX2, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-	private Properties config;
-
-	private Provider<WebClient> webClientProvider;
+	private Provider<WebTarget> webTargetProvider;
 
 	@Inject
-	private ILRSScraperUtil(@Named("app.cmdline") final String[] args, @Named("app.config") final Properties config,
-	                        Provider<WebClient> webClientProvider)
+	private ILRSScraperUtil(@Named("app.config") final Properties config,
+	                        @Named("ws.url.ilrs") Provider<WebTarget> webTargetProvider)
 	{
-		this.config = config;
-
-		this.webClientProvider = webClientProvider;
+		this.webTargetProvider = webTargetProvider;
 
 		log.debug("initialised ilrsscraperutil");
 	}
@@ -92,28 +92,28 @@ public class ILRSScraperUtil
 
 	public String getPage(String nuc)
 	{
-		String ilrsUrl = config.getProperty("ws.url.ilrs");
+		WebTarget ilrsTarget = webTargetProvider.get();
+		WebTarget t = ilrsTarget.path("apps").path("ilrs").path("/").queryParam("action", "IlrsSearch");
+
+		Form form = new Form();
+		form = form.param("nuc", nuc).param("term", "").param("termType", "Keyword").param("state", "All")
+		           .param("dosearch", "Search").param("chunk", "20");
 
 		String result = null;
 
-		try (WebClient webClient = webClientProvider.get())
+		try
 		{
-			HtmlPage page = webClient.getPage(ilrsUrl);
+			result = t.request(MediaType.TEXT_HTML).post(Entity.form(form), String.class);
 
-			HtmlForm form = page.getFormByName("searchform");
-			HtmlTextInput textField = form.getInputByName("nuc");
-			HtmlSubmitInput button = form.getInputByName("dosearch");
-
-			textField.setValueAttribute(nuc);
-
-			HtmlPage resultPage = button.click();
-
-			result = resultPage.asText();
-			log.trace("\n{}", result);
+			Document doc = Jsoup.parse(result);
+			String cleanPage = Jsoup.clean(doc.toString(), Whitelist.basic());
+			Matcher m = p.matcher(cleanPage);
+			m.find();
+			log.trace("\n{}", cleanPage);
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
-			log.error("unable to acquire page: {}", ilrsUrl);
+			log.error("unable to acquire page: {}", t.getUri().toString());
 			return result;
 		}
 

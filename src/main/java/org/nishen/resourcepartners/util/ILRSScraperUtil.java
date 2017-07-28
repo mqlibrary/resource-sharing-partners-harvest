@@ -1,12 +1,14 @@
 package org.nishen.resourcepartners.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +22,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 import org.nishen.resourcepartners.entity.Address;
 import org.nishen.resourcepartners.entity.Address.Country;
+import org.nishen.resourcepartners.entity.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,13 +34,34 @@ public class ILRSScraperUtil
 {
 	private static final Logger log = LoggerFactory.getLogger(ILRSScraperUtil.class);
 
-	private static final String REGEX = "(.+) +(ACT|NT|NSW|VIC|TAS|QLD|WA|SA) +(\\d{4})";
-	
-	private static final String REGEX2 = "<P><B>(\\w+) address:</B>\\s*<BR>(.*)</P>";
+	private static final String REGEX = "<P><B>(\\w+) address:</B>\\s*<BR>(.*?)</P>";
 
-	private static final Pattern p = Pattern.compile(REGEX2, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+	private static final Pattern p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+	private static List<String> states = new ArrayList<String>();
+	static
+	{
+		states.add("nsw");
+		states.add("new south wales");
+		states.add("qld");
+		states.add("queensland");
+		states.add("vic");
+		states.add("victoria");
+		states.add("sa");
+		states.add("south australia");
+		states.add("wa");
+		states.add("western australia");
+		states.add("nt");
+		states.add("northern territory");
+		states.add("act");
+		states.add("australian capital territory");
+		states.add("tas");
+		states.add("tasmania");
+	}
 
 	private Provider<WebTarget> webTargetProvider;
+
+	private ObjectFactory of = null;
 
 	@Inject
 	private ILRSScraperUtil(@Named("app.config") final Properties config,
@@ -45,49 +69,9 @@ public class ILRSScraperUtil
 	{
 		this.webTargetProvider = webTargetProvider;
 
+		of = new ObjectFactory();
+
 		log.debug("initialised ilrsscraperutil");
-	}
-
-	public Optional<Address> getAddress(String nuc)
-	{
-		String page = getPage(nuc);
-
-		try
-		{
-			log.debug("getting postal");
-			return Optional.of(getAddressFromPage(page, "Postal address"));
-		}
-		catch (AlternateAddressTypeException aate)
-		{
-			log.debug("alternate address type exception");
-			try
-			{
-				log.debug("getting main address");
-				return Optional.of(getAddressFromPage(page, "Main address"));
-			}
-			catch (Exception ie)
-			{
-				return Optional.empty();
-			}
-		}
-		catch (Exception e)
-		{
-			return Optional.empty();
-		}
-	}
-
-	public Optional<Address> getAddress(String nuc, String addressType)
-	{
-		String page = getPage(nuc);
-
-		try
-		{
-			return Optional.of(getAddressFromPage(page, addressType));
-		}
-		catch (Exception e)
-		{
-			return Optional.empty();
-		}
 	}
 
 	public String getPage(String nuc)
@@ -107,8 +91,6 @@ public class ILRSScraperUtil
 
 			Document doc = Jsoup.parse(result);
 			String cleanPage = Jsoup.clean(doc.toString(), Whitelist.basic());
-			Matcher m = p.matcher(cleanPage);
-			m.find();
 			log.trace("\n{}", cleanPage);
 		}
 		catch (Exception e)
@@ -120,53 +102,61 @@ public class ILRSScraperUtil
 		return result;
 	}
 
-	public Address getAddressFromPage(String page, String addressType) throws Exception
+	public Map<String, Address> getAddressFromPage(String page) throws Exception
 	{
-		Address address = new Address();
+		Map<String, Address> addresses = new HashMap<String, Address>();
 
-		List<String> addr = new ArrayList<String>();
-		try (Scanner scanner = new Scanner(page))
+		Matcher m = p.matcher(page);
+		while (m.find())
 		{
-			String line = scanner.nextLine();
-			while (!line.startsWith(addressType + ":") && scanner.hasNextLine())
-				line = scanner.nextLine();
+			String type = m.group(1);
+			String addr = m.group(2);
 
-			if (!line.startsWith(addressType + ":"))
-				throw new Exception("unable to parse page");
-
-			int lineCount = 0;
-			while (!line.startsWith(" Same as") && !line.equals(" AUSTRALIA") && lineCount < 10
-			       && scanner.hasNextLine())
+			List<String> cleanAddr = cleanAddress(addr);
+			log.debug("type: {}", type.toLowerCase());
+			for (String s : cleanAddr)
 			{
-				line = scanner.nextLine();
-				addr.add(line.trim());
-				lineCount++;
+				log.debug("addr: {}", s);
 			}
 
-			if (lineCount == 10)
-				throw new Exception("unable to parse page");
-
-			if (line.startsWith(" Same as"))
-			{
-				String alternateAddressType = line.replace(" Same as ", "");
-
-				log.debug("getting an alternate address type: {}", alternateAddressType);
-
-				throw new AlternateAddressTypeException(alternateAddressType);
-			}
+			addresses.put(type.toLowerCase(), extractAddress(cleanAddr));
 		}
-		catch (NoSuchElementException | IllegalStateException e)
+
+		return addresses;
+	}
+
+	private List<String> cleanAddress(String address)
+	{
+		List<String> result = null;
+		try
 		{
-			log.error("error parsing page: {}", e.getMessage(), e);
-			throw new Exception("unable to parse page");
+			String a = null;
+			a = URLDecoder.decode(address, "UTF-8");
+			a = a.replaceAll("^\\s*\n\\s*", "");
+			a = a.replaceAll("\\w*&nbsp;\\w*", "\n");
+			a = a.replaceAll("<BR>\\s", "\n");
+			a = a.replaceAll("\\s*\n", "\n");
+			a = a.replaceAll("\n\\s*", "\n");
+			a = a.replaceAll("\n\\s*$", "");
+
+			result = Arrays.asList(a.split("\n"));
 		}
+		catch (UnsupportedEncodingException e)
+		{
+			log.error("error cleaning address: {}", address);
+		}
+
+		return result;
+	}
+
+	private Address extractAddress(List<String> addressLines)
+	{
+		Address address = of.createAddress();
 
 		List<String> left = new ArrayList<String>();
-		Collections.reverse(addr);
-		for (String s : addr)
+		Collections.reverse(addressLines);
+		for (String s : addressLines)
 		{
-			Matcher m = p.matcher(s);
-
 			if ("australia".equals(s.toLowerCase()))
 			{
 				Country c = new Country();
@@ -174,11 +164,13 @@ public class ILRSScraperUtil
 				c.setDesc("Australia");
 				address.setCountry(c);
 			}
-			else if (m.find())
+			else if (states.contains(s.toLowerCase()))
 			{
-				address.setCity(m.group(1).trim());
-				address.setStateProvince(m.group(2).trim());
-				address.setPostalCode(m.group(3).trim());
+				address.setStateProvince(s);
+			}
+			else if (s.matches("\\d{4}"))
+			{
+				address.setPostalCode(s);
 			}
 			else
 			{
@@ -191,28 +183,23 @@ public class ILRSScraperUtil
 
 		Collections.reverse(left);
 
-		address.setLine1(left.get(0));
-		left.remove(0);
+		address.setLine1(left.remove(0));
 		if (left.size() == 0)
 			return address;
 
-		address.setLine2(left.get(0));
-		left.remove(0);
+		address.setLine2(left.remove(0));
 		if (left.size() == 0)
 			return address;
 
-		address.setLine3(left.get(0));
-		left.remove(0);
+		address.setLine3(left.remove(0));
 		if (left.size() == 0)
 			return address;
 
-		address.setLine4(left.get(0));
-		left.remove(0);
+		address.setLine4(left.remove(0));
 		if (left.size() == 0)
 			return address;
 
-		address.setLine5(left.get(0));
-		left.remove(0);
+		address.setLine5(left.remove(0));
 
 		return address;
 	}

@@ -1,6 +1,6 @@
 package org.nishen.resourcepartners;
 
-import org.nishen.resourcepartners.util.ILRSScraperUtil;
+import org.nishen.resourcepartners.dao.ILRSScraperDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,10 +13,10 @@ public class ResourcePartnerApp
 
 	private String[] args = null;
 
-	private ILRSScraperUtil scraper;
+	private ILRSScraperDAO scraper;
 
 	@Inject
-	private ResourcePartnerApp(@Named("app.cmdline") final String[] args, ILRSScraperUtil scraper)
+	private ResourcePartnerApp(@Named("app.cmdline") final String[] args, ILRSScraperDAO scraper)
 	{
 		this.args = args;
 		this.scraper = scraper;

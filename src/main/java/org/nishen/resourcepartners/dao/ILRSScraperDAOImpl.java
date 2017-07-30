@@ -1,4 +1,4 @@
-package org.nishen.resourcepartners.util;
+package org.nishen.resourcepartners.dao;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,9 +29,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-public class ILRSScraperUtil
+public class ILRSScraperDAOImpl implements ILRSScraperDAO
 {
-	private static final Logger log = LoggerFactory.getLogger(ILRSScraperUtil.class);
+	private static final Logger log = LoggerFactory.getLogger(ILRSScraperDAOImpl.class);
 
 	private static final String REGEX = "<P><B>(\\w+) address:</B>\\s*<BR>(.*?)</P>";
 
@@ -64,16 +63,21 @@ public class ILRSScraperUtil
 	private ObjectFactory of = null;
 
 	@Inject
-	private ILRSScraperUtil(@Named("app.config") final Properties config,
-	                        @Named("ws.url.ilrs") Provider<WebTarget> webTargetProvider)
+	public ILRSScraperDAOImpl(@Named("ws.ilrs") Provider<WebTarget> webTargetProvider)
 	{
 		this.webTargetProvider = webTargetProvider;
 
-		of = new ObjectFactory();
+		this.of = new ObjectFactory();
 
 		log.debug("initialised ilrsscraperutil");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.nishen.resourcepartners.dao.ILRSScraperDAO#getPage(java.lang.String)
+	 */
+	@Override
 	public String getPage(String nuc)
 	{
 		WebTarget ilrsTarget = webTargetProvider.get();
@@ -102,6 +106,7 @@ public class ILRSScraperUtil
 		return result;
 	}
 
+	@Override
 	public Map<String, Address> getAddressFromPage(String page) throws Exception
 	{
 		Map<String, Address> addresses = new HashMap<String, Address>();
@@ -155,8 +160,9 @@ public class ILRSScraperUtil
 
 		List<String> left = new ArrayList<String>();
 		Collections.reverse(addressLines);
-		for (String s : addressLines)
+		for (int x = 0; x < addressLines.size(); x++)
 		{
+			String s = addressLines.get(x);
 			if ("australia".equals(s.toLowerCase()))
 			{
 				Country c = new Country();
@@ -164,13 +170,16 @@ public class ILRSScraperUtil
 				c.setDesc("Australia");
 				address.setCountry(c);
 			}
-			else if (states.contains(s.toLowerCase()))
-			{
-				address.setStateProvince(s);
-			}
 			else if (s.matches("\\d{4}"))
 			{
 				address.setPostalCode(s);
+			}
+			else if (states.contains(s.toLowerCase()))
+			{
+				address.setStateProvince(s);
+				if (addressLines.size() >= x + 1 && address.getPostalCode() != null
+				    && !"".equals(address.getPostalCode()))
+					address.setCity(addressLines.get(++x));
 			}
 			else
 			{

@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -172,6 +174,21 @@ public class DataUtils
 		String hexHash = byte2hex(hash);
 
 		return hexHash;
+	}
+
+	public static String extract(InputStream inputStream) throws IOException
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+
+		int read = 0;
+		while ((read = inputStream.read(buffer, 0, buffer.length)) != -1)
+		{
+			baos.write(buffer, 0, read);
+		}
+		baos.flush();
+
+		return new String(baos.toByteArray(), "UTF-8");
 	}
 
 	/**

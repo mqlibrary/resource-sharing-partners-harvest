@@ -9,6 +9,13 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.nishen.resourcepartners.dao.ElasticSearchDAO;
+import org.nishen.resourcepartners.dao.ElasticSearchDAOImpl;
+import org.nishen.resourcepartners.dao.ILRSScraperDAO;
+import org.nishen.resourcepartners.dao.ILRSScraperDAOImpl;
+import org.nishen.resourcepartners.harvesters.ILRSHarvester;
+import org.nishen.resourcepartners.harvesters.ILRSHarvesterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,16 +63,23 @@ public class ResourcePartnerModule extends AbstractModule
 
 		// bind instances
 		bind(Properties.class).annotatedWith(Names.named("app.config")).toInstance(config);
-		// bind(ILRSScraperUtil.class).to(ILRSScraperUtil.class);
+		bind(ElasticSearchDAO.class).to(ElasticSearchDAOImpl.class);
+		bind(ILRSScraperDAO.class).to(ILRSScraperDAOImpl.class);
+		bind(ILRSHarvester.class).to(ILRSHarvesterImpl.class);
 	}
 
 	@Provides
-	@Named("ws.url.elastic.index")
-	protected WebTarget provideWebTargetAlma()
+	@Named("ws.elastic")
+	protected WebTarget provideWebTargetElastic()
 	{
 		if (elasticTarget == null)
 		{
+			String usr = config.getProperty("ws.url.elastic.username");
+			String pwd = config.getProperty("ws.url.elastic.password");
+			HttpAuthenticationFeature auth = HttpAuthenticationFeature.basic(usr, pwd);
+
 			Client client = ClientBuilder.newClient();
+			client.register(auth);
 			elasticTarget = client.target(config.getProperty("ws.url.elastic.index"));
 		}
 
@@ -73,7 +87,7 @@ public class ResourcePartnerModule extends AbstractModule
 	}
 
 	@Provides
-	@Named("ws.url.ilrs")
+	@Named("ws.ilrs")
 	protected WebTarget provideWebTargetIlrs()
 	{
 		if (ilrsTarget == null)

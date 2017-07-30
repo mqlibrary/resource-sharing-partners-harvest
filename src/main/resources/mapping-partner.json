@@ -1,0 +1,34 @@
+{
+  "mappings": {
+    "partner": { 
+      "properties": {
+        "source": { "type": "keyword" },
+        "updated": { "type": "date", "format": "date_time_no_millis" },
+        "nuc": { "type": "keyword"},
+        "status": { "type": "keyword" },
+        "addresses": {
+          "properties": {
+            "address_type": { "type": "keyword" },
+            "address_detail": {
+              "properties": {
+                "line1": { "type": "text" },
+                "line2": { "type": "text" },
+                "line3": { "type": "text" },
+                "line4": { "type": "text" },
+                "line5": { "type": "text" },
+                "city": { "type": "keyword" },
+                "state_province": { "type": "keyword" },
+                "postal_code": { "type": "keyword" },
+                "country": { "type": "keyword" },
+                "address_note": { "type": "keyword" },
+                "start_date": { "type": "keyword" },
+                "end_date": { "type": "keyword" },
+                "address_types": { "type": "keyword" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

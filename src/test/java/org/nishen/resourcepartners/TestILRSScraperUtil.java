@@ -7,11 +7,11 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nishen.resourcepartners.dao.ILRSScraperDAO;
 import org.nishen.resourcepartners.entity.Address;
 import org.nishen.resourcepartners.entity.Address.Country;
 import org.nishen.resourcepartners.entity.ObjectFactory;
 import org.nishen.resourcepartners.util.DataUtils;
-import org.nishen.resourcepartners.util.ILRSScraperUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class TestILRSScraperUtil
 
 	private static Injector injector = null;
 
-	private static ILRSScraperUtil scraper = null;
+	private static ILRSScraperDAO scraper = null;
 
 	private static ObjectFactory of = null;
 
@@ -50,7 +50,7 @@ public class TestILRSScraperUtil
 		log.debug("creating injector");
 		injector = Guice.createInjector(modules);
 
-		scraper = injector.getInstance(ILRSScraperUtil.class);
+		scraper = injector.getInstance(ILRSScraperDAO.class);
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class TestILRSScraperUtil
 	}
 
 	@Test
-	public void testScraperFindAddress()
+	public void testScraperFindAddress00()
 	{
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try

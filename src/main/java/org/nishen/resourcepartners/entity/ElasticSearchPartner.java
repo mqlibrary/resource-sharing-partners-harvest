@@ -23,7 +23,7 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	private String dataSource;
 
 	@XmlElement(name = "updated")
-	private Date updated;
+	private String updated;
 
 	@XmlElement(name = "nuc")
 	private String nuc;
@@ -55,7 +55,7 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	@Override
 	public Date getTime()
 	{
-		return updated;
+		return new Date();
 	}
 
 	public String getDataSource()
@@ -73,7 +73,7 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 		return sdf.format(updated);
 	}
 
-	public void setUpdated(Date updated)
+	public void setUpdated(String updated)
 	{
 		this.updated = updated;
 	}

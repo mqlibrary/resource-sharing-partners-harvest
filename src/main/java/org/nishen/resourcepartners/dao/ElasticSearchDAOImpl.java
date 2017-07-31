@@ -27,6 +27,9 @@ import org.nishen.resourcepartners.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -34,12 +37,14 @@ import com.google.inject.name.Named;
 public class ElasticSearchDAOImpl implements ElasticSearchDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(ElasticSearchDAOImpl.class);
-
+	
 	private Map<String, Map<String, Marshaller>> marshallers;
 
 	private Set<String> indices;
 
 	private WebTarget elasticTarget;
+
+	private ObjectMapper om;
 
 	@Inject
 	public ElasticSearchDAOImpl(@Named("ws.elastic") Provider<WebTarget> elasticTargetProvider)
@@ -49,6 +54,8 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		this.elasticTarget = elasticTargetProvider.get();
 
 		this.indices = new HashSet<String>();
+
+		this.om = new ObjectMapper();
 	}
 
 	public ElasticSearchPartner getPartner(String id)
@@ -60,6 +67,29 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		return partner;
 	}
 
+	public Map<String, ElasticSearchPartner> getPartners()
+	{
+		Map<String, ElasticSearchPartner> partners = new HashMap<String, ElasticSearchPartner>();
+
+		WebTarget t = elasticTarget.path("partners").path("partner").path("_search");
+
+		String result = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
+
+		try
+		{
+			JsonNode root = om.readTree(result);
+			log.debug("search result: {}", result);
+			ArrayNode hitlist = (ArrayNode) root.get("hits").get("hits");
+			log.debug("hitlist -> {}", hitlist.get(0).getNodeType());
+		}
+		catch (IOException ioe)
+		{
+			log.error("failed to parse json search results: {}", ioe.getMessage(), ioe);
+		}
+
+		return partners;
+	}
+
 	@Override
 	public void saveEntity(ElasticSearchEntity esEntity) throws Exception
 	{
@@ -69,7 +99,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	}
 
 	@Override
-	public void saveEntities(List<ElasticSearchEntity> esEntities) throws Exception
+	public void saveEntities(List<? extends ElasticSearchEntity> esEntities) throws Exception
 	{
 		if (esEntities == null || esEntities.size() == 0)
 		{

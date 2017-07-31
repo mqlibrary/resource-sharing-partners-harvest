@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,6 +49,22 @@ public class TestElasticSearchDAO
 		try
 		{
 			ElasticSearchPartner p = elastic.getPartner("NMQU");
+			log.debug("{}", p.toString());
+			// assertThat(actual, equalTo(expected));
+		}
+		catch (Exception e)
+		{
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testGetPartners()
+	{
+		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
+		try
+		{
+			Map<String, ElasticSearchPartner> p = elastic.getPartners();
 			log.debug("{}", p.toString());
 			// assertThat(actual, equalTo(expected));
 		}

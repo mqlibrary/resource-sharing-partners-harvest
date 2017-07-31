@@ -1,5 +1,6 @@
 package org.nishen.resourcepartners.harvesters;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +27,9 @@ import com.google.inject.Inject;
 
 public class ILRSHarvesterImpl implements ILRSHarvester
 {
-	private static Logger log = LoggerFactory.getLogger(ILRSHarvesterImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ILRSHarvesterImpl.class);
+
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
 	private static final int THREADS = 6;
 
@@ -34,13 +37,13 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 
 	private ILRSScraperDAO ilrs;
 
-	// private ElasticSearchDAO elastic;
+	private ElasticSearchDAO elastic;
 
 	@Inject
 	public ILRSHarvesterImpl(ILRSScraperDAO ilrs, ElasticSearchDAO elastic)
 	{
 		this.ilrs = ilrs;
-		// this.elastic = elastic;
+		this.elastic = elastic;
 
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
@@ -69,11 +72,33 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 
 		executor.shutdown();
 
-		for (Future<Map<String, Address>> f : results.values())
+		List<ElasticSearchPartner> partners = new ArrayList<ElasticSearchPartner>();
+		for (String nuc : results.keySet())
 		{
 			try
 			{
-				f.get();
+				List<ElasticSearchPartnerAddress> partnerAddresses = new ArrayList<ElasticSearchPartnerAddress>();
+
+				Map<String, Address> addresses = results.get(nuc).get();
+				for (String type : addresses.keySet())
+				{
+					ElasticSearchPartnerAddress a = new ElasticSearchPartnerAddress();
+					a.setAddressType(type);
+					a.setAddressDetail(addresses.get(type));
+
+					partnerAddresses.add(a);
+				}
+
+				ElasticSearchPartner p = new ElasticSearchPartner();
+				p.setNuc(nuc);
+				p.setStatus("ACTIVE");
+				p.setUpdated(sdf.format(new Date()));
+				p.setDataSource("ILRS");
+				p.setAddresses(partnerAddresses);
+
+				partners.add(p);
+
+				log.debug("{}", JaxbUtil.formatElasticSearchPartner(p));
 			}
 			catch (Exception e)
 			{
@@ -81,43 +106,13 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 			}
 		}
 
-		Map<String, Map<String, Address>> orgAddresses = new HashMap<String, Map<String, Address>>();
-		for (String s : results.keySet())
+		try
 		{
-			try
-			{
-				orgAddresses.put(s, results.get(s).get());
-			}
-			catch (Exception e)
-			{
-				log.error("error: {}", e.getMessage());
-			}
+			elastic.saveEntities(partners);
 		}
-
-		for (String nuc : orgAddresses.keySet())
+		catch (Exception e)
 		{
-			List<ElasticSearchPartnerAddress> partnerAddresses = new ArrayList<ElasticSearchPartnerAddress>();
-
-			ElasticSearchPartner p = new ElasticSearchPartner();
-			p.setNuc(nuc);
-			p.setStatus("ACTIVE");
-			p.setUpdated(new Date());
-			p.setDataSource("ILRS");
-			p.setAddresses(partnerAddresses);
-
-			Map<String, Address> addresses = orgAddresses.get(nuc);
-
-			for (String type : addresses.keySet())
-			{
-				ElasticSearchPartnerAddress a = new ElasticSearchPartnerAddress();
-				a.setAddressType(type);
-				a.setAddressDetail(addresses.get(type));
-
-				partnerAddresses.add(a);
-
-			}
-
-			log.debug("{}", JaxbUtil.formatElasticSearchPartner(p));
+			log.error("unable to save partners: {}", e.getMessage(), e);
 		}
 	}
 

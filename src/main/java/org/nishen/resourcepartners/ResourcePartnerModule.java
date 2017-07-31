@@ -36,6 +36,8 @@ public class ResourcePartnerModule extends AbstractModule
 
 	private WebTarget ilrsTarget = null;
 
+	private WebTarget laddTarget = null;
+
 	@Override
 	protected void configure()
 	{
@@ -97,5 +99,18 @@ public class ResourcePartnerModule extends AbstractModule
 		}
 
 		return ilrsTarget;
+	}
+
+	@Provides
+	@Named("ws.ladd")
+	protected WebTarget provideWebTargetLadd()
+	{
+		if (laddTarget == null)
+		{
+			Client client = ClientBuilder.newClient();
+			laddTarget = client.target(config.getProperty("ws.url.ladd"));
+		}
+
+		return laddTarget;
 	}
 }

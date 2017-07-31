@@ -172,7 +172,7 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	@Override
 	public String toString()
 	{
-		return "ElasticSearchPartner [dataSource=" + dataSource + ", updated=" + updated + ", nuc=" + nuc + ", status="
-		       + status + ", addresses=" + addresses + "]";
+		return "ElasticSearchPartner [dataSource=" + dataSource + ", updated=" + updated + ", nuc=" + nuc +
+		       ", status=" + status + ", addresses=" + addresses + "]";
 	}
 }

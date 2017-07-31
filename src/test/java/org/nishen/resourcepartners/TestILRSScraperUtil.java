@@ -63,8 +63,6 @@ public class TestILRSScraperUtil
 			String page = scraper.getPage(nuc);
 
 			assertThat(page, containsString("[Australian Interlibrary Resource Sharing (ILRS) Directory]"));
-
-			log.debug("{}", page);
 		}
 		catch (Exception e)
 		{
@@ -91,7 +89,7 @@ public class TestILRSScraperUtil
 
 			expected = of.createAddress();
 			expected.setLine1("Balaclava Rd, cnr Epping Rd");
-			expected.setLine2("NORTH RYDE");
+			expected.setCity("NORTH RYDE");
 			expected.setStateProvince("NSW");
 			expected.setPostalCode("2109");
 			expected.setCountry(country);
@@ -103,7 +101,7 @@ public class TestILRSScraperUtil
 			expected = of.createAddress();
 			expected.setLine1("Building C3C");
 			expected.setLine2("Macquarie Drive");
-			expected.setLine3("MACQUARIE UNIVERSITY");
+			expected.setCity("MACQUARIE UNIVERSITY");
 			expected.setStateProvince("NSW");
 			expected.setPostalCode("2109");
 			expected.setCountry(country);

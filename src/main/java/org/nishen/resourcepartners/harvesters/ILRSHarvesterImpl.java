@@ -34,13 +34,13 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 
 	private ILRSScraperDAO ilrs;
 
-	private ElasticSearchDAO elastic;
+	// private ElasticSearchDAO elastic;
 
 	@Inject
 	public ILRSHarvesterImpl(ILRSScraperDAO ilrs, ElasticSearchDAO elastic)
 	{
 		this.ilrs = ilrs;
-		this.elastic = elastic;
+		// this.elastic = elastic;
 
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
@@ -49,14 +49,14 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 	public void harvest()
 	{
 		List<String> nucs = new ArrayList<String>();
-		// nucs.add("AACOM");
-		// nucs.add("AAGD");
-		// nucs.add("NFML");
+		nucs.add("AACOM");
+		nucs.add("AAGD");
+		nucs.add("NFML");
 		nucs.add("NMQU");
-		// nucs.add("NPRK");
-		// nucs.add("QTDD");
-		// nucs.add("VMLT");
-		// nucs.add("XPFD");
+		nucs.add("NPRK");
+		nucs.add("QTDD");
+		nucs.add("VMLT");
+		nucs.add("XPFD");
 
 		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(BLOCKING_QUEUE_SIZE);
 		ExecutorService executor = new ThreadPoolExecutor(THREADS, THREADS, 0L, TimeUnit.MILLISECONDS, queue,

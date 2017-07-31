@@ -3,6 +3,7 @@ package org.nishen.resourcepartners.dao;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,7 @@ import javax.xml.bind.PropertyException;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.nishen.resourcepartners.entity.ElasticSearchEntity;
+import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +51,25 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		this.indices = new HashSet<String>();
 	}
 
+	public ElasticSearchPartner getPartner(String id)
+	{
+		WebTarget t = elasticTarget.path("partners").path("partner").path(id).path("_source");
+
+		ElasticSearchPartner partner = t.request().accept(MediaType.APPLICATION_JSON).get(ElasticSearchPartner.class);
+
+		return partner;
+	}
+
 	@Override
-	public void saveData(List<? extends ElasticSearchEntity> esEntities) throws Exception
+	public void saveEntity(ElasticSearchEntity esEntity) throws Exception
+	{
+		List<ElasticSearchEntity> esEntities = new ArrayList<>();
+		esEntities.add(esEntity);
+		saveEntities(esEntities);
+	}
+
+	@Override
+	public void saveEntities(List<ElasticSearchEntity> esEntities) throws Exception
 	{
 		if (esEntities == null || esEntities.size() == 0)
 		{
@@ -150,8 +169,8 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		return result;
 	}
 
-	private Marshaller getMarshaller(String threadName, Class<? extends ElasticSearchEntity> c)
-	        throws PropertyException, JAXBException
+	private Marshaller getMarshaller(String threadName,
+	                                 Class<? extends ElasticSearchEntity> c) throws PropertyException, JAXBException
 	{
 		Map<String, Marshaller> ms = marshallers.get(threadName);
 		if (ms == null)

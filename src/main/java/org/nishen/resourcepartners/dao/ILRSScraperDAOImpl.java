@@ -177,8 +177,8 @@ public class ILRSScraperDAOImpl implements ILRSScraperDAO
 			else if (states.contains(s.toLowerCase()))
 			{
 				address.setStateProvince(s);
-				if (addressLines.size() >= x + 1 && address.getPostalCode() != null
-				    && !"".equals(address.getPostalCode()))
+				if (addressLines.size() >= x + 1 && address.getPostalCode() != null &&
+				    !"".equals(address.getPostalCode()))
 					address.setCity(addressLines.get(++x));
 			}
 			else

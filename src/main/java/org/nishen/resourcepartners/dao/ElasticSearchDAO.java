@@ -3,8 +3,13 @@ package org.nishen.resourcepartners.dao;
 import java.util.List;
 
 import org.nishen.resourcepartners.entity.ElasticSearchEntity;
+import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 
 public interface ElasticSearchDAO
 {
-	void saveData(List<? extends ElasticSearchEntity> esEntities) throws Exception;
+	public ElasticSearchPartner getPartner(String id);
+
+	public void saveEntity(ElasticSearchEntity esEntity) throws Exception;
+
+	void saveEntities(List<ElasticSearchEntity> esEntities) throws Exception;
 }

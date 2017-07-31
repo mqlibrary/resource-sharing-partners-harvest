@@ -11,23 +11,12 @@ public class ResourcePartnerApp
 {
 	private static final Logger log = LoggerFactory.getLogger(ResourcePartnerApp.class);
 
-	private String[] args = null;
-
-	private ILRSScraperDAO scraper;
-
 	@Inject
 	private ResourcePartnerApp(@Named("app.cmdline") final String[] args, ILRSScraperDAO scraper)
-	{
-		this.args = args;
-		this.scraper = scraper;
-	}
+	{}
 
 	public void run()
 	{
-		if (log.isDebugEnabled())
-			for (String a : args)
-				log.debug("cmdline: {}", a);
-
 		log.debug("application execution starting");
 
 		log.debug("application execution complete");

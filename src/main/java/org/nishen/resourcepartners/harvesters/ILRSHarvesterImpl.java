@@ -15,11 +15,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
-import org.nishen.resourcepartners.dao.ILRSScraperDAO;
-import org.nishen.resourcepartners.entity.Address;
+import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
-import org.nishen.resourcepartners.util.JaxbUtil;
+import org.nishen.resourcepartners.model.Address;
+import org.nishen.resourcepartners.util.JaxbUtilExLibris;
+import org.nishen.resourcepartners.util.JaxbUtilLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +36,12 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 
 	private static final int BLOCKING_QUEUE_SIZE = 10;
 
-	private ILRSScraperDAO ilrs;
+	private IlrsDAO ilrs;
 
 	private ElasticSearchDAO elastic;
 
 	@Inject
-	public ILRSHarvesterImpl(ILRSScraperDAO ilrs, ElasticSearchDAO elastic)
+	public ILRSHarvesterImpl(IlrsDAO ilrs, ElasticSearchDAO elastic)
 	{
 		this.ilrs = ilrs;
 		this.elastic = elastic;
@@ -98,7 +99,7 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 
 				partners.add(p);
 
-				log.debug("{}", JaxbUtil.formatElasticSearchPartner(p));
+				log.debug("{}", JaxbUtilLocal.format(p));
 			}
 			catch (Exception e)
 			{
@@ -136,7 +137,7 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 				{
 					if (log.isDebugEnabled())
 					{
-						String result = JaxbUtil.formatAddress(addresses.get(k));
+						String result = JaxbUtilExLibris.formatAddress(addresses.get(k));
 						log.debug("result:\n{}", result);
 					}
 				}

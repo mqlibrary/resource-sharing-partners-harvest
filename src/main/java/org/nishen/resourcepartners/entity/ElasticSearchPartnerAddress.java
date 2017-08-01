@@ -5,6 +5,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.nishen.resourcepartners.model.Address;
+
 @XmlRootElement(name = "address")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ElasticSearchPartnerAddress

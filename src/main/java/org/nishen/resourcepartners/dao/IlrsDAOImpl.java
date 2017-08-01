@@ -19,9 +19,9 @@ import javax.ws.rs.core.MediaType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
-import org.nishen.resourcepartners.entity.Address;
-import org.nishen.resourcepartners.entity.Address.Country;
-import org.nishen.resourcepartners.entity.ObjectFactory;
+import org.nishen.resourcepartners.model.Address;
+import org.nishen.resourcepartners.model.Address.Country;
+import org.nishen.resourcepartners.model.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +29,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-public class ILRSScraperDAOImpl implements ILRSScraperDAO
+public class IlrsDAOImpl implements IlrsDAO
 {
-	private static final Logger log = LoggerFactory.getLogger(ILRSScraperDAOImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(IlrsDAOImpl.class);
 
 	private static final String REGEX = "<P><B>(\\w+) address:</B>\\s*<BR>(.*?)</P>";
 
@@ -63,7 +63,7 @@ public class ILRSScraperDAOImpl implements ILRSScraperDAO
 	private ObjectFactory of = null;
 
 	@Inject
-	public ILRSScraperDAOImpl(@Named("ws.ilrs") Provider<WebTarget> webTargetProvider)
+	public IlrsDAOImpl(@Named("ws.ilrs") Provider<WebTarget> webTargetProvider)
 	{
 		this.webTargetProvider = webTargetProvider;
 
@@ -72,11 +72,6 @@ public class ILRSScraperDAOImpl implements ILRSScraperDAO
 		log.debug("initialised ilrsscraperutil");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.nishen.resourcepartners.dao.ILRSScraperDAO#getPage(java.lang.String)
-	 */
 	@Override
 	public String getPage(String nuc)
 	{

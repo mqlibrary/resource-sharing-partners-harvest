@@ -12,8 +12,8 @@ import javax.ws.rs.client.WebTarget;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.dao.ElasticSearchDAOImpl;
-import org.nishen.resourcepartners.dao.ILRSScraperDAO;
-import org.nishen.resourcepartners.dao.ILRSScraperDAOImpl;
+import org.nishen.resourcepartners.dao.IlrsDAO;
+import org.nishen.resourcepartners.dao.IlrsDAOImpl;
 import org.nishen.resourcepartners.harvesters.ILRSHarvester;
 import org.nishen.resourcepartners.harvesters.ILRSHarvesterImpl;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public class ResourcePartnerModule extends AbstractModule
 		// bind instances
 		bind(Properties.class).annotatedWith(Names.named("app.config")).toInstance(config);
 		bind(ElasticSearchDAO.class).to(ElasticSearchDAOImpl.class);
-		bind(ILRSScraperDAO.class).to(ILRSScraperDAOImpl.class);
+		bind(IlrsDAO.class).to(IlrsDAOImpl.class);
 		bind(ILRSHarvester.class).to(ILRSHarvesterImpl.class);
 	}
 

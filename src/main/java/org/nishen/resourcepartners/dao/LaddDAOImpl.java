@@ -15,7 +15,12 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 
+import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.nishen.resourcepartners.entity.ElasticSearchEntity;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.util.DataUtils;
@@ -29,9 +34,11 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-public class ElasticSearchDAOImpl implements ElasticSearchDAO
+public class LaddDAOImpl implements LaddDAO
 {
-	private static final Logger log = LoggerFactory.getLogger(ElasticSearchDAOImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(LaddDAOImpl.class);
+
+	private Map<String, Map<String, Marshaller>> marshallers;
 
 	private Set<String> indices;
 
@@ -40,8 +47,10 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	private ObjectMapper om;
 
 	@Inject
-	public ElasticSearchDAOImpl(@Named("ws.elastic") Provider<WebTarget> elasticTargetProvider)
+	public LaddDAOImpl(@Named("ws.elastic") Provider<WebTarget> elasticTargetProvider)
 	{
+		this.marshallers = new HashMap<String, Map<String, Marshaller>>();
+
 		this.elasticTarget = elasticTargetProvider.get();
 
 		this.indices = new HashSet<String>();
@@ -104,6 +113,9 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			return;
 		}
 
+		Class<? extends ElasticSearchEntity> jaxbClass = esEntities.get(0).getClass();
+		Marshaller marshaller = getMarshaller(Thread.currentThread().getName(), jaxbClass);
+
 		indices = getElasticSearchIndices();
 
 		int count = 0;
@@ -120,7 +132,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			args[2] = e.getElasticSearchId();
 
 			out.append(String.format(pattern, args));
-			out.append(JaxbUtilLocal.format(e));
+			marshaller.marshal(e, out);
 			out.append("\n");
 
 			count++;
@@ -190,5 +202,29 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		log.debug("result: {}", result);
 
 		return result;
+	}
+
+	private Marshaller getMarshaller(String threadName,
+	                                 Class<? extends ElasticSearchEntity> c) throws PropertyException, JAXBException
+	{
+		Map<String, Marshaller> ms = marshallers.get(threadName);
+		if (ms == null)
+		{
+			ms = new HashMap<String, Marshaller>();
+			marshallers.put(threadName, ms);
+		}
+
+		Marshaller marshaller = ms.get(c.getName());
+		if (marshaller == null)
+		{
+			JAXBContext context = JAXBContext.newInstance(c);
+			marshaller = context.createMarshaller();
+			marshaller.setProperty("eclipselink.media-type", "application/json");
+			marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
+			marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+			ms.put(c.getName(), marshaller);
+		}
+
+		return marshaller;
 	}
 }

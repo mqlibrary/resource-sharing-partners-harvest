@@ -1,5 +1,10 @@
 package org.nishen.resourcepartners;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,11 +12,12 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nishen.resourcepartners.dao.ILRSScraperDAO;
-import org.nishen.resourcepartners.entity.Address;
-import org.nishen.resourcepartners.entity.Address.Country;
-import org.nishen.resourcepartners.entity.ObjectFactory;
+import org.nishen.resourcepartners.dao.IlrsDAO;
+import org.nishen.resourcepartners.model.Address;
+import org.nishen.resourcepartners.model.Address.Country;
+import org.nishen.resourcepartners.model.ObjectFactory;
 import org.nishen.resourcepartners.util.DataUtils;
+import org.nishen.resourcepartners.util.JaxbUtilExLibris;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,19 +25,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-
 public class TestILRSScraperUtil
 {
 	private static final Logger log = LoggerFactory.getLogger(TestILRSScraperUtil.class);
 
 	private static Injector injector = null;
 
-	private static ILRSScraperDAO scraper = null;
+	private static IlrsDAO scraper = null;
 
 	private static ObjectFactory of = null;
 
@@ -50,7 +50,7 @@ public class TestILRSScraperUtil
 		log.debug("creating injector");
 		injector = Guice.createInjector(modules);
 
-		scraper = injector.getInstance(ILRSScraperDAO.class);
+		scraper = injector.getInstance(IlrsDAO.class);
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class TestILRSScraperUtil
 			expected.setStateProvince("NSW");
 			expected.setPostalCode("2109");
 			expected.setCountry(country);
-
+			
 			actual = addresses.get("main");
 
 			assertThat(actual, equalTo(expected));

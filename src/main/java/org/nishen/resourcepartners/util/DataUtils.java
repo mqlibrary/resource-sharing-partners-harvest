@@ -190,7 +190,7 @@ public class DataUtils
 
 		return new String(baos.toByteArray(), "UTF-8");
 	}
-
+	
 	/**
 	 * Converts a hash into its hexadecimal string representation.
 	 * 

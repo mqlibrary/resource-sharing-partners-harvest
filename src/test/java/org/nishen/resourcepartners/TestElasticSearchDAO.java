@@ -48,7 +48,7 @@ public class TestElasticSearchDAO
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			ElasticSearchPartner p = elastic.getPartner("NMQU");
+			ElasticSearchPartner p = elastic.getPartner("NMQU").get();
 			log.debug("{}", p.toString());
 			// assertThat(actual, equalTo(expected));
 		}
@@ -56,6 +56,14 @@ public class TestElasticSearchDAO
 		{
 			fail(e.getMessage());
 		}
+	}
+
+	@Test(expected = javax.ws.rs.NotFoundException.class)
+	public void testGetPartnerDoesNotExist()
+	{
+		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
+
+		elastic.getPartner("THOR");
 	}
 
 	@Test

@@ -2,10 +2,12 @@
   "mappings": {
     "partner": { 
       "properties": {
-        "source": { "type": "keyword" },
-        "updated": { "type": "date", "format": "date_time_no_millis" },
         "nuc": { "type": "keyword"},
+        "updated": { "type": "date", "format": "date_time_no_millis" },
+        "name": { "type": "keyword" },
         "status": { "type": "keyword" },
+        "suspension_start": { "type": "date", "format": "basic_date" },
+        "suspension_end": { "type": "date", "format": "basic_date" },
         "addresses": {
           "properties": {
             "address_type": { "type": "keyword" },
@@ -19,7 +21,12 @@
                 "city": { "type": "keyword" },
                 "state_province": { "type": "keyword" },
                 "postal_code": { "type": "keyword" },
-                "country": { "type": "keyword" },
+                "country": {
+                  "properties": {
+                    "value": { "type": "keyword" },
+                    "desc": { "type": "keyword" }
+                  }
+                },
                 "address_note": { "type": "keyword" },
                 "start_date": { "type": "keyword" },
                 "end_date": { "type": "keyword" },

@@ -8,9 +8,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
@@ -19,7 +21,7 @@ import javax.ws.rs.core.MediaType;
 import org.nishen.resourcepartners.entity.ElasticSearchEntity;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.util.DataUtils;
-import org.nishen.resourcepartners.util.JaxbUtilLocal;
+import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,15 +51,25 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		this.om = new ObjectMapper();
 	}
 
-	public ElasticSearchPartner getPartner(String id)
+	@Override
+	public Optional<ElasticSearchPartner> getPartner(String id)
 	{
 		WebTarget t = elasticTarget.path("partners").path("partner").path(id).path("_source");
 
-		ElasticSearchPartner partner = t.request().accept(MediaType.APPLICATION_JSON).get(ElasticSearchPartner.class);
+		ElasticSearchPartner partner = null;
+		try
+		{
+			t.request().accept(MediaType.APPLICATION_JSON).get(ElasticSearchPartner.class);
+		}
+		catch (NotFoundException nfe)
+		{
+			log.debug("partner does not exist: {}", id);
+		}
 
-		return partner;
+		return Optional.ofNullable(partner);
 	}
 
+	@Override
 	public Map<String, ElasticSearchPartner> getPartners()
 	{
 		Map<String, ElasticSearchPartner> partners = new HashMap<String, ElasticSearchPartner>();
@@ -69,13 +81,11 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		try
 		{
 			JsonNode root = om.readTree(result);
-			log.debug("search result: {}", result);
-			JsonNode hitlist = root.get("hits").get("hits");
-			for (JsonNode j : hitlist)
+			JsonNode partnerList = root.get("hits").get("hits");
+			for (JsonNode p : partnerList)
 			{
-				log.debug("hitlist -> {}", j.get("_source").toString());
-				ElasticSearchPartner p = JaxbUtilLocal.getElasticSearchPartner(j.get("_source").toString());
-				log.debug("esp: {}", p.getNuc());
+				ElasticSearchPartner e = JaxbUtil.getElasticSearchPartner(p.get("_source").toString());
+				partners.put(e.getNuc(), e);
 			}
 		}
 		catch (IOException ioe)
@@ -90,7 +100,9 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	public void saveEntity(ElasticSearchEntity esEntity) throws Exception
 	{
 		List<ElasticSearchEntity> esEntities = new ArrayList<>();
+
 		esEntities.add(esEntity);
+
 		saveEntities(esEntities);
 	}
 
@@ -120,7 +132,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			args[2] = e.getElasticSearchId();
 
 			out.append(String.format(pattern, args));
-			out.append(JaxbUtilLocal.format(e));
+			out.append(JaxbUtil.format(e));
 			out.append("\n");
 
 			count++;

@@ -19,9 +19,9 @@ import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JaxbUtilLocal
+public class JaxbUtil
 {
-	private static final Logger log = LoggerFactory.getLogger(JaxbUtilLocal.class);
+	private static final Logger log = LoggerFactory.getLogger(JaxbUtil.class);
 
 	private static JAXBContext context = null;
 

@@ -6,13 +6,13 @@ import java.util.Arrays;
 
 import org.junit.Test;
 import org.nishen.resourcepartners.model.Address;
-import org.nishen.resourcepartners.util.JaxbUtilExLibris;
+import org.nishen.resourcepartners.util.JaxbUtilModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestJaxbUtilExLibris
+public class TestJaxbUtilModel
 {
-	private static final Logger log = LoggerFactory.getLogger(TestJaxbUtilExLibris.class);
+	private static final Logger log = LoggerFactory.getLogger(TestJaxbUtilModel.class);
 
 	@Test
 	public void testILRSHarvest()
@@ -25,7 +25,7 @@ public class TestJaxbUtilExLibris
 
 		try
 		{
-			Address a = JaxbUtilExLibris.get(json, Address.class);
+			Address a = JaxbUtilModel.get(json, Address.class);
 			log.debug("address: {}", a);
 			// assertThat(actual, equalTo(expected));
 		}

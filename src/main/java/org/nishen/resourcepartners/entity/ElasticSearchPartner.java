@@ -13,23 +13,29 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "partner")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "dataSource", "updated", "nuc", "status", "addresses" })
+@XmlType(propOrder = { "nuc", "updated", "name", "status", "suspensionStart", "suspensionEnd", "addresses" })
 public class ElasticSearchPartner implements ElasticSearchEntity
 {
 	@XmlTransient
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
 
-	@XmlElement(name = "data_source")
-	private String dataSource;
+	@XmlElement(name = "nuc")
+	private String nuc;
 
 	@XmlElement(name = "updated")
 	private String updated;
 
-	@XmlElement(name = "nuc")
-	private String nuc;
+	@XmlElement(name = "name")
+	private String name;
 
 	@XmlElement(name = "status")
 	private String status;
+
+	@XmlElement(name = "suspension_start")
+	private String suspensionStart;
+
+	@XmlElement(name = "suspension_end")
+	private String suspensionEnd;
 
 	@XmlElement(name = "addresses")
 	private List<ElasticSearchPartnerAddress> addresses;
@@ -58,26 +64,6 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 		return new Date();
 	}
 
-	public String getDataSource()
-	{
-		return dataSource;
-	}
-
-	public void setDataSource(String dataSource)
-	{
-		this.dataSource = dataSource;
-	}
-
-	public String getUpdated()
-	{
-		return sdf.format(updated);
-	}
-
-	public void setUpdated(String updated)
-	{
-		this.updated = updated;
-	}
-
 	public String getNuc()
 	{
 		return nuc;
@@ -88,6 +74,26 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 		this.nuc = nuc;
 	}
 
+	public String getUpdated()
+	{
+		return updated;
+	}
+
+	public void setUpdated(String updated)
+	{
+		this.updated = updated;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
 	public String getStatus()
 	{
 		return status;
@@ -96,6 +102,26 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	public void setStatus(String status)
 	{
 		this.status = status;
+	}
+
+	public String getSuspensionStart()
+	{
+		return suspensionStart;
+	}
+
+	public void setSuspensionStart(String suspensionStart)
+	{
+		this.suspensionStart = suspensionStart;
+	}
+
+	public String getSuspensionEnd()
+	{
+		return suspensionEnd;
+	}
+
+	public void setSuspensionEnd(String suspensionEnd)
+	{
+		this.suspensionEnd = suspensionEnd;
 	}
 
 	public List<ElasticSearchPartnerAddress> getAddresses()
@@ -114,9 +140,11 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((addresses == null) ? 0 : addresses.hashCode());
-		result = prime * result + ((dataSource == null) ? 0 : dataSource.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((nuc == null) ? 0 : nuc.hashCode());
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((suspensionEnd == null) ? 0 : suspensionEnd.hashCode());
+		result = prime * result + ((suspensionStart == null) ? 0 : suspensionStart.hashCode());
 		result = prime * result + ((updated == null) ? 0 : updated.hashCode());
 		return result;
 	}
@@ -138,12 +166,12 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 		}
 		else if (!addresses.equals(other.addresses))
 			return false;
-		if (dataSource == null)
+		if (name == null)
 		{
-			if (other.dataSource != null)
+			if (other.name != null)
 				return false;
 		}
-		else if (!dataSource.equals(other.dataSource))
+		else if (!name.equals(other.name))
 			return false;
 		if (nuc == null)
 		{
@@ -159,6 +187,20 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 		}
 		else if (!status.equals(other.status))
 			return false;
+		if (suspensionEnd == null)
+		{
+			if (other.suspensionEnd != null)
+				return false;
+		}
+		else if (!suspensionEnd.equals(other.suspensionEnd))
+			return false;
+		if (suspensionStart == null)
+		{
+			if (other.suspensionStart != null)
+				return false;
+		}
+		else if (!suspensionStart.equals(other.suspensionStart))
+			return false;
 		if (updated == null)
 		{
 			if (other.updated != null)
@@ -172,7 +214,8 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	@Override
 	public String toString()
 	{
-		return "ElasticSearchPartner [dataSource=" + dataSource + ", updated=" + updated + ", nuc=" + nuc +
-		       ", status=" + status + ", addresses=" + addresses + "]";
+		return "ElasticSearchPartner [nuc=" + nuc + ", updated=" + updated + ", name=" + name + ", status=" + status +
+		       ", suspensionStart=" + suspensionStart + ", suspensionEnd=" + suspensionEnd + ", addresses=" +
+		       addresses + "]";
 	}
 }

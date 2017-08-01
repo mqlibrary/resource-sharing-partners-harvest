@@ -1,35 +1,22 @@
 package org.nishen.resourcepartners.dao;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
 
-import org.eclipse.persistence.jaxb.MarshallerProperties;
-import org.nishen.resourcepartners.entity.ElasticSearchEntity;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Whitelist;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.util.DataUtils;
-import org.nishen.resourcepartners.util.JaxbUtilLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -38,193 +25,99 @@ public class LaddDAOImpl implements LaddDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(LaddDAOImpl.class);
 
-	private Map<String, Map<String, Marshaller>> marshallers;
+	private static final SimpleDateFormat idf = new SimpleDateFormat("dd MMM yyyy");
 
-	private Set<String> indices;
+	private static final SimpleDateFormat odf = new SimpleDateFormat("yyyyMMdd");
 
-	private WebTarget elasticTarget;
+	private Pattern p;
 
-	private ObjectMapper om;
+	private WebTarget laddTarget;
 
 	@Inject
-	public LaddDAOImpl(@Named("ws.elastic") Provider<WebTarget> elasticTargetProvider)
+	public LaddDAOImpl(@Named("ws.ladd") Provider<WebTarget> laddTargetProvider)
 	{
-		this.marshallers = new HashMap<String, Map<String, Marshaller>>();
+		this.laddTarget = laddTargetProvider.get();
 
-		this.elasticTarget = elasticTargetProvider.get();
+		String regex = "";
+		regex += "<tr id=\"(\\w*?)\">\\s*<td>(\\w*?)</td>\\s*";
+		regex += "<td>(.*?)</td>\\s*<td>(.*?)</td>\\s*<td>(.*?)</td>\\s*";
+		regex += "<td>(.*?)</td>\\s*<td>(.*?)</td>\\s*</tr>";
 
-		this.indices = new HashSet<String>();
-
-		this.om = new ObjectMapper();
+		p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	}
 
-	public ElasticSearchPartner getPartner(String id)
+	@Override
+	public String getPage()
 	{
-		WebTarget t = elasticTarget.path("partners").path("partner").path(id).path("_source");
-
-		ElasticSearchPartner partner = t.request().accept(MediaType.APPLICATION_JSON).get(ElasticSearchPartner.class);
-
-		return partner;
-	}
-
-	public Map<String, ElasticSearchPartner> getPartners()
-	{
-		Map<String, ElasticSearchPartner> partners = new HashMap<String, ElasticSearchPartner>();
-
-		WebTarget t = elasticTarget.path("partners").path("partner").path("_search");
-
-		String result = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
+		String result = null;
 
 		try
 		{
-			JsonNode root = om.readTree(result);
-			log.debug("search result: {}", result);
-			JsonNode hitlist = root.get("hits").get("hits");
-			for (JsonNode j : hitlist)
-			{
-				log.debug("hitlist -> {}", j.get("_source").toString());
-				ElasticSearchPartner p = JaxbUtilLocal.getElasticSearchPartner(j.get("_source").toString());
-				log.debug("esp: {}", p.getNuc());
-			}
+			result = laddTarget.request(MediaType.TEXT_HTML).get(String.class);
+
+			Document doc = Jsoup.parse(result);
+			String cleanPage = Jsoup.clean(doc.toString(), Whitelist.basic());
+			log.trace("\n{}", cleanPage);
 		}
-		catch (IOException ioe)
+		catch (Exception e)
 		{
-			log.error("failed to parse json search results: {}", ioe.getMessage(), ioe);
+			log.error("unable to acquire page: {}", laddTarget.getUri().toString());
+			return result;
 		}
-
-		return partners;
-	}
-
-	@Override
-	public void saveEntity(ElasticSearchEntity esEntity) throws Exception
-	{
-		List<ElasticSearchEntity> esEntities = new ArrayList<>();
-		esEntities.add(esEntity);
-		saveEntities(esEntities);
-	}
-
-	@Override
-	public void saveEntities(List<? extends ElasticSearchEntity> esEntities) throws Exception
-	{
-		if (esEntities == null || esEntities.size() == 0)
-		{
-			log.info("ESDAO saveData: no data to save");
-
-			return;
-		}
-
-		Class<? extends ElasticSearchEntity> jaxbClass = esEntities.get(0).getClass();
-		Marshaller marshaller = getMarshaller(Thread.currentThread().getName(), jaxbClass);
-
-		indices = getElasticSearchIndices();
-
-		int count = 0;
-		StringWriter out = new StringWriter();
-		for (ElasticSearchEntity e : esEntities)
-		{
-			if (!indices.contains(e.getElasticSearchIndex()))
-				createElasticSearchIndex(e.getElasticSearchType(), e.getElasticSearchIndex());
-
-			String pattern = "{\"create\": { \"_index\": \"%s\", \"_type\": \"%s\", \"_id\": \"%s\"}}\n";
-			Object[] args = new String[3];
-			args[0] = e.getElasticSearchIndex();
-			args[1] = e.getElasticSearchType();
-			args[2] = e.getElasticSearchId();
-
-			out.append(String.format(pattern, args));
-			marshaller.marshal(e, out);
-			out.append("\n");
-
-			count++;
-		}
-
-		if (!out.toString().isEmpty())
-		{
-			log.info("posting data: {}", count);
-			postBulkData(out.toString());
-		}
-	}
-
-	private Set<String> getElasticSearchIndices() throws IOException
-	{
-		Set<String> indices = new HashSet<String>();
-
-		WebTarget t = elasticTarget.path("_cat/indices").queryParam("h", "index");
-		Builder req = t.request(MediaType.TEXT_PLAIN);
-		String result = req.get(String.class);
-
-		Scanner scanner = new Scanner(result);
-		while (scanner.hasNextLine())
-			indices.add(scanner.nextLine().trim());
-		scanner.close();
-
-		if (log.isDebugEnabled())
-			for (String i : indices)
-				log.debug("index: {}", i);
-
-		return indices;
-	}
-
-	private synchronized void createElasticSearchIndex(String type, String index) throws IOException
-	{
-		if (indices.contains(index))
-			return;
-
-		WebTarget t = elasticTarget.path(index);
-		Builder req = t.request(MediaType.APPLICATION_JSON);
-
-		String mapping = "/mapping-" + type + ".json";
-		InputStream in = ClassLoader.class.getResourceAsStream(mapping);
-
-		if (in == null)
-		{
-			log.error("unable to load input stream: {}", mapping);
-			throw new IOException("unable to load input stream: " + mapping);
-		}
-
-		String data = DataUtils.extract(in);
-
-		String result = req.put(Entity.entity(data, MediaType.APPLICATION_JSON), String.class);
-
-		indices.add(index);
-
-		log.debug("posted data:\n{}", data.toString());
-		log.debug("result: {}", result);
-	}
-
-	private String postBulkData(String data)
-	{
-		WebTarget t = elasticTarget.path("_bulk");
-		Builder req = t.request(MediaType.APPLICATION_JSON);
-		String result = req.post(Entity.entity(data, MediaType.APPLICATION_JSON), String.class);
-
-		log.debug("posted data:\n{}", data.toString());
-		log.debug("result: {}", result);
 
 		return result;
 	}
 
-	private Marshaller getMarshaller(String threadName,
-	                                 Class<? extends ElasticSearchEntity> c) throws PropertyException, JAXBException
+	@Override
+	public Map<String, ElasticSearchPartner> getDataFromPage(String page) throws Exception
 	{
-		Map<String, Marshaller> ms = marshallers.get(threadName);
-		if (ms == null)
+		Map<String, ElasticSearchPartner> data = new HashMap<String, ElasticSearchPartner>();
+
+		Matcher m = p.matcher(page);
+		while (m.find())
 		{
-			ms = new HashMap<String, Marshaller>();
-			marshallers.put(threadName, ms);
+			String nuc1 = m.group(1);
+			String name = m.group(3);
+			String susp = m.group(5);
+			String srts = m.group(6);
+			String ends = m.group(7);
+
+			ElasticSearchPartner e = new ElasticSearchPartner();
+			e.setNuc(nuc1);
+
+			if (name != null && !"".equals(name))
+				e.setName(name);
+
+			if (susp != null && !"".equals(susp))
+				e.setStatus(susp.toLowerCase());
+
+			if (srts != null && !"".equals(srts))
+			{
+				try
+				{
+					String date = odf.format(idf.parse(srts));
+					e.setSuspensionStart(date);
+				}
+				catch (ParseException pe)
+				{
+					log.warn("[{}] unable to parse date: {}", nuc1, srts);
+				}
+			}
+
+			if (ends != null && !"".equals(ends))
+			{
+				try
+				{
+					String date = odf.format(idf.parse(ends));
+					e.setSuspensionEnd(date);
+				}
+				catch (ParseException pe)
+				{
+					log.warn("[{}] unable to parse date: {}", nuc1, ends);
+				}
+			}
 		}
 
-		Marshaller marshaller = ms.get(c.getName());
-		if (marshaller == null)
-		{
-			JAXBContext context = JAXBContext.newInstance(c);
-			marshaller = context.createMarshaller();
-			marshaller.setProperty("eclipselink.media-type", "application/json");
-			marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
-			marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-			ms.put(c.getName(), marshaller);
-		}
-
-		return marshaller;
+		return data;
 	}
 }

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
@@ -73,7 +74,7 @@ public class IlrsDAOImpl implements IlrsDAO
 	}
 
 	@Override
-	public String getPage(String nuc)
+	public String getPage(String nuc) throws ClientErrorException
 	{
 		WebTarget ilrsTarget = webTargetProvider.get();
 		WebTarget t = ilrsTarget.path("apps").path("ilrs").path("/").queryParam("action", "IlrsSearch");
@@ -84,25 +85,17 @@ public class IlrsDAOImpl implements IlrsDAO
 
 		String result = null;
 
-		try
-		{
-			result = t.request(MediaType.TEXT_HTML).post(Entity.form(form), String.class);
+		result = t.request(MediaType.TEXT_HTML).post(Entity.form(form), String.class);
 
-			Document doc = Jsoup.parse(result);
-			String cleanPage = Jsoup.clean(doc.toString(), Whitelist.basic());
-			log.trace("\n{}", cleanPage);
-		}
-		catch (Exception e)
-		{
-			log.error("unable to acquire page: {}", t.getUri().toString());
-			return result;
-		}
+		Document doc = Jsoup.parse(result);
+		String cleanPage = Jsoup.clean(doc.toString(), Whitelist.basic());
+		log.trace("\n{}", cleanPage);
 
 		return result;
 	}
 
 	@Override
-	public Map<String, Address> getAddressFromPage(String page) throws Exception
+	public Map<String, Address> getAddressFromPage(String page)
 	{
 		Map<String, Address> addresses = new HashMap<String, Address>();
 

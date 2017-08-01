@@ -14,8 +14,10 @@ import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.dao.ElasticSearchDAOImpl;
 import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.dao.IlrsDAOImpl;
-import org.nishen.resourcepartners.harvesters.ILRSHarvester;
-import org.nishen.resourcepartners.harvesters.ILRSHarvesterImpl;
+import org.nishen.resourcepartners.dao.LaddDAO;
+import org.nishen.resourcepartners.dao.LaddDAOImpl;
+import org.nishen.resourcepartners.harvesters.Harvester;
+import org.nishen.resourcepartners.harvesters.HarvesterIlrs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +69,8 @@ public class ResourcePartnerModule extends AbstractModule
 		bind(Properties.class).annotatedWith(Names.named("app.config")).toInstance(config);
 		bind(ElasticSearchDAO.class).to(ElasticSearchDAOImpl.class);
 		bind(IlrsDAO.class).to(IlrsDAOImpl.class);
-		bind(ILRSHarvester.class).to(ILRSHarvesterImpl.class);
+		bind(LaddDAO.class).to(LaddDAOImpl.class);
+		bind(Harvester.class).to(HarvesterIlrs.class);
 	}
 
 	@Provides

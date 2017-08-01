@@ -19,9 +19,9 @@ import org.nishen.resourcepartners.model.Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JaxbUtilExLibris
+public class JaxbUtilModel
 {
-	private static final Logger log = LoggerFactory.getLogger(JaxbUtilExLibris.class);
+	private static final Logger log = LoggerFactory.getLogger(JaxbUtilModel.class);
 
 	private static final String JAXB_PACKAGE = "org.nishen.resourcepartners.model";
 

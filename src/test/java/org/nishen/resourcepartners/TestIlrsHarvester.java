@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nishen.resourcepartners.harvesters.ILRSHarvester;
+import org.nishen.resourcepartners.harvesters.Harvester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,13 +16,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
-public class TestILRSHarvester
+public class TestIlrsHarvester
 {
-	private static final Logger log = LoggerFactory.getLogger(TestILRSHarvester.class);
+	private static final Logger log = LoggerFactory.getLogger(TestIlrsHarvester.class);
 
 	private static Injector injector = null;
 
-	private static ILRSHarvester harvester = null;
+	private static Harvester harvester = null;
 
 	@BeforeClass
 	public static void setup()
@@ -37,7 +37,7 @@ public class TestILRSHarvester
 		log.debug("creating injector");
 		injector = Guice.createInjector(modules);
 
-		harvester = injector.getInstance(ILRSHarvester.class);
+		harvester = injector.getInstance(Harvester.class);
 	}
 
 	@Test

@@ -1,6 +1,6 @@
 package org.nishen.resourcepartners.harvesters;
 
-public interface ILRSHarvester
+public interface Harvester
 {
 	public void harvest();
 }

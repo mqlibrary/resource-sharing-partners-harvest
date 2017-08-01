@@ -1,10 +1,5 @@
 package org.nishen.resourcepartners;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +12,6 @@ import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.model.Address.Country;
 import org.nishen.resourcepartners.model.ObjectFactory;
 import org.nishen.resourcepartners.util.DataUtils;
-import org.nishen.resourcepartners.util.JaxbUtilExLibris;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,13 +19,19 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
-public class TestILRSScraperUtil
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+
+public class TestIlrsDAO
 {
-	private static final Logger log = LoggerFactory.getLogger(TestILRSScraperUtil.class);
+	private static final Logger log = LoggerFactory.getLogger(TestIlrsDAO.class);
 
 	private static Injector injector = null;
 
-	private static IlrsDAO scraper = null;
+	private static IlrsDAO ilrsDAO = null;
 
 	private static ObjectFactory of = null;
 
@@ -50,7 +50,7 @@ public class TestILRSScraperUtil
 		log.debug("creating injector");
 		injector = Guice.createInjector(modules);
 
-		scraper = injector.getInstance(IlrsDAO.class);
+		ilrsDAO = injector.getInstance(IlrsDAO.class);
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class TestILRSScraperUtil
 		try
 		{
 			String nuc = "NMQU";
-			String page = scraper.getPage(nuc);
+			String page = ilrsDAO.getPage(nuc);
 
 			assertThat(page, containsString("[Australian Interlibrary Resource Sharing (ILRS) Directory]"));
 		}
@@ -78,7 +78,7 @@ public class TestILRSScraperUtil
 		{
 			String datafile = "target/test-classes/data/irls-data-nmqu.html";
 			String page = new String(DataUtils.loadFile(datafile), "UTF-8");
-			Map<String, Address> addresses = scraper.getAddressFromPage(page);
+			Map<String, Address> addresses = ilrsDAO.getAddressFromPage(page);
 
 			Address actual = null;
 			Address expected = null;

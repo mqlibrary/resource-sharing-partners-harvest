@@ -19,16 +19,16 @@ import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
 import org.nishen.resourcepartners.model.Address;
-import org.nishen.resourcepartners.util.JaxbUtilExLibris;
-import org.nishen.resourcepartners.util.JaxbUtilLocal;
+import org.nishen.resourcepartners.util.JaxbUtilModel;
+import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class ILRSHarvesterImpl implements ILRSHarvester
+public class HarvesterIlrs implements Harvester
 {
-	private static final Logger log = LoggerFactory.getLogger(ILRSHarvesterImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(HarvesterIlrs.class);
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -41,7 +41,7 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 	private ElasticSearchDAO elastic;
 
 	@Inject
-	public ILRSHarvesterImpl(IlrsDAO ilrs, ElasticSearchDAO elastic)
+	public HarvesterIlrs(IlrsDAO ilrs, ElasticSearchDAO elastic)
 	{
 		this.ilrs = ilrs;
 		this.elastic = elastic;
@@ -92,14 +92,12 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 
 				ElasticSearchPartner p = new ElasticSearchPartner();
 				p.setNuc(nuc);
-				p.setStatus("ACTIVE");
 				p.setUpdated(sdf.format(new Date()));
-				p.setDataSource("ILRS");
 				p.setAddresses(partnerAddresses);
 
 				partners.add(p);
 
-				log.debug("{}", JaxbUtilLocal.format(p));
+				log.debug("{}", JaxbUtil.format(p));
 			}
 			catch (Exception e)
 			{
@@ -137,7 +135,7 @@ public class ILRSHarvesterImpl implements ILRSHarvester
 				{
 					if (log.isDebugEnabled())
 					{
-						String result = JaxbUtilExLibris.formatAddress(addresses.get(k));
+						String result = JaxbUtilModel.formatAddress(addresses.get(k));
 						log.debug("result:\n{}", result);
 					}
 				}

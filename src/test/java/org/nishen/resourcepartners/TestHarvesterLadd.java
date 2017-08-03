@@ -54,6 +54,7 @@ public class TestHarvesterLadd
 		catch (Exception e)
 		{
 			fail(e.getMessage());
+			log.error("{}", e.getMessage(), e);
 		}
 	}
 }

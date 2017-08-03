@@ -85,8 +85,7 @@ public class ResourcePartnerModule extends AbstractModule
 			String pwd = config.getProperty("ws.url.elastic.password");
 			HttpAuthenticationFeature auth = HttpAuthenticationFeature.basic(usr, pwd);
 
-			Client client = ClientBuilder.newClient();
-			client.register(auth);
+			Client client = ClientBuilder.newClient().register(auth);
 			elasticTarget = client.target(config.getProperty("ws.url.elastic.index"));
 		}
 

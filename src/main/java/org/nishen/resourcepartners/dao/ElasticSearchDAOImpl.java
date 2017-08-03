@@ -85,7 +85,10 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			JsonNode partnerList = root.get("hits").get("hits");
 			for (JsonNode p : partnerList)
 			{
-				ElasticSearchPartner e = JaxbUtil.getElasticSearchPartner(p.get("_source").toString());
+				String source = p.get("_source").toString();
+				log.debug("source: {}", source);
+				ElasticSearchPartner e = JaxbUtil.get(source, ElasticSearchPartner.class);
+				log.debug("unmarshalled source: {}", e);
 				partners.put(e.getNuc(), e);
 			}
 		}

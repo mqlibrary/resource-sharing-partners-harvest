@@ -11,6 +11,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.util.DataUtils;
+import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +77,26 @@ public class TestElasticSearchDAO
 			Map<String, ElasticSearchPartner> p = elastic.getPartners();
 			log.debug("{}", p.toString());
 			// assertThat(actual, equalTo(expected));
+		}
+		catch (Exception e)
+		{
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testGetUnmarshalledElasticPartner()
+	{
+		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
+		try
+		{
+			String datafile = "target/test-classes/data/elastic-partner.json";
+			byte[] data = DataUtils.loadFile(datafile);
+
+			String json = new String(data, "UTF-8");
+			log.debug("json:\n{}", json);
+			ElasticSearchPartner e = JaxbUtil.get(json, ElasticSearchPartner.class);
+			log.debug("unmarshalled:\n{}", e);
 		}
 		catch (Exception e)
 		{

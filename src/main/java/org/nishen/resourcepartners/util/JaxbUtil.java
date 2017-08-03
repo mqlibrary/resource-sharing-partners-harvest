@@ -62,6 +62,7 @@ public class JaxbUtil
 						marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 						marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 						marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
+						marshaller.setProperty(MarshallerProperties.JSON_ATTRIBUTE_PREFIX, "@");
 						marshallers.put(Thread.currentThread().getName(), marshaller);
 					}
 					catch (Exception e)
@@ -89,7 +90,10 @@ public class JaxbUtil
 					{
 						unmarshaller = context.createUnmarshaller();
 						unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
-						unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, Boolean.FALSE);
+						unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
+						unmarshaller.setProperty(UnmarshallerProperties.UNMARSHALLING_CASE_INSENSITIVE, true);
+						unmarshaller.setProperty(UnmarshallerProperties.JSON_ATTRIBUTE_PREFIX, "@");
+
 						unmarshallers.put(Thread.currentThread().getName(), unmarshaller);
 					}
 					catch (Exception e)
@@ -104,24 +108,24 @@ public class JaxbUtil
 		return unmarshaller;
 	}
 
-	public static ElasticSearchPartner getElasticSearchPartner(String json)
+	public static <T> T get(String json, Class<T> objectClass)
 	{
-		ElasticSearchPartner esp = null;
+		T item = null;
 
 		try
 		{
 			Unmarshaller u = getUnmarshaller();
 
 			ByteArrayInputStream is = new ByteArrayInputStream(json.getBytes());
-			JAXBElement<ElasticSearchPartner> result = u.unmarshal(new StreamSource(is), ElasticSearchPartner.class);
-			esp = result.getValue();
+			JAXBElement<T> result = u.unmarshal(new StreamSource(is), objectClass);
+			item = result.getValue();
 		}
 		catch (Exception e)
 		{
 			log.error("failed to obtain ElasticSearchPartner representation: {}", e.getMessage(), e);
 		}
 
-		return esp;
+		return item;
 	}
 
 	public static <T> String format(T item)

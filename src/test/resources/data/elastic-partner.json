@@ -1,0 +1,42 @@
+{
+	"nuc": "AAAR",
+	"name": "National Archives of Australia",
+	"status": "not suspended",
+	"addresses": [
+		{
+			"address_detail": {
+				"country": {
+					"value": "AUS",
+					"desc": "Australia"
+				},
+				"city": "PARKES",
+				"state_province": "ACT",
+				"postal_code": "2600",
+				"line2": "National Archives Building / Queen Victoria Terrace",
+				"line1": "Ground Floor"
+			},
+			"address_type": "main"
+		},
+		{
+			"address_detail": {
+				"country": {
+					"@desc": "Australia",
+					"value": "AUS"
+				},
+				"city": "CANBERRA MAIL CENTRE",
+				"state_province": "ACT",
+				"postal_code": "2610",
+				"line1": "PO Box 7425"
+			},
+			"address_type": "postal"
+		},
+		{
+			"address_detail": {
+				"line2": "Same as Postal address",
+				"line1": "ATTN: Librarian"
+			},
+			"address_type": "billing"
+		}
+	],
+	"updated": "2017-08-03T23:24:43+1000"
+}

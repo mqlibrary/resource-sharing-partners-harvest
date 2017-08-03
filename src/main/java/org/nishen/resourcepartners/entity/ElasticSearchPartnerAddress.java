@@ -4,11 +4,13 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import org.nishen.resourcepartners.model.Address;
 
 @XmlRootElement(name = "address")
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = { "addressType", "addressDetail" })
 public class ElasticSearchPartnerAddress
 {
 	@XmlElement(name = "address_type")

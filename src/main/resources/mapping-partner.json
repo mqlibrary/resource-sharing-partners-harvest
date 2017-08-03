@@ -24,7 +24,7 @@
                 "country": {
                   "properties": {
                     "value": { "type": "keyword" },
-                    "desc": { "type": "keyword" }
+                    "@desc": { "type": "keyword" }
                   }
                 },
                 "address_note": { "type": "keyword" },

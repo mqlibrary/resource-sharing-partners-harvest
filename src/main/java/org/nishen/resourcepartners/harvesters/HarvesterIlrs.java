@@ -99,7 +99,10 @@ public class HarvesterIlrs implements Harvester
 
 		try
 		{
-			elastic.saveEntities(updatesRequired);
+			if (!updatesRequired.isEmpty())
+				elastic.saveEntities(updatesRequired);
+			else
+				log.info("no ILRS address updates required");
 		}
 		catch (Exception e)
 		{
@@ -152,6 +155,9 @@ public class HarvesterIlrs implements Harvester
 		if (a != null && b == null)
 			return false;
 
-		return a.containsAll(b) && b.containsAll(a);
+		boolean result = a.containsAll(b);
+		result = result && b.containsAll(a);
+
+		return result;
 	}
 }

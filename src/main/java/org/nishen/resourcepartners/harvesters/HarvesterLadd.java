@@ -1,27 +1,12 @@
 package org.nishen.resourcepartners.harvesters;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
-import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.dao.LaddDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
-import org.nishen.resourcepartners.model.Address;
-import org.nishen.resourcepartners.util.JaxbUtil;
-import org.nishen.resourcepartners.util.JaxbUtilModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,12 +15,6 @@ import com.google.inject.Inject;
 public class HarvesterLadd implements Harvester
 {
 	private static final Logger log = LoggerFactory.getLogger(HarvesterLadd.class);
-
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-
-	private static final int THREADS = 6;
-
-	private static final int BLOCKING_QUEUE_SIZE = 10;
 
 	private LaddDAO ladd;
 
@@ -52,5 +31,83 @@ public class HarvesterLadd implements Harvester
 
 	@Override
 	public void harvest()
-	{}
+	{
+		Map<String, ElasticSearchPartner> laddPartners = ladd.getData();
+
+		Map<String, ElasticSearchPartner> esPartners = elastic.getPartners();
+
+		List<ElasticSearchPartner> entities = new ArrayList<ElasticSearchPartner>();
+
+		for (String nuc : laddPartners.keySet())
+		{
+			ElasticSearchPartner lp = laddPartners.get(nuc);
+			ElasticSearchPartner ep = esPartners.remove(nuc);
+
+			if (!compare(lp, ep))
+				entities.add(lp);
+		}
+
+		for (ElasticSearchPartner e : entities)
+			log.debug("e: {}", e);
+
+		try
+		{
+			elastic.saveEntities(entities);
+		}
+		catch (Exception e)
+		{
+			log.warn("could not save entities: ladd");
+		}
+	}
+
+	private boolean compare(ElasticSearchPartner a, ElasticSearchPartner b)
+	{
+		if (a == null && b == null)
+			return true;
+
+		if (a == null && b != null)
+			return false;
+
+		if (a != null && b == null)
+			return false;
+
+		if (!compareStrings(a.getNuc(), b.getNuc()))
+			return false;
+
+		if (!compareStrings(a.getStatus(), b.getStatus()))
+			return false;
+
+		if (!compareStrings(a.getStatus(), b.getStatus()))
+			return false;
+
+		if (!compareStrings(a.getSuspensionStart(), b.getSuspensionStart()))
+			return false;
+
+		if (!compareStrings(a.getSuspensionEnd(), b.getSuspensionEnd()))
+			return false;
+
+		return true;
+	}
+
+	private boolean compareStrings(String a, String p)
+	{
+		if (a == null && p == null)
+			return true;
+
+		if (a != null && p != null)
+		{
+			if (!a.equals(p))
+				return false;
+		}
+		else if (a == null)
+		{
+			return false;
+		}
+		else if (p == null)
+		{
+			return false;
+		}
+
+		return true;
+	}
 }

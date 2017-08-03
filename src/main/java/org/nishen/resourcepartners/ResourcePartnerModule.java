@@ -18,6 +18,7 @@ import org.nishen.resourcepartners.dao.LaddDAO;
 import org.nishen.resourcepartners.dao.LaddDAOImpl;
 import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterIlrs;
+import org.nishen.resourcepartners.harvesters.HarvesterLadd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,8 @@ public class ResourcePartnerModule extends AbstractModule
 		bind(ElasticSearchDAO.class).to(ElasticSearchDAOImpl.class);
 		bind(IlrsDAO.class).to(IlrsDAOImpl.class);
 		bind(LaddDAO.class).to(LaddDAOImpl.class);
-		bind(Harvester.class).to(HarvesterIlrs.class);
+		bind(Harvester.class).annotatedWith(Names.named("harvester.ladd")).to(HarvesterLadd.class);
+		bind(Harvester.class).annotatedWith(Names.named("harvester.ilrs")).to(HarvesterIlrs.class);
 	}
 
 	@Provides

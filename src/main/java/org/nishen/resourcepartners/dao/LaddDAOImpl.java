@@ -7,12 +7,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +27,10 @@ public class LaddDAOImpl implements LaddDAO
 
 	private static final SimpleDateFormat odf = new SimpleDateFormat("yyyyMMdd");
 
-	private Pattern p;
+	private static Pattern p;
 
-	private WebTarget laddTarget;
-
-	@Inject
-	public LaddDAOImpl(@Named("ws.ladd") Provider<WebTarget> laddTargetProvider)
+	static
 	{
-		this.laddTarget = laddTargetProvider.get();
-
 		String regex = "";
 		regex += "<tr id=\"(\\w*?)\">\\s*<td>(\\w*?)</td>\\s*";
 		regex += "<td>(.*?)</td>\\s*<td>(.*?)</td>\\s*<td>(.*?)</td>\\s*";
@@ -46,32 +39,20 @@ public class LaddDAOImpl implements LaddDAO
 		p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	}
 
-	@Override
-	public String getPage()
+	private WebTarget laddTarget;
+
+	@Inject
+	public LaddDAOImpl(@Named("ws.ladd") Provider<WebTarget> laddTargetProvider)
 	{
-		String result = null;
-
-		try
-		{
-			result = laddTarget.request(MediaType.TEXT_HTML).get(String.class);
-
-			Document doc = Jsoup.parse(result);
-			String cleanPage = Jsoup.clean(doc.toString(), Whitelist.basic());
-			log.trace("\n{}", cleanPage);
-		}
-		catch (Exception e)
-		{
-			log.error("unable to acquire page: {}", laddTarget.getUri().toString());
-			return result;
-		}
-
-		return result;
+		this.laddTarget = laddTargetProvider.get();
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> getDataFromPage(String page) throws Exception
+	public Map<String, ElasticSearchPartner> getData() throws ClientErrorException
 	{
 		Map<String, ElasticSearchPartner> data = new HashMap<String, ElasticSearchPartner>();
+
+		String page = laddTarget.request(MediaType.TEXT_HTML).get(String.class);
 
 		Matcher m = p.matcher(page);
 		while (m.find())
@@ -116,6 +97,9 @@ public class LaddDAOImpl implements LaddDAO
 					log.warn("[{}] unable to parse date: {}", nuc1, ends);
 				}
 			}
+
+			log.debug("e: {}", e);
+			data.put(nuc1, e);
 		}
 
 		return data;

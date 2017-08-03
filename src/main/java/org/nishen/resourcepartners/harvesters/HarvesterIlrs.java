@@ -20,7 +20,6 @@ import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.util.JaxbUtilModel;
-import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,33 +51,24 @@ public class HarvesterIlrs implements Harvester
 	@Override
 	public void harvest()
 	{
-		List<String> nucs = new ArrayList<String>();
-		nucs.add("AACOM");
-		nucs.add("AAGD");
-		nucs.add("NFML");
-		nucs.add("NMQU");
-		nucs.add("NPRK");
-		nucs.add("QTDD");
-		nucs.add("VMLT");
-		nucs.add("XPFD");
+		Map<String, ElasticSearchPartner> esPartners = elastic.getPartners();
 
 		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(BLOCKING_QUEUE_SIZE);
 		ExecutorService executor = new ThreadPoolExecutor(THREADS, THREADS, 0L, TimeUnit.MILLISECONDS, queue,
 		                                                  new ThreadPoolExecutor.CallerRunsPolicy());
 
 		Map<String, Future<Map<String, Address>>> results = new HashMap<String, Future<Map<String, Address>>>();
-
-		for (String nuc : nucs)
+		for (String nuc : esPartners.keySet())
 			results.put(nuc, executor.submit(new Harvester(nuc)));
 
 		executor.shutdown();
 
-		List<ElasticSearchPartner> partners = new ArrayList<ElasticSearchPartner>();
+		List<ElasticSearchPartner> updatesRequired = new ArrayList<ElasticSearchPartner>();
 		for (String nuc : results.keySet())
 		{
 			try
 			{
-				List<ElasticSearchPartnerAddress> partnerAddresses = new ArrayList<ElasticSearchPartnerAddress>();
+				List<ElasticSearchPartnerAddress> ilrsAddresses = new ArrayList<ElasticSearchPartnerAddress>();
 
 				Map<String, Address> addresses = results.get(nuc).get();
 				for (String type : addresses.keySet())
@@ -87,17 +77,19 @@ public class HarvesterIlrs implements Harvester
 					a.setAddressType(type);
 					a.setAddressDetail(addresses.get(type));
 
-					partnerAddresses.add(a);
+					ilrsAddresses.add(a);
 				}
 
-				ElasticSearchPartner p = new ElasticSearchPartner();
-				p.setNuc(nuc);
-				p.setUpdated(sdf.format(new Date()));
-				p.setAddresses(partnerAddresses);
+				ElasticSearchPartner ep = esPartners.get(nuc);
+				List<ElasticSearchPartnerAddress> epAddresses = ep.getAddresses();
 
-				partners.add(p);
-
-				log.debug("{}", JaxbUtil.format(p));
+				if (!compare(epAddresses, ilrsAddresses))
+				{
+					ep.setUpdated(sdf.format(new Date()));
+					ep.setAddresses(ilrsAddresses);
+					updatesRequired.add(ep);
+					log.debug("update required for: {}", nuc);
+				}
 			}
 			catch (Exception e)
 			{
@@ -107,7 +99,7 @@ public class HarvesterIlrs implements Harvester
 
 		try
 		{
-			elastic.saveEntities(partners);
+			elastic.saveEntities(updatesRequired);
 		}
 		catch (Exception e)
 		{
@@ -147,5 +139,19 @@ public class HarvesterIlrs implements Harvester
 
 			return addresses;
 		}
+	}
+
+	private static boolean compare(List<ElasticSearchPartnerAddress> a, List<ElasticSearchPartnerAddress> b)
+	{
+		if (a == null && b == null)
+			return true;
+
+		if (a == null && b != null)
+			return false;
+
+		if (a != null && b == null)
+			return false;
+
+		return a.containsAll(b) && b.containsAll(a);
 	}
 }

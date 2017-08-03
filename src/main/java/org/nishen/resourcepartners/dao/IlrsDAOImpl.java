@@ -77,7 +77,9 @@ public class IlrsDAOImpl implements IlrsDAO
 	public String getPage(String nuc) throws ClientErrorException
 	{
 		WebTarget ilrsTarget = webTargetProvider.get();
-		WebTarget t = ilrsTarget.path("apps").path("ilrs").path("/").queryParam("action", "IlrsSearch");
+		WebTarget t = ilrsTarget.path("apps").path("ilrs").queryParam("action", "IlrsSearch");
+
+		log.debug("target: {}", t.getUri());
 
 		Form form = new Form();
 		form = form.param("nuc", nuc).param("term", "").param("termType", "Keyword").param("state", "All")

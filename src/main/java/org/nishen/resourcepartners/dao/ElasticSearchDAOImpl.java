@@ -74,7 +74,8 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	{
 		Map<String, ElasticSearchPartner> partners = new HashMap<String, ElasticSearchPartner>();
 
-		WebTarget t = elasticTarget.path("partners").path("partner").path("_search");
+		WebTarget t = elasticTarget.path("partners").path("partner").path("_search").queryParam("sort", "nuc")
+		                           .queryParam("size", "5");
 
 		String result = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
 
@@ -125,14 +126,16 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			if (!indices.contains(e.getElasticSearchIndex()))
 				createElasticSearchIndex(e.getElasticSearchType(), e.getElasticSearchIndex());
 
-			String pattern = "{\"create\": { \"_index\": \"%s\", \"_type\": \"%s\", \"_id\": \"%s\"}}\n";
+			String pattern = "{\"update\": { \"_index\": \"%s\", \"_type\": \"%s\", \"_id\": \"%s\"}}\n";
 			Object[] args = new String[3];
 			args[0] = e.getElasticSearchIndex();
 			args[1] = e.getElasticSearchType();
 			args[2] = e.getElasticSearchId();
 
 			out.append(String.format(pattern, args));
+			out.append("{\"doc\": ");
 			out.append(JaxbUtil.format(e));
+			out.append(", \"doc_as_upsert\": true}");
 			out.append("\n");
 
 			count++;
@@ -194,11 +197,12 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 
 	private String postBulkData(String data)
 	{
+		log.debug("posting data:\n{}", data.toString());
+
 		WebTarget t = elasticTarget.path("_bulk");
 		Builder req = t.request(MediaType.APPLICATION_JSON);
 		String result = req.post(Entity.entity(data, MediaType.APPLICATION_JSON), String.class);
 
-		log.debug("posted data:\n{}", data.toString());
 		log.debug("result: {}", result);
 
 		return result;

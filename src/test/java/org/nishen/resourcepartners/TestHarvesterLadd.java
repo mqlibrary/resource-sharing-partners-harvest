@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nishen.resourcepartners.harvesters.Harvester;
+import org.nishen.resourcepartners.harvesters.HarvesterLadd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,9 +17,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
-public class TestIlrsHarvester
+public class TestHarvesterLadd
 {
-	private static final Logger log = LoggerFactory.getLogger(TestIlrsHarvester.class);
+	private static final Logger log = LoggerFactory.getLogger(TestHarvesterLadd.class);
 
 	private static Injector injector = null;
 
@@ -37,11 +38,11 @@ public class TestIlrsHarvester
 		log.debug("creating injector");
 		injector = Guice.createInjector(modules);
 
-		harvester = injector.getInstance(Harvester.class);
+		harvester = injector.getInstance(HarvesterLadd.class);
 	}
 
 	@Test
-	public void testILRSHarvest()
+	public void testHarvesterLadd()
 	{
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try

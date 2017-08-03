@@ -2,11 +2,11 @@ package org.nishen.resourcepartners.dao;
 
 import java.util.Map;
 
+import javax.ws.rs.ClientErrorException;
+
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 
 public interface LaddDAO
 {
-	public String getPage();
-
-	public Map<String, ElasticSearchPartner> getDataFromPage(String page) throws Exception;
+	public Map<String, ElasticSearchPartner> getData() throws ClientErrorException;
 }

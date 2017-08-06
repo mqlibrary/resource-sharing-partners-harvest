@@ -50,8 +50,8 @@ public class TestElasticSearchDAO
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			ElasticSearchPartner p = elastic.getPartner("NMQU").get();
-			log.debug("{}", p.toString());
+			ElasticSearchPartner actual = elastic.getPartner("NMQU").get();
+			log.debug("{}", actual.toString());
 			// assertThat(actual, equalTo(expected));
 		}
 		catch (Exception e)

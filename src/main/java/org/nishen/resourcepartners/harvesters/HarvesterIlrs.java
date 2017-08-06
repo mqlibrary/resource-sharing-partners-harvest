@@ -130,7 +130,7 @@ public class HarvesterIlrs implements Harvester
 				{
 					if (log.isDebugEnabled())
 					{
-						String result = JaxbUtilModel.formatAddress(addresses.get(k));
+						String result = JaxbUtilModel.format(addresses.get(k));
 						log.debug("result:\n{}", result);
 					}
 				}

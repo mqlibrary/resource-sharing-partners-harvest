@@ -10,12 +10,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
-import org.nishen.resourcepartners.model.Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +105,7 @@ public class JaxbUtilModel
 
 	public static <T> T get(String json, Class<T> objectClass)
 	{
-		T o = null;
+		T item = null;
 
 		try
 		{
@@ -116,35 +114,32 @@ public class JaxbUtilModel
 			ByteArrayInputStream is = new ByteArrayInputStream(json.getBytes());
 			JAXBElement<T> result = u.unmarshal(new StreamSource(is), objectClass);
 
-			o = result.getValue();
+			item = result.getValue();
 		}
 		catch (Exception e)
 		{
-			log.error("failed to obtain ElasticSearchPartner representation: {}", e.getMessage(), e);
+			log.error("failed to obtain representation [{}]: {}", objectClass.getName(), e.getMessage(), e);
 		}
 
-		return o;
+		return item;
 	}
 
-	public static String formatAddress(Address address)
+	public static <T> String format(T item)
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-		formatAddress(address, out);
+		format(item, out);
 
 		return new String(out.toByteArray());
 	}
 
-	public static void formatAddress(Address address, OutputStream out)
+	public static <T> void format(T item, OutputStream out)
 	{
 		try
 		{
-			QName qName = new QName(JAXB_PACKAGE, "address");
-			JAXBElement<Address> addressType = new JAXBElement<Address>(qName, Address.class, address);
-
 			Marshaller m = getMarshaller();
 
-			m.marshal(addressType, out);
+			m.marshal(item, out);
 		}
 		catch (Exception e)
 		{

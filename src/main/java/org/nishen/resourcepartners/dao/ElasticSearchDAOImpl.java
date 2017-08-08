@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -75,7 +76,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		Map<String, ElasticSearchPartner> partners = new HashMap<String, ElasticSearchPartner>();
 
 		WebTarget t = elasticTarget.path("partners").path("partner").path("_search").queryParam("sort", "nuc")
-		                           .queryParam("size", "5");
+		                           .queryParam("size", "10000");
 
 		String result = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
 
@@ -101,17 +102,17 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	}
 
 	@Override
-	public void saveEntity(ElasticSearchEntity esEntity) throws Exception
+	public void addEntity(ElasticSearchEntity esEntity) throws Exception
 	{
 		List<ElasticSearchEntity> esEntities = new ArrayList<>();
 
 		esEntities.add(esEntity);
 
-		saveEntities(esEntities);
+		addEntities(esEntities);
 	}
 
 	@Override
-	public void saveEntities(List<? extends ElasticSearchEntity> esEntities) throws Exception
+	public void addEntities(Collection<? extends ElasticSearchEntity> esEntities) throws Exception
 	{
 		if (esEntities == null || esEntities.size() == 0)
 		{
@@ -129,16 +130,62 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			if (!indices.contains(e.getElasticSearchIndex()))
 				createElasticSearchIndex(e.getElasticSearchType(), e.getElasticSearchIndex());
 
-			String pattern = "{\"update\": { \"_index\": \"%s\", \"_type\": \"%s\", \"_id\": \"%s\"}}\n";
+			String pattern = "{\"create\": { \"_index\": \"%s\", \"_type\": \"%s\", \"_id\": \"%s\"}}\n";
 			Object[] args = new String[3];
 			args[0] = e.getElasticSearchIndex();
 			args[1] = e.getElasticSearchType();
 			args[2] = e.getElasticSearchId();
 
 			out.append(String.format(pattern, args));
-			out.append("{\"doc\": ");
-			out.append(JaxbUtil.format(e));
-			out.append(", \"doc_as_upsert\": true}");
+			out.append(JaxbUtil.format(e)).append("\n");
+
+			count++;
+		}
+
+		if (!out.toString().isEmpty())
+		{
+			log.info("posting data: {}", count);
+			postBulkData(out.toString());
+		}
+	}
+
+	@Override
+	public void delEntity(ElasticSearchEntity esEntity)
+	{
+		WebTarget t = elasticTarget.path(esEntity.getElasticSearchIndex()).path(esEntity.getElasticSearchType())
+		                           .path(esEntity.getElasticSearchId());
+
+		try
+		{
+			t.request().accept(MediaType.APPLICATION_JSON).delete();
+		}
+		catch (NotFoundException nfe)
+		{
+			log.warn("attempting to delete entity that does not exist: {}", esEntity.getElasticSearchId());
+		}
+	}
+
+	@Override
+	public void delEntities(Collection<? extends ElasticSearchEntity> esEntities) throws Exception
+	{
+		if (esEntities == null || esEntities.size() == 0)
+		{
+			log.info("ESDAO saveData: no data to save");
+
+			return;
+		}
+
+		int count = 0;
+		StringWriter out = new StringWriter();
+		for (ElasticSearchEntity e : esEntities)
+		{
+			String pattern = "{\"delete\": { \"_index\": \"%s\", \"_type\": \"%s\", \"_id\": \"%s\"}}\n";
+			Object[] args = new String[3];
+			args[0] = e.getElasticSearchIndex();
+			args[1] = e.getElasticSearchType();
+			args[2] = e.getElasticSearchId();
+
+			out.append(String.format(pattern, args));
 			out.append("\n");
 
 			count++;

@@ -1,5 +1,7 @@
 package org.nishen.resourcepartners;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -49,8 +51,8 @@ public class TestLaddDAO
 		try
 		{
 			Map<String, ElasticSearchPartner> laddPartners = laddDAO.getData();
-			for (String nuc : laddPartners.keySet())
-				log.debug("{}: {}", nuc, laddPartners.get(nuc));
+
+			assertThat(laddPartners.size(), greaterThan(650));
 		}
 		catch (Exception e)
 		{

@@ -1,5 +1,10 @@
 package org.nishen.resourcepartners;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,19 +16,12 @@ import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.model.Address.Country;
 import org.nishen.resourcepartners.model.ObjectFactory;
-import org.nishen.resourcepartners.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
 
 public class TestIlrsDAO
 {
@@ -76,8 +74,9 @@ public class TestIlrsDAO
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			String datafile = "target/test-classes/data/irls-data-nmqu.html";
-			String page = new String(DataUtils.loadFile(datafile), "UTF-8");
+			String nuc = "NMQU";
+			String page = ilrsDAO.getPage(nuc);
+
 			Map<String, Address> addresses = ilrsDAO.getAddressFromPage(page);
 
 			Address actual = null;
@@ -93,7 +92,7 @@ public class TestIlrsDAO
 			expected.setStateProvince("NSW");
 			expected.setPostalCode("2109");
 			expected.setCountry(country);
-			
+
 			actual = addresses.get("main");
 
 			assertThat(actual, equalTo(expected));
@@ -114,6 +113,8 @@ public class TestIlrsDAO
 			expected.setLine1("Same as Postal address");
 
 			actual = addresses.get("billing");
+
+			assertThat(actual, equalTo(expected));
 		}
 		catch (Exception e)
 		{

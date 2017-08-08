@@ -49,7 +49,7 @@ public class HarvesterIlrs implements Harvester
 	}
 
 	@Override
-	public void harvest()
+	public List<ElasticSearchPartner> harvest()
 	{
 		Map<String, ElasticSearchPartner> esPartners = elastic.getPartners();
 
@@ -100,7 +100,7 @@ public class HarvesterIlrs implements Harvester
 		try
 		{
 			if (!updatesRequired.isEmpty())
-				elastic.saveEntities(updatesRequired);
+				elastic.addEntities(updatesRequired);
 			else
 				log.info("no ILRS address updates required");
 		}
@@ -108,6 +108,8 @@ public class HarvesterIlrs implements Harvester
 		{
 			log.error("unable to save partners: {}", e.getMessage(), e);
 		}
+
+		return updatesRequired;
 	}
 
 	private class Harvester implements Callable<Map<String, Address>>
@@ -155,9 +157,6 @@ public class HarvesterIlrs implements Harvester
 		if (a != null && b == null)
 			return false;
 
-		boolean result = a.containsAll(b);
-		result = result && b.containsAll(a);
-
-		return result;
+		return a.containsAll(b) && b.containsAll(a);
 	}
 }

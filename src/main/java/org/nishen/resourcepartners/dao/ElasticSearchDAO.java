@@ -1,6 +1,6 @@
 package org.nishen.resourcepartners.dao;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,7 +13,11 @@ public interface ElasticSearchDAO
 
 	public Map<String, ElasticSearchPartner> getPartners();
 
-	public void saveEntity(ElasticSearchEntity esEntity) throws Exception;
+	public void addEntity(ElasticSearchEntity esEntity) throws Exception;
 
-	void saveEntities(List<? extends ElasticSearchEntity> esEntities) throws Exception;
+	public void addEntities(Collection<? extends ElasticSearchEntity> esEntities) throws Exception;
+
+	public void delEntity(ElasticSearchEntity esEntity) throws Exception;
+
+	public void delEntities(Collection<? extends ElasticSearchEntity> esEntities) throws Exception;
 }

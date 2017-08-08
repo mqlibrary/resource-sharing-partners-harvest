@@ -1,7 +1,6 @@
 package org.nishen.resourcepartners.harvesters;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,43 +41,52 @@ public class HarvesterLadd implements Harvester
 
 		Map<String, ElasticSearchPartner> esPartners = elastic.getPartners();
 
+		List<ElasticSearchChangeRecord> changeRecords = new ArrayList<ElasticSearchChangeRecord>();
+
 		List<ElasticSearchPartner> entities = new ArrayList<ElasticSearchPartner>();
 
-		Map<String, List<ElasticSearchChangeRecord>> changeRecords = new HashMap<String, List<ElasticSearchChangeRecord>>();
 		for (String nuc : laddPartners.keySet())
 		{
-			List<ElasticSearchChangeRecord> changes = new ArrayList<ElasticSearchChangeRecord>();
-
 			ElasticSearchPartner lp = laddPartners.get(nuc);
 			ElasticSearchPartner ep = esPartners.remove(nuc);
 
 			if (ep == null)
 			{
+				changeRecords.add(new ElasticSearchChangeRecord(nuc, "record created", null, null));
 				entities.add(lp);
-				ElasticSearchChangeRecord cr = new ElasticSearchChangeRecord(nuc, "record created", null, null);
-				changes.add(cr);
+				log.debug("creating ep: {}", nuc);
 			}
 			else
 			{
-				changes.addAll(update(ep, lp));
+				List<ElasticSearchChangeRecord> changes = update(ep, lp);
 				if (!changes.isEmpty())
 				{
+					changeRecords.addAll(changes);
 					entities.add(ep);
 					log.debug("updating ep: {}", ep);
 				}
 			}
+		}
 
-			changeRecords.put(nuc, changes);
+		for (String nuc : esPartners.keySet())
+		{
+			ElasticSearchPartner ep = esPartners.get(nuc);
+			if (ep.isEnabled())
+			{
+				ep.setEnabled(false);
+				entities.add(ep);
+				changeRecords.add(new ElasticSearchChangeRecord(nuc, "record disabled", null, null));
+			}
 		}
 
 		try
 		{
 			elastic.addEntities(entities);
-			elastic.delEntities(esPartners.values());
+			elastic.addEntities(changeRecords);
 		}
 		catch (Exception e)
 		{
-			log.warn("could not save entities: ladd");
+			log.warn("could not save entities [ladd]: {}", e.getMessage(), e);
 		}
 
 		return entities;
@@ -92,32 +100,46 @@ public class HarvesterLadd implements Harvester
 	{
 		List<ElasticSearchChangeRecord> changes = new ArrayList<ElasticSearchChangeRecord>();
 
+		if (current.isEnabled() != latest.isEnabled())
+		{
+			ElasticSearchChangeRecord cr =
+			        new ElasticSearchChangeRecord(latest.getNuc(), "enabled", Boolean.toString(current.isEnabled()),
+			                                      Boolean.toString(latest.isEnabled()));
+			changes.add(cr);
+
+			current.setEnabled(latest.isEnabled());
+		}
+
 		if (!compareStrings(current.getName(), latest.getName()))
 		{
-			ElasticSearchChangeRecord cr = new ElasticSearchChangeRecord(latest.getNuc(), "name", current.getName(), latest.getName());
+			ElasticSearchChangeRecord cr =
+			        new ElasticSearchChangeRecord(latest.getNuc(), "name", current.getName(), latest.getName());
 			changes.add(cr);
 			current.setName(latest.getName());
 		}
 
 		if (!compareStrings(current.getStatus(), latest.getStatus()))
 		{
-			ElasticSearchChangeRecord cr = new ElasticSearchChangeRecord(latest.getNuc(), "status", current.getStatus(), latest.getStatus());
+			ElasticSearchChangeRecord cr =
+			        new ElasticSearchChangeRecord(latest.getNuc(), "status", current.getStatus(), latest.getStatus());
 			changes.add(cr);
 			current.setStatus(latest.getStatus());
 		}
 
 		if (!compareStrings(current.getSuspensionStart(), latest.getSuspensionStart()))
 		{
-			ElasticSearchChangeRecord cr = new ElasticSearchChangeRecord(latest.getNuc(), "suspension_start", current.getSuspensionStart(),
-			                                   latest.getSuspensionStart());
+			ElasticSearchChangeRecord cr =
+			        new ElasticSearchChangeRecord(latest.getNuc(), "suspension_start", current.getSuspensionStart(),
+			                                      latest.getSuspensionStart());
 			changes.add(cr);
 			current.setSuspensionStart(latest.getSuspensionStart());
 		}
 
 		if (!compareStrings(current.getSuspensionEnd(), latest.getSuspensionEnd()))
 		{
-			ElasticSearchChangeRecord cr = new ElasticSearchChangeRecord(latest.getNuc(), "suspension_end", current.getSuspensionEnd(),
-			                                   latest.getSuspensionEnd());
+			ElasticSearchChangeRecord cr =
+			        new ElasticSearchChangeRecord(latest.getNuc(), "suspension_end", current.getSuspensionEnd(),
+			                                      latest.getSuspensionEnd());
 			changes.add(cr);
 			current.setSuspensionEnd(latest.getSuspensionEnd());
 		}

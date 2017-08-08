@@ -14,6 +14,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
+import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
 import org.slf4j.Logger;
@@ -37,7 +38,8 @@ public class JaxbUtil
 
 		try
 		{
-			Class<?>[] classes = new Class<?>[] { ElasticSearchPartner.class, ElasticSearchPartnerAddress.class };
+			Class<?>[] classes = new Class<?>[] { ElasticSearchPartner.class, ElasticSearchPartnerAddress.class,
+			                                      ElasticSearchChangeRecord.class };
 			context = JAXBContext.newInstance(classes);
 		}
 		catch (Exception e)

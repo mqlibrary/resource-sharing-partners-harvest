@@ -1,7 +1,5 @@
 package org.nishen.resourcepartners.entity;
 
-import java.util.Date;
-
 public interface ElasticSearchEntity
 {
 	public String getElasticSearchId();
@@ -10,5 +8,5 @@ public interface ElasticSearchEntity
 
 	public String getElasticSearchType();
 
-	public Date getTime();
+	public String getTime();
 }

@@ -1,10 +1,17 @@
 {
+  "settings" : {
+    "index" : {
+      "number_of_shards" : 1, 
+      "number_of_replicas" : 0 
+    }
+  },
   "mappings": {
     "partner": { 
       "properties": {
         "nuc": { "type": "keyword"},
         "updated": { "type": "date", "format": "date_time_no_millis" },
         "name": { "type": "keyword" },
+        "enabled": { "type": "boolean" },
         "status": { "type": "keyword" },
         "suspension_start": { "type": "date", "format": "basic_date" },
         "suspension_end": { "type": "date", "format": "basic_date" },

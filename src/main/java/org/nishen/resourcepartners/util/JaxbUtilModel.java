@@ -57,7 +57,7 @@ public class JaxbUtilModel
 					try
 					{
 						marshaller = context.createMarshaller();
-						marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+						marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
 						marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 						marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
 						marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);

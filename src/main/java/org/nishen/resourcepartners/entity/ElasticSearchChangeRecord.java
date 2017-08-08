@@ -1,27 +1,52 @@
 package org.nishen.resourcepartners.entity;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlRootElement(name = "partner-change")
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = { "time", "nuc", "field", "before", "after" })
 
 public class ElasticSearchChangeRecord implements ElasticSearchEntity
 {
-	private Date time;
+	@XmlTransient
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
+	@XmlTransient
+	private UUID id;
+
+	@XmlElement(name = "time")
+	private String time;
+
+	@XmlElement(name = "nuc")
 	private String nuc;
 
+	@XmlElement(name = "field")
 	private String field;
 
+	@XmlElement(name = "before", nillable = true)
 	private String before;
 
+	@XmlElement(name = "after", nillable = true)
 	private String after;
 
 	public ElasticSearchChangeRecord()
 	{
-		time = new Date();
+		id = UUID.randomUUID();
+		time = sdf.format(new Date());
 	}
 
 	public ElasticSearchChangeRecord(String nuc, String field, String before, String after)
 	{
-		super();
+		this();
 		this.nuc = nuc;
 		this.field = field;
 		this.before = before;
@@ -31,13 +56,13 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 	@Override
 	public String getElasticSearchId()
 	{
-		return null;
+		return id.toString();
 	}
 
 	@Override
 	public String getElasticSearchIndex()
 	{
-		return "partner-changelog";
+		return "partners-changelog";
 	}
 
 	@Override
@@ -47,7 +72,7 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 	}
 
 	@Override
-	public Date getTime()
+	public String getTime()
 	{
 		return time;
 	}
@@ -92,6 +117,11 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 		this.after = after;
 	}
 
+	public void setTime(String time)
+	{
+		this.time = time;
+	}
+
 	@Override
 	public int hashCode()
 	{
@@ -101,6 +131,7 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 		result = prime * result + ((before == null) ? 0 : before.hashCode());
 		result = prime * result + ((field == null) ? 0 : field.hashCode());
 		result = prime * result + ((nuc == null) ? 0 : nuc.hashCode());
+		result = prime * result + ((time == null) ? 0 : time.hashCode());
 		return result;
 	}
 
@@ -142,22 +173,20 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 		}
 		else if (!nuc.equals(other.nuc))
 			return false;
+		if (time == null)
+		{
+			if (other.time != null)
+				return false;
+		}
+		else if (!time.equals(other.time))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString()
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("ChangeRecord [nuc=");
-		builder.append(nuc);
-		builder.append(", field=");
-		builder.append(field);
-		builder.append(", before=");
-		builder.append(before);
-		builder.append(", after=");
-		builder.append(after);
-		builder.append("]");
-		return builder.toString();
+		return "ElasticSearchChangeRecord [time=" + time + ", nuc=" + nuc + ", field=" + field + ", before=" + before +
+		       ", after=" + after + "]";
 	}
 }

@@ -1,7 +1,6 @@
 package org.nishen.resourcepartners.entity;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,7 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "partner")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "nuc", "updated", "name", "status", "suspensionStart", "suspensionEnd", "addresses" })
+@XmlType(propOrder = { "nuc", "updated", "name", "enabled", "status", "suspensionStart", "suspensionEnd", "addresses" })
 public class ElasticSearchPartner implements ElasticSearchEntity
 {
 	@XmlTransient
@@ -28,13 +27,16 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	@XmlElement(name = "name")
 	private String name;
 
+	@XmlElement(name = "enabled")
+	private boolean enabled;
+
 	@XmlElement(name = "status")
 	private String status;
 
-	@XmlElement(name = "suspension_start")
+	@XmlElement(name = "suspension_start", nillable = true)
 	private String suspensionStart;
 
-	@XmlElement(name = "suspension_end")
+	@XmlElement(name = "suspension_end", nillable = true)
 	private String suspensionEnd;
 
 	@XmlElement(name = "addresses")
@@ -59,9 +61,9 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	}
 
 	@Override
-	public Date getTime()
+	public String getTime()
 	{
-		return new Date();
+		return updated;
 	}
 
 	public String getNuc()
@@ -92,6 +94,16 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	public boolean isEnabled()
+	{
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
 	}
 
 	public String getStatus()
@@ -140,6 +152,7 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((addresses == null) ? 0 : addresses.hashCode());
+		result = prime * result + (enabled ? 1231 : 1237);
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((nuc == null) ? 0 : nuc.hashCode());
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
@@ -165,6 +178,8 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 				return false;
 		}
 		else if (!addresses.equals(other.addresses))
+			return false;
+		if (enabled != other.enabled)
 			return false;
 		if (name == null)
 		{
@@ -214,8 +229,8 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	@Override
 	public String toString()
 	{
-		return "ElasticSearchPartner [nuc=" + nuc + ", updated=" + updated + ", name=" + name + ", status=" + status +
-		       ", suspensionStart=" + suspensionStart + ", suspensionEnd=" + suspensionEnd + ", addresses=" +
-		       addresses + "]";
+		return "ElasticSearchPartner [nuc=" + nuc + ", updated=" + updated + ", name=" + name + ", enabled=" + enabled +
+		       ", status=" + status + ", suspensionStart=" + suspensionStart + ", suspensionEnd=" + suspensionEnd +
+		       ", addresses=" + addresses + "]";
 	}
 }

@@ -65,6 +65,7 @@ public class LaddDAOImpl implements LaddDAO
 
 			ElasticSearchPartner e = new ElasticSearchPartner();
 			e.setNuc(nuc1);
+			e.setEnabled(true);
 
 			if (name != null && !"".equals(name))
 				e.setName(name);
@@ -84,6 +85,10 @@ public class LaddDAOImpl implements LaddDAO
 					log.warn("[{}] unable to parse date: {}", nuc1, srts);
 				}
 			}
+			else
+			{
+				e.setSuspensionStart(null);
+			}
 
 			if (ends != null && !"".equals(ends))
 			{
@@ -96,6 +101,10 @@ public class LaddDAOImpl implements LaddDAO
 				{
 					log.warn("[{}] unable to parse date: {}", nuc1, ends);
 				}
+			}
+			else
+			{
+				e.setSuspensionEnd(null);
 			}
 
 			log.debug("e: {}", e);

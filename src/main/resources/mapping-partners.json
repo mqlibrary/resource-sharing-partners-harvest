@@ -2,7 +2,7 @@
   "settings" : {
     "index" : {
       "number_of_shards" : 1, 
-      "number_of_replicas" : 0 
+      "number_of_replicas" : 1 
     }
   },
   "mappings": {
@@ -17,6 +17,7 @@
         "suspension_end": { "type": "date", "format": "basic_date" },
         "addresses": {
           "properties": {
+            "address_status": { "type": "keyword" },
             "address_type": { "type": "keyword" },
             "address_detail": {
               "properties": {
@@ -42,6 +43,15 @@
             }
           }
         }
+      }
+    },
+    "partner-change": { 
+      "properties": {
+        "time": { "type": "date", "format": "date_time_no_millis" },
+        "nuc": { "type": "keyword"},
+        "field": { "type": "keyword" },
+        "before": { "type": "text" },
+        "after": { "type": "text" }
       }
     }
   }

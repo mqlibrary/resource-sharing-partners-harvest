@@ -128,7 +128,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		for (ElasticSearchEntity e : esEntities)
 		{
 			if (!indices.contains(e.getElasticSearchIndex()))
-				createElasticSearchIndex(e.getElasticSearchType(), e.getElasticSearchIndex());
+				createElasticSearchIndex(e.getElasticSearchIndex());
 
 			String pattern = "{\"update\": { \"_index\": \"%s\", \"_type\": \"%s\", \"_id\": \"%s\"}}\n";
 			Object[] args = new String[3];
@@ -201,27 +201,35 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		}
 	}
 
-	private Set<String> getElasticSearchIndices() throws IOException
+	private Set<String> getElasticSearchIndices()
 	{
-		Set<String> indices = new HashSet<String>();
+		if (indices != null && !indices.isEmpty())
+			return indices;
+
+		indices = new HashSet<String>();
 
 		WebTarget t = elasticTarget.path("_cat/indices").queryParam("h", "index");
 		Builder req = t.request(MediaType.TEXT_PLAIN);
 		String result = req.get(String.class);
 
-		Scanner scanner = new Scanner(result);
-		while (scanner.hasNextLine())
-			indices.add(scanner.nextLine().trim());
-		scanner.close();
-
-		if (log.isDebugEnabled())
-			for (String i : indices)
-				log.debug("index: {}", i);
+		try (Scanner scanner = new Scanner(result))
+		{
+			while (scanner.hasNextLine())
+			{
+				String index = scanner.nextLine().trim();
+				indices.add(index);
+				log.debug("index: {}", index);
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("error obtaining index list: {}", e.getMessage(), e);
+		}
 
 		return indices;
 	}
 
-	private synchronized void createElasticSearchIndex(String type, String index) throws IOException
+	private synchronized void createElasticSearchIndex(String index) throws IOException
 	{
 		if (indices.contains(index))
 			return;
@@ -229,7 +237,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		WebTarget t = elasticTarget.path(index);
 		Builder req = t.request(MediaType.APPLICATION_JSON);
 
-		String mapping = "/mapping-" + type + ".json";
+		String mapping = "/mapping-" + index + ".json";
 		InputStream in = ClassLoader.class.getResourceAsStream(mapping);
 
 		if (in == null)
@@ -244,6 +252,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 
 		indices.add(index);
 
+		log.info("created index: {}", index);
 		log.debug("posted data:\n{}", data.toString());
 		log.debug("result: {}", result);
 	}

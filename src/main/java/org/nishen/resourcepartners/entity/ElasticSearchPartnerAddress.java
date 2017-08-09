@@ -10,14 +10,27 @@ import org.nishen.resourcepartners.model.Address;
 
 @XmlRootElement(name = "address")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "addressType", "addressDetail" })
+@XmlType(propOrder = { "addressStatus", "addressType", "addressDetail" })
 public class ElasticSearchPartnerAddress
 {
+	@XmlElement(name = "address_status")
+	private String addressStatus;
+
 	@XmlElement(name = "address_type")
 	private String addressType;
 
 	@XmlElement(name = "address_detail")
 	private Address addressDetail;
+
+	public String getAddressStatus()
+	{
+		return addressStatus;
+	}
+
+	public void setAddressStatus(String addressStatus)
+	{
+		this.addressStatus = addressStatus;
+	}
 
 	public String getAddressType()
 	{
@@ -45,6 +58,7 @@ public class ElasticSearchPartnerAddress
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((addressDetail == null) ? 0 : addressDetail.hashCode());
+		result = prime * result + ((addressStatus == null) ? 0 : addressStatus.hashCode());
 		result = prime * result + ((addressType == null) ? 0 : addressType.hashCode());
 		return result;
 	}
@@ -66,6 +80,13 @@ public class ElasticSearchPartnerAddress
 		}
 		else if (!addressDetail.equals(other.addressDetail))
 			return false;
+		if (addressStatus == null)
+		{
+			if (other.addressStatus != null)
+				return false;
+		}
+		else if (!addressStatus.equals(other.addressStatus))
+			return false;
 		if (addressType == null)
 		{
 			if (other.addressType != null)
@@ -79,6 +100,14 @@ public class ElasticSearchPartnerAddress
 	@Override
 	public String toString()
 	{
-		return "ElasticSearchPartnerAddress [addressType=" + addressType + ", addressDetail=" + addressDetail + "]";
+		StringBuilder builder = new StringBuilder();
+		builder.append("ElasticSearchPartnerAddress [addressStatus=");
+		builder.append(addressStatus);
+		builder.append(", addressType=");
+		builder.append(addressType);
+		builder.append(", addressDetail=");
+		builder.append(addressDetail);
+		builder.append("]");
+		return builder.toString();
 	}
 }

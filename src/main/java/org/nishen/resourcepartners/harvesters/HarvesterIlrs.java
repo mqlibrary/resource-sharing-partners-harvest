@@ -74,6 +74,7 @@ public class HarvesterIlrs implements Harvester
 				for (String type : addresses.keySet())
 				{
 					ElasticSearchPartnerAddress a = new ElasticSearchPartnerAddress();
+					a.setAddressStatus("active");
 					a.setAddressType(type);
 					a.setAddressDetail(addresses.get(type));
 

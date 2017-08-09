@@ -107,7 +107,6 @@ public class LaddDAOImpl implements LaddDAO
 				e.setSuspensionEnd(null);
 			}
 
-			log.debug("e: {}", e);
 			data.put(nuc1, e);
 		}
 

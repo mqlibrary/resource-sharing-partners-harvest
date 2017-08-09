@@ -62,7 +62,7 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 	@Override
 	public String getElasticSearchIndex()
 	{
-		return "partners-changelog";
+		return "partners";
 	}
 
 	@Override

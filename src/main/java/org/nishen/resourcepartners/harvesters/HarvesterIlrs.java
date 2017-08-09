@@ -63,7 +63,7 @@ public class HarvesterIlrs implements Harvester
 
 		executor.shutdown();
 
-		List<ElasticSearchPartner> updatesRequired = new ArrayList<ElasticSearchPartner>();
+		List<ElasticSearchPartner> entities = new ArrayList<ElasticSearchPartner>();
 		for (String nuc : results.keySet())
 		{
 			try
@@ -88,7 +88,7 @@ public class HarvesterIlrs implements Harvester
 				{
 					ep.setUpdated(sdf.format(new Date()));
 					ep.setAddresses(ilrsAddresses);
-					updatesRequired.add(ep);
+					entities.add(ep);
 					log.debug("update required for: {}", nuc);
 				}
 			}
@@ -100,8 +100,8 @@ public class HarvesterIlrs implements Harvester
 
 		try
 		{
-			if (!updatesRequired.isEmpty())
-				elastic.addEntities(updatesRequired);
+			if (!entities.isEmpty())
+				elastic.addEntities(entities);
 			else
 				log.info("no ILRS address updates required");
 		}
@@ -110,7 +110,7 @@ public class HarvesterIlrs implements Harvester
 			log.error("unable to save partners: {}", e.getMessage(), e);
 		}
 
-		return updatesRequired;
+		return entities;
 	}
 
 	private class Harvester implements Callable<Map<String, Address>>
@@ -125,6 +125,7 @@ public class HarvesterIlrs implements Harvester
 		public Map<String, Address> call() throws Exception
 		{
 			Map<String, Address> addresses = null;
+
 			try
 			{
 				String page = ilrs.getPage(nuc);
@@ -152,10 +153,7 @@ public class HarvesterIlrs implements Harvester
 		if (a == null && b == null)
 			return true;
 
-		if (a == null && b != null)
-			return false;
-
-		if (a != null && b == null)
+		if (a == null || b == null)
 			return false;
 
 		return a.containsAll(b) && b.containsAll(a);

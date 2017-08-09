@@ -1,6 +1,8 @@
 package org.nishen.resourcepartners.harvesters;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,8 @@ import com.google.inject.Inject;
 public class HarvesterLadd implements Harvester
 {
 	private static final Logger log = LoggerFactory.getLogger(HarvesterLadd.class);
+
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
 	private LaddDAO ladd;
 
@@ -53,7 +57,9 @@ public class HarvesterLadd implements Harvester
 			if (ep == null)
 			{
 				changeRecords.add(new ElasticSearchChangeRecord(nuc, "record created", null, null));
+				lp.setUpdated(sdf.format(new Date()));
 				entities.add(lp);
+
 				log.debug("creating ep: {}", nuc);
 			}
 			else
@@ -62,6 +68,7 @@ public class HarvesterLadd implements Harvester
 				if (!changes.isEmpty())
 				{
 					changeRecords.addAll(changes);
+					ep.setUpdated(sdf.format(new Date()));
 					entities.add(ep);
 					log.debug("updating ep: {}", ep);
 				}
@@ -74,6 +81,7 @@ public class HarvesterLadd implements Harvester
 			if (ep.isEnabled())
 			{
 				ep.setEnabled(false);
+				ep.setUpdated(sdf.format(new Date()));
 				entities.add(ep);
 				changeRecords.add(new ElasticSearchChangeRecord(nuc, "record disabled", null, null));
 			}

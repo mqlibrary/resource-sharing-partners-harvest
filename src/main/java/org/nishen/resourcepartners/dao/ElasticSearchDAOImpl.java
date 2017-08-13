@@ -76,7 +76,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		Map<String, ElasticSearchPartner> partners = new HashMap<String, ElasticSearchPartner>();
 
 		WebTarget t = elasticTarget.path("partners").path("partner").path("_search").queryParam("sort", "nuc")
-		                           .queryParam("size", "10000");
+		                           .queryParam("size", "1");
 
 		String result = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
 

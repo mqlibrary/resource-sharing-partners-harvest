@@ -2,8 +2,8 @@ package org.nishen.resourcepartners.harvesters;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -14,11 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.dao.IlrsDAO;
-import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
 import org.nishen.resourcepartners.model.Address;
-import org.nishen.resourcepartners.util.JaxbUtil;
 import org.nishen.resourcepartners.util.JaxbUtilModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +45,7 @@ public class HarvesterIlrs implements Harvester
 	}
 
 	@Override
-	public List<ElasticSearchPartner> harvest()
+	public Map<String, ElasticSearchPartner> harvest()
 	{
 		Map<String, ElasticSearchPartner> esPartners = elastic.getPartners();
 
@@ -61,9 +59,7 @@ public class HarvesterIlrs implements Harvester
 
 		executor.shutdown();
 
-		List<ElasticSearchChangeRecord> changeRecords = new ArrayList<ElasticSearchChangeRecord>();
-
-		List<ElasticSearchPartner> entities = new ArrayList<ElasticSearchPartner>();
+		Map<String, ElasticSearchPartner> ilrsPartners = new TreeMap<String, ElasticSearchPartner>();
 
 		for (String nuc : results.keySet())
 		{
@@ -75,50 +71,26 @@ public class HarvesterIlrs implements Harvester
 				Map<String, Address> addresses = results.get(nuc).get();
 				for (String type : addresses.keySet())
 				{
-					ElasticSearchPartnerAddress a = new ElasticSearchPartnerAddress();
-					a.setAddressStatus("active");
-					a.setAddressType(type);
-					a.setAddressDetail(addresses.get(type));
+					ElasticSearchPartnerAddress address = new ElasticSearchPartnerAddress();
+					address.setAddressStatus("active");
+					address.setAddressType(type);
+					address.setAddressDetail(addresses.get(type));
 
-					ilrsAddresses.put(type, a);
+					ilrsAddresses.put(type, address);
 				}
-
-				Map<String, ElasticSearchPartnerAddress> partnerAddresses =
-				        new HashMap<String, ElasticSearchPartnerAddress>();
 
 				ElasticSearchPartner ep = esPartners.get(nuc);
-				if (ep.getAddresses() == null)
-					ep.setAddresses(new ArrayList<ElasticSearchPartnerAddress>());
+				ElasticSearchPartner ilrsPartner = new ElasticSearchPartner();
+				ilrsPartner.setNuc(ep.getNuc());
+				ilrsPartner.setEnabled(ep.isEnabled());
+				ilrsPartner.setName(ep.getName());
+				ilrsPartner.setStatus(ep.getStatus());
+				ilrsPartner.setSuspensionStart(ep.getSuspensionStart());
+				ilrsPartner.setSuspensionEnd(ep.getSuspensionEnd());
+				ilrsPartner.setUpdated(ep.getUpdated());
+				ilrsPartner.setAddresses(new ArrayList<ElasticSearchPartnerAddress>(ilrsAddresses.values()));
 
-				for (ElasticSearchPartnerAddress a : ep.getAddresses())
-					partnerAddresses.put(a.getAddressType(), a);
-
-				for (String type : ilrsAddresses.keySet())
-				{
-					ElasticSearchPartnerAddress ilrsa = ilrsAddresses.get(type);
-					ElasticSearchPartnerAddress espa = partnerAddresses.remove(type);
-					if (espa == null)
-					{
-						entities.add(ep);
-
-						ep.getAddresses().add(ilrsa);
-
-						// change log item here.
-						changeRecords.add(new ElasticSearchChangeRecord(nuc, "address:" + type, null,
-						                                                JaxbUtil.format(ilrsa)));
-					}
-					else if (!ilrsa.equals(espa))
-					{
-						entities.add(ep);
-
-						ep.getAddresses().remove(espa);
-						ep.getAddresses().add(ilrsa);
-
-						// change log item here.
-						changeRecords.add(new ElasticSearchChangeRecord(nuc, "address:" + type, JaxbUtil.format(espa),
-						                                                JaxbUtil.format(ilrsa)));
-					}
-				}
+				ilrsPartners.put(ilrsPartner.getNuc(), ep);
 			}
 			catch (Exception e)
 			{
@@ -126,17 +98,7 @@ public class HarvesterIlrs implements Harvester
 			}
 		}
 
-		try
-		{
-			elastic.addEntities(entities);
-			elastic.addEntities(changeRecords);
-		}
-		catch (Exception e)
-		{
-			log.error("unable to save partner addresses: {}", e.getMessage(), e);
-		}
-
-		return entities;
+		return ilrsPartners;
 	}
 
 	private class Harvester implements Callable<Map<String, Address>>

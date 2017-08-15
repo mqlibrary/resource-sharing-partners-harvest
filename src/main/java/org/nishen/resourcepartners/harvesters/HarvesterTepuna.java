@@ -2,7 +2,7 @@ package org.nishen.resourcepartners.harvesters;
 
 import java.util.Map;
 
-import org.nishen.resourcepartners.dao.LaddDAO;
+import org.nishen.resourcepartners.dao.TepunaDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,16 +13,16 @@ import com.google.inject.Inject;
  * @author nishen.naidoo
  *
  */
-public class HarvesterLadd implements Harvester
+public class HarvesterTepuna implements Harvester
 {
-	private static final Logger log = LoggerFactory.getLogger(HarvesterLadd.class);
+	private static final Logger log = LoggerFactory.getLogger(HarvesterTepuna.class);
 
-	private LaddDAO ladd;
+	private TepunaDAO tepuna;
 
 	@Inject
-	public HarvesterLadd(LaddDAO ladd)
+	public HarvesterTepuna(TepunaDAO ladd)
 	{
-		this.ladd = ladd;
+		this.tepuna = ladd;
 
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
@@ -30,8 +30,8 @@ public class HarvesterLadd implements Harvester
 	@Override
 	public Map<String, ElasticSearchPartner> harvest()
 	{
-		Map<String, ElasticSearchPartner> laddPartners = ladd.getData();
+		Map<String, ElasticSearchPartner> tepunaPartners = tepuna.getData();
 
-		return laddPartners;
+		return tepunaPartners;
 	}
 }

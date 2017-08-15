@@ -1,10 +1,10 @@
 package org.nishen.resourcepartners.harvesters;
 
-import java.util.List;
+import java.util.Map;
 
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 
 public interface Harvester
 {
-	public List<ElasticSearchPartner> harvest();
+	public Map<String, ElasticSearchPartner> harvest();
 }

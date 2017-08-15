@@ -1,13 +1,10 @@
 package org.nishen.resourcepartners;
 
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -26,6 +23,11 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
+import static org.hamcrest.Matchers.contains;
 
 public class TestHarvesterLadd
 {
@@ -112,11 +114,11 @@ public class TestHarvesterLadd
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			List<ElasticSearchPartner> changed = harvester.harvest();
-			for (ElasticSearchPartner p : changed)
-				log.debug("p: {}", p.toString());
+			Map<String, ElasticSearchPartner> changed = harvester.harvest();
+			for (String nuc : changed.keySet())
+				log.debug("{}: {}", nuc, changed.get(nuc));
 
-			assertThat(changed, contains(partner));
+			assertThat(changed.values(), contains(partner));
 		}
 		catch (Exception e)
 		{

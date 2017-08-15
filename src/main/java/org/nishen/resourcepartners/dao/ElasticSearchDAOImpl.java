@@ -60,11 +60,11 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		ElasticSearchPartner partner = null;
 		try
 		{
-			t.request().accept(MediaType.APPLICATION_JSON).get(ElasticSearchPartner.class);
+			partner = t.request().accept(MediaType.APPLICATION_JSON).get(ElasticSearchPartner.class);
 		}
 		catch (NotFoundException nfe)
 		{
-			log.debug("partner does not exist: {}", id);
+			log.warn("partner does not exist: {}", id);
 		}
 
 		return Optional.ofNullable(partner);

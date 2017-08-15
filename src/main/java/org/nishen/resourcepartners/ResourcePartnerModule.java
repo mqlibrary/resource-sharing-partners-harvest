@@ -16,6 +16,8 @@ import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.dao.IlrsDAOImpl;
 import org.nishen.resourcepartners.dao.LaddDAO;
 import org.nishen.resourcepartners.dao.LaddDAOImpl;
+import org.nishen.resourcepartners.dao.TepunaDAO;
+import org.nishen.resourcepartners.dao.TepunaDAOImpl;
 import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterIlrs;
 import org.nishen.resourcepartners.harvesters.HarvesterLadd;
@@ -40,6 +42,8 @@ public class ResourcePartnerModule extends AbstractModule
 	private WebTarget ilrsTarget = null;
 
 	private WebTarget laddTarget = null;
+
+	private WebTarget tepunaTarget = null;
 
 	@Override
 	protected void configure()
@@ -67,10 +71,10 @@ public class ResourcePartnerModule extends AbstractModule
 		}
 
 		// bind instances
-		bind(Properties.class).annotatedWith(Names.named("app.config")).toInstance(config);
 		bind(ElasticSearchDAO.class).to(ElasticSearchDAOImpl.class);
 		bind(IlrsDAO.class).to(IlrsDAOImpl.class);
 		bind(LaddDAO.class).to(LaddDAOImpl.class);
+		bind(TepunaDAO.class).to(TepunaDAOImpl.class);
 		bind(Harvester.class).annotatedWith(Names.named("harvester.ladd")).to(HarvesterLadd.class);
 		bind(Harvester.class).annotatedWith(Names.named("harvester.ilrs")).to(HarvesterIlrs.class);
 	}
@@ -116,5 +120,18 @@ public class ResourcePartnerModule extends AbstractModule
 		}
 
 		return laddTarget;
+	}
+
+	@Provides
+	@Named("ws.tepuna")
+	protected WebTarget provideWebTargetTepuna()
+	{
+		if (tepunaTarget == null)
+		{
+			Client client = ClientBuilder.newClient();
+			tepunaTarget = client.target(config.getProperty("ws.url.tepuna"));
+		}
+
+		return tepunaTarget;
 	}
 }

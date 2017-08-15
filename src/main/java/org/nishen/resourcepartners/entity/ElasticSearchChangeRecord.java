@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "partner-change")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "time", "nuc", "field", "before", "after" })
+@XmlType(propOrder = { "time", "sourceSystem", "nuc", "field", "before", "after" })
 
 public class ElasticSearchChangeRecord implements ElasticSearchEntity
 {
@@ -25,6 +25,9 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 
 	@XmlElement(name = "time")
 	private String time;
+
+	@XmlElement(name = "source_system")
+	private String sourceSystem;
 
 	@XmlElement(name = "nuc")
 	private String nuc;
@@ -44,9 +47,10 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 		time = sdf.format(new Date());
 	}
 
-	public ElasticSearchChangeRecord(String nuc, String field, String before, String after)
+	public ElasticSearchChangeRecord(String sourceSystem, String nuc, String field, String before, String after)
 	{
 		this();
+		this.sourceSystem = sourceSystem;
 		this.nuc = nuc;
 		this.field = field;
 		this.before = before;
@@ -75,6 +79,26 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 	public String getTime()
 	{
 		return time;
+	}
+
+	public UUID getId()
+	{
+		return id;
+	}
+
+	public void setId(UUID id)
+	{
+		this.id = id;
+	}
+
+	public String getSourceSystem()
+	{
+		return sourceSystem;
+	}
+
+	public void setSourceSystem(String sourceSystem)
+	{
+		this.sourceSystem = sourceSystem;
 	}
 
 	public String getNuc()
@@ -130,7 +154,9 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 		result = prime * result + ((after == null) ? 0 : after.hashCode());
 		result = prime * result + ((before == null) ? 0 : before.hashCode());
 		result = prime * result + ((field == null) ? 0 : field.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((nuc == null) ? 0 : nuc.hashCode());
+		result = prime * result + ((sourceSystem == null) ? 0 : sourceSystem.hashCode());
 		result = prime * result + ((time == null) ? 0 : time.hashCode());
 		return result;
 	}
@@ -166,12 +192,26 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 		}
 		else if (!field.equals(other.field))
 			return false;
+		if (id == null)
+		{
+			if (other.id != null)
+				return false;
+		}
+		else if (!id.equals(other.id))
+			return false;
 		if (nuc == null)
 		{
 			if (other.nuc != null)
 				return false;
 		}
 		else if (!nuc.equals(other.nuc))
+			return false;
+		if (sourceSystem == null)
+		{
+			if (other.sourceSystem != null)
+				return false;
+		}
+		else if (!sourceSystem.equals(other.sourceSystem))
 			return false;
 		if (time == null)
 		{
@@ -186,7 +226,7 @@ public class ElasticSearchChangeRecord implements ElasticSearchEntity
 	@Override
 	public String toString()
 	{
-		return "ElasticSearchChangeRecord [time=" + time + ", nuc=" + nuc + ", field=" + field + ", before=" + before +
-		       ", after=" + after + "]";
+		return "ElasticSearchChangeRecord [id=" + id + ", time=" + time + ", sourceSystem=" + sourceSystem + ", nuc=" +
+		       nuc + ", field=" + field + ", before=" + before + ", after=" + after + "]";
 	}
 }

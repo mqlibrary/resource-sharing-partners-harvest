@@ -1,9 +1,5 @@
 package org.nishen.resourcepartners;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -25,6 +21,12 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 
 public class TestElasticSearchDAO
 {
@@ -87,9 +89,11 @@ public class TestElasticSearchDAO
 
 			elastic.addEntity(expected);
 
-			ElasticSearchPartner actual = elastic.getPartner("NMQU").get();
+			ElasticSearchPartner actual = elastic.getPartner("TEST").get();
 			log.debug("{}", actual.toString());
 			assertThat(actual, equalTo(expected));
+
+			elastic.delEntity(expected);
 		}
 		catch (Exception e)
 		{
@@ -97,12 +101,13 @@ public class TestElasticSearchDAO
 		}
 	}
 
-	@Test(expected = javax.ws.rs.NotFoundException.class)
+	@Test
 	public void testGetPartnerDoesNotExist()
 	{
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 
-		elastic.getPartner("TEST");
+		ElasticSearchPartner partner = elastic.getPartner("TEST").orElse(null);
+		assertThat(partner, equalTo(null));
 	}
 
 	@Test
@@ -113,7 +118,7 @@ public class TestElasticSearchDAO
 		{
 			Map<String, ElasticSearchPartner> p = elastic.getPartners();
 			log.debug("{}", p.toString());
-			// assertThat(actual, equalTo(expected));
+			assertThat(p.size(), greaterThan(0));
 		}
 		catch (Exception e)
 		{

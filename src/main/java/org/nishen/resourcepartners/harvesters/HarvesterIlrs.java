@@ -1,7 +1,9 @@
 package org.nishen.resourcepartners.harvesters;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -14,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.dao.IlrsDAO;
+import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
 import org.nishen.resourcepartners.model.Address;
@@ -45,7 +48,7 @@ public class HarvesterIlrs implements Harvester
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> harvest()
+	public Map<String, ElasticSearchPartner> harvest() throws IOException
 	{
 		Map<String, ElasticSearchPartner> esPartners = elastic.getPartners();
 
@@ -85,6 +88,10 @@ public class HarvesterIlrs implements Harvester
 				ilrsPartner.setEnabled(ep.isEnabled());
 				ilrsPartner.setName(ep.getName());
 				ilrsPartner.setStatus(ep.getStatus());
+				ilrsPartner.setEmailMain(ep.getEmailMain());
+				ilrsPartner.setEmailIll(ep.getEmailIll());
+				ilrsPartner.setPhoneMain(ep.getPhoneMain());
+				ilrsPartner.setPhoneIll(ep.getPhoneIll());
 				ilrsPartner.setSuspensionStart(ep.getSuspensionStart());
 				ilrsPartner.setSuspensionEnd(ep.getSuspensionEnd());
 				ilrsPartner.setUpdated(ep.getUpdated());
@@ -99,6 +106,14 @@ public class HarvesterIlrs implements Harvester
 		}
 
 		return ilrsPartners;
+	}
+
+	@Override
+	public Map<String, ElasticSearchPartner> update(Map<String, ElasticSearchPartner> partners,
+	                                                Map<String, ElasticSearchPartner> latest,
+	                                                List<ElasticSearchChangeRecord> changes)
+	{
+		return null;
 	}
 
 	private class Harvester implements Callable<Map<String, Address>>

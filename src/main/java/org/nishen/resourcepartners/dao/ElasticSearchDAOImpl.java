@@ -47,16 +47,29 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	{
 		this.elasticTarget = elasticTargetProvider.get();
 
-		this.indices = new HashSet<String>();
+		this.indices = getElasticSearchIndices();
+
+		try
+		{
+			if (!this.indices.contains("partners"))
+				createElasticSearchIndex("partners");
+		}
+		catch (IOException ioe)
+		{
+			log.error("unable to create index: {}", "partners");
+		}
 
 		this.om = new ObjectMapper();
-		
+
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
 
 	@Override
-	public Optional<ElasticSearchPartner> getPartner(String id)
+	public Optional<ElasticSearchPartner> getPartner(String id) throws IOException
 	{
+		if (!indices.contains("partners"))
+			createElasticSearchIndex("partners");
+
 		WebTarget t = elasticTarget.path("partners").path("partner").path(id).path("_source");
 
 		ElasticSearchPartner partner = null;
@@ -73,12 +86,15 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> getPartners()
+	public Map<String, ElasticSearchPartner> getPartners() throws IOException
 	{
 		Map<String, ElasticSearchPartner> partners = new HashMap<String, ElasticSearchPartner>();
 
+		if (!indices.contains("partners"))
+			createElasticSearchIndex("partners");
+
 		WebTarget t = elasticTarget.path("partners").path("partner").path("_search").queryParam("sort", "nuc")
-		                           .queryParam("size", "1");
+		                           .queryParam("size", "10000");
 
 		String result = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
 

@@ -9,15 +9,28 @@ public class ResourcePartnerApp
 {
 	private static final Logger log = LoggerFactory.getLogger(ResourcePartnerApp.class);
 
+	private ResourcePartnerProcessor processor;
+
 	@Inject
-	private ResourcePartnerApp()
+	private ResourcePartnerApp(ResourcePartnerProcessor processor)
 	{
+		this.processor = processor;
+
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
 
 	public void run()
 	{
 		log.debug("application execution starting");
+
+		try
+		{
+			processor.process();
+		}
+		catch (Exception e)
+		{
+			log.error("{}", e.getMessage(), e);
+		}
 
 		log.debug("application execution complete");
 	}

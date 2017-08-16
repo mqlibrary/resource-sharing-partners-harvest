@@ -72,6 +72,7 @@ public class ResourcePartnerModule extends AbstractModule
 		}
 
 		// bind instances
+		bind(ResourcePartnerProcessor.class).to(ResourcePartnerProcessorImpl.class);
 		bind(ElasticSearchDAO.class).to(ElasticSearchDAOImpl.class);
 		bind(IlrsDAO.class).to(IlrsDAOImpl.class);
 		bind(LaddDAO.class).to(LaddDAOImpl.class);
@@ -79,6 +80,7 @@ public class ResourcePartnerModule extends AbstractModule
 		bind(Harvester.class).annotatedWith(Names.named("harvester.ladd")).to(HarvesterLadd.class);
 		bind(Harvester.class).annotatedWith(Names.named("harvester.ilrs")).to(HarvesterIlrs.class);
 		bind(Harvester.class).annotatedWith(Names.named("harvester.tepuna")).to(HarvesterTepuna.class);
+
 	}
 
 	@Provides

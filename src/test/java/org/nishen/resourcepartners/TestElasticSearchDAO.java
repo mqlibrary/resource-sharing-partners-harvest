@@ -1,5 +1,6 @@
 package org.nishen.resourcepartners;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -106,8 +107,15 @@ public class TestElasticSearchDAO
 	{
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 
-		ElasticSearchPartner partner = elastic.getPartner("TEST").orElse(null);
-		assertThat(partner, equalTo(null));
+		try
+		{
+			ElasticSearchPartner partner = elastic.getPartner("TEST").orElse(null);
+			assertThat(partner, equalTo(null));
+		}
+		catch (IOException ioe)
+		{
+			fail(ioe.getMessage());
+		}
 	}
 
 	@Test

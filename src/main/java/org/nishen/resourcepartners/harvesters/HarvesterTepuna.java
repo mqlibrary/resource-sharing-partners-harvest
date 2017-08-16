@@ -1,8 +1,10 @@
 package org.nishen.resourcepartners.harvesters;
 
+import java.util.List;
 import java.util.Map;
 
 import org.nishen.resourcepartners.dao.TepunaDAO;
+import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,4 +36,13 @@ public class HarvesterTepuna implements Harvester
 
 		return tepunaPartners;
 	}
+
+	@Override
+	public Map<String, ElasticSearchPartner> update(Map<String, ElasticSearchPartner> partners,
+	                                                Map<String, ElasticSearchPartner> latest,
+	                                                List<ElasticSearchChangeRecord> changes)
+	{
+		return null;
+	}
+
 }

@@ -1,13 +1,11 @@
 package org.nishen.resourcepartners.entity;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "partner")
@@ -16,9 +14,6 @@ import javax.xml.bind.annotation.XmlType;
                        "emailIll", "phoneMain", "phoneIll", "addresses" })
 public class ElasticSearchPartner implements ElasticSearchEntity
 {
-	@XmlTransient
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-
 	@XmlElement(name = "nuc")
 	private String nuc;
 

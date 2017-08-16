@@ -20,9 +20,9 @@ public class HarvesterTepuna implements Harvester
 	private TepunaDAO tepuna;
 
 	@Inject
-	public HarvesterTepuna(TepunaDAO ladd)
+	public HarvesterTepuna(TepunaDAO tepuna)
 	{
-		this.tepuna = ladd;
+		this.tepuna = tepuna;
 
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}

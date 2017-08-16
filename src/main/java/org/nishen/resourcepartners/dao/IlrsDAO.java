@@ -10,5 +10,5 @@ public interface IlrsDAO
 {
 	public String getPage(String nuc) throws ClientErrorException;
 
-	public Map<String, Address> getAddressFromPage(String page);
+	public Map<String, Address> getAddressesFromPage(String page);
 }

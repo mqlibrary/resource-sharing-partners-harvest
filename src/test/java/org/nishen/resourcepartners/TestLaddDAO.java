@@ -13,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nishen.resourcepartners.dao.LaddDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,9 @@ public class TestLaddDAO
 		try
 		{
 			Map<String, ElasticSearchPartner> laddPartners = laddDAO.getData();
+
+			for (String nuc : laddPartners.keySet())
+				log.debug("{}:\n{}", nuc, JaxbUtil.format(laddPartners.get(nuc)));
 
 			assertThat(laddPartners.size(), greaterThan(650));
 		}

@@ -117,7 +117,10 @@ public class TestElasticSearchDAO
 		try
 		{
 			Map<String, ElasticSearchPartner> p = elastic.getPartners();
-			log.debug("{}", p.toString());
+
+			for (String nuc : p.keySet())
+				log.debug("{}:\n{}", nuc, JaxbUtil.format(p.get(nuc)));
+
 			assertThat(p.size(), greaterThan(0));
 		}
 		catch (Exception e)

@@ -77,7 +77,7 @@ public class TestIlrsDAO
 			String nuc = "NMQU";
 			String page = ilrsDAO.getPage(nuc);
 
-			Map<String, Address> addresses = ilrsDAO.getAddressFromPage(page);
+			Map<String, Address> addresses = ilrsDAO.getAddressesFromPage(page);
 
 			Address actual = null;
 			Address expected = null;

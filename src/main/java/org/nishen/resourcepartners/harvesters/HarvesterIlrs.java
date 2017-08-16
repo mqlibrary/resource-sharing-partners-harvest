@@ -117,7 +117,7 @@ public class HarvesterIlrs implements Harvester
 			try
 			{
 				String page = ilrs.getPage(nuc);
-				addresses = ilrs.getAddressFromPage(page);
+				addresses = ilrs.getAddressesFromPage(page);
 				for (String k : addresses.keySet())
 				{
 					if (log.isDebugEnabled())

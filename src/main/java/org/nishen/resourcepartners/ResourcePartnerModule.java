@@ -21,6 +21,7 @@ import org.nishen.resourcepartners.dao.TepunaDAOImpl;
 import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterIlrs;
 import org.nishen.resourcepartners.harvesters.HarvesterLadd;
+import org.nishen.resourcepartners.harvesters.HarvesterTepuna;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +78,7 @@ public class ResourcePartnerModule extends AbstractModule
 		bind(TepunaDAO.class).to(TepunaDAOImpl.class);
 		bind(Harvester.class).annotatedWith(Names.named("harvester.ladd")).to(HarvesterLadd.class);
 		bind(Harvester.class).annotatedWith(Names.named("harvester.ilrs")).to(HarvesterIlrs.class);
+		bind(Harvester.class).annotatedWith(Names.named("harvester.tepuna")).to(HarvesterTepuna.class);
 	}
 
 	@Provides

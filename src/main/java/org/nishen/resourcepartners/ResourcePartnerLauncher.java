@@ -12,12 +12,6 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 
 /**
- * This application is a framework for executing tasks. Add your custom tasks
- * and you can execute them via a command line interface.
- * 
- * <p>
- * This is a demo providing a couple of task examples.
- * 
  * @author nishen
  * 
  */

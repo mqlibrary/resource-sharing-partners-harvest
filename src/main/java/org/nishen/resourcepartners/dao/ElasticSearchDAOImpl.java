@@ -50,6 +50,8 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		this.indices = new HashSet<String>();
 
 		this.om = new ObjectMapper();
+		
+		log.debug("instantiated class: {}", this.getClass().getName());
 	}
 
 	@Override

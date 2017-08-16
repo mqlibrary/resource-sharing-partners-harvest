@@ -70,7 +70,7 @@ public class IlrsDAOImpl implements IlrsDAO
 
 		this.of = new ObjectFactory();
 
-		log.debug("initialised ilrsscraperutil");
+		log.debug("instantiated class: {}", this.getClass().getName());
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class IlrsDAOImpl implements IlrsDAO
 	}
 
 	@Override
-	public Map<String, Address> getAddressFromPage(String page)
+	public Map<String, Address> getAddressesFromPage(String page)
 	{
 		Map<String, Address> addresses = new HashMap<String, Address>();
 

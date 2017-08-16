@@ -41,6 +41,8 @@ public class TepunaDAOImpl implements TepunaDAO
 	public TepunaDAOImpl(@Named("ws.tepuna") Provider<WebTarget> tepunaTargetProvider)
 	{
 		this.tepunaTarget = tepunaTargetProvider.get();
+
+		log.debug("instantiated class: {}", this.getClass().getName());
 	}
 
 	@Override

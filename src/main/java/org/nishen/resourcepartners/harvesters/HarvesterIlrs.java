@@ -1,10 +1,13 @@
 package org.nishen.resourcepartners.harvesters;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -20,6 +23,7 @@ import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
 import org.nishen.resourcepartners.model.Address;
+import org.nishen.resourcepartners.util.JaxbUtil;
 import org.nishen.resourcepartners.util.JaxbUtilModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +33,10 @@ import com.google.inject.Inject;
 public class HarvesterIlrs implements Harvester
 {
 	private static final Logger log = LoggerFactory.getLogger(HarvesterIlrs.class);
+
+	private static final String SOURCE_SYSTEM = "LADD";
+
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
 	private static final int THREADS = 6;
 
@@ -56,7 +64,7 @@ public class HarvesterIlrs implements Harvester
 		ExecutorService executor = new ThreadPoolExecutor(THREADS, THREADS, 0L, TimeUnit.MILLISECONDS, queue,
 		                                                  new ThreadPoolExecutor.CallerRunsPolicy());
 
-		Map<String, Future<Map<String, Address>>> results = new HashMap<String, Future<Map<String, Address>>>();
+		Map<String, Future<String>> results = new HashMap<String, Future<String>>();
 		for (String nuc : esPartners.keySet())
 			results.put(nuc, executor.submit(new Harvester(nuc)));
 
@@ -68,10 +76,24 @@ public class HarvesterIlrs implements Harvester
 		{
 			try
 			{
+				String page = results.get(nuc).get();
+
+				Map<String, Address> addresses = ilrs.getAddressesFromPage(page);
+				for (String k : addresses.keySet())
+				{
+					if (log.isDebugEnabled())
+					{
+						String result = JaxbUtilModel.format(addresses.get(k));
+						log.debug("result:\n{}", result);
+					}
+				}
+				String emailIll = ilrs.getEmailFromPage(page).orElse(null);
+				String phoneIll = ilrs.getPhoneIllFromPage(page).orElse(null);
+				String phoneFax = ilrs.getPhoneFaxFromPage(page).orElse(null);
+
 				Map<String, ElasticSearchPartnerAddress> ilrsAddresses =
 				        new HashMap<String, ElasticSearchPartnerAddress>();
 
-				Map<String, Address> addresses = results.get(nuc).get();
 				for (String type : addresses.keySet())
 				{
 					ElasticSearchPartnerAddress address = new ElasticSearchPartnerAddress();
@@ -89,9 +111,9 @@ public class HarvesterIlrs implements Harvester
 				ilrsPartner.setName(ep.getName());
 				ilrsPartner.setStatus(ep.getStatus());
 				ilrsPartner.setEmailMain(ep.getEmailMain());
-				ilrsPartner.setEmailIll(ep.getEmailIll());
-				ilrsPartner.setPhoneMain(ep.getPhoneMain());
-				ilrsPartner.setPhoneIll(ep.getPhoneIll());
+				ilrsPartner.setEmailIll(emailIll);
+				ilrsPartner.setPhoneMain(phoneFax);
+				ilrsPartner.setPhoneIll(phoneIll);
 				ilrsPartner.setSuspensionStart(ep.getSuspensionStart());
 				ilrsPartner.setSuspensionEnd(ep.getSuspensionEnd());
 				ilrsPartner.setUpdated(ep.getUpdated());
@@ -113,10 +135,100 @@ public class HarvesterIlrs implements Harvester
 	                                                Map<String, ElasticSearchPartner> latest,
 	                                                List<ElasticSearchChangeRecord> changes)
 	{
-		return null;
+		Map<String, ElasticSearchPartner> updated = new HashMap<String, ElasticSearchPartner>();
+
+		for (String nuc : latest.keySet())
+		{
+			ElasticSearchPartner l = latest.get(nuc);
+			ElasticSearchPartner p = partners.get(nuc);
+
+			boolean requiresUpdate = false;
+
+			if (!compareStrings(p.getEmailMain(), l.getEmailMain()))
+			{
+				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "email_main", p.getEmailMain(),
+				                                          l.getEmailMain()));
+				p.setEmailMain(l.getEmailMain());
+				requiresUpdate = true;
+			}
+
+			if (!compareStrings(p.getEmailIll(), l.getEmailIll()))
+			{
+				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "email_ill", p.getEmailIll(),
+				                                          l.getEmailIll()));
+				p.setEmailIll(l.getEmailIll());
+				requiresUpdate = true;
+			}
+
+			if (!compareStrings(p.getPhoneMain(), l.getPhoneMain()))
+			{
+				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "phone_main", p.getPhoneMain(),
+				                                          l.getPhoneMain()));
+				p.setPhoneMain(l.getPhoneMain());
+				requiresUpdate = true;
+			}
+
+			if (!compareStrings(p.getPhoneIll(), l.getPhoneIll()))
+			{
+				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "phone_ill", p.getPhoneIll(),
+				                                          l.getPhoneIll()));
+				p.setPhoneIll(l.getPhoneIll());
+				requiresUpdate = true;
+			}
+
+			Map<String, ElasticSearchPartnerAddress> pAddresses = new HashMap<String, ElasticSearchPartnerAddress>();
+			for (ElasticSearchPartnerAddress ea : p.getAddresses())
+				pAddresses.put(ea.getAddressType(), ea);
+
+			for (ElasticSearchPartnerAddress la : l.getAddresses())
+			{
+				ElasticSearchPartnerAddress pa = pAddresses.remove(la.getAddressType());
+				if (pa == null)
+				{
+					changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + la.getAddressType(),
+					                                          null, JaxbUtil.format(la)));
+					p.getAddresses().add(la);
+					requiresUpdate = true;
+				}
+				else if (!la.equals(pa))
+				{
+					changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + la.getAddressType(),
+					                                          JaxbUtil.format(pa), JaxbUtil.format(la)));
+					p.getAddresses().add(la);
+					requiresUpdate = true;
+				}
+			}
+
+			for (String type : pAddresses.keySet())
+			{
+				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + type + ":status", "active",
+				                                          "inactive"));
+				pAddresses.get(type).setAddressStatus("inactive");
+				requiresUpdate = true;
+			}
+
+			if (requiresUpdate)
+			{
+				p.setUpdated(sdf.format(new Date()));
+				updated.put(nuc, p);
+			}
+		}
+
+		return updated;
 	}
 
-	private class Harvester implements Callable<Map<String, Address>>
+	private boolean compareStrings(String a, String b)
+	{
+		if (a == null && b == null)
+			return true;
+
+		if (a == null || b == null)
+			return false;
+
+		return a.equals(b);
+	}
+
+	private class Harvester implements Callable<String>
 	{
 		private String nuc;
 
@@ -125,29 +237,20 @@ public class HarvesterIlrs implements Harvester
 			this.nuc = nuc;
 		}
 
-		public Map<String, Address> call() throws Exception
+		public String call() throws Exception
 		{
-			Map<String, Address> addresses = null;
+			String page = null;
 
 			try
 			{
-				String page = ilrs.getPage(nuc);
-				addresses = ilrs.getAddressesFromPage(page);
-				for (String k : addresses.keySet())
-				{
-					if (log.isDebugEnabled())
-					{
-						String result = JaxbUtilModel.format(addresses.get(k));
-						log.debug("result:\n{}", result);
-					}
-				}
+				page = ilrs.getPage(nuc);
 			}
 			catch (Exception e)
 			{
-				log.error("failed to obtain addresses: {}", e.getMessage(), e);
+				log.error("failed to obtain ilrs page: {}", e.getMessage(), e);
 			}
 
-			return addresses;
+			return page;
 		}
 	}
 }

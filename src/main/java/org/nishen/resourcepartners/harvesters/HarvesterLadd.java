@@ -23,9 +23,9 @@ public class HarvesterLadd implements Harvester
 {
 	private static final Logger log = LoggerFactory.getLogger(HarvesterLadd.class);
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-
 	private static final String SOURCE_SYSTEM = "LADD";
+
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
 	private LaddDAO ladd;
 
@@ -88,38 +88,6 @@ public class HarvesterLadd implements Harvester
 			{
 				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "status", p.getStatus(), l.getStatus()));
 				p.setStatus(l.getStatus());
-				requiresUpdate = true;
-			}
-
-			if (!compareStrings(p.getEmailMain(), l.getEmailMain()))
-			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "email_main", p.getEmailMain(),
-				                                          l.getEmailMain()));
-				p.setEmailMain(l.getEmailMain());
-				requiresUpdate = true;
-			}
-
-			if (!compareStrings(p.getEmailIll(), l.getEmailIll()))
-			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "email_ill", p.getEmailIll(),
-				                                          l.getEmailIll()));
-				p.setEmailIll(l.getEmailIll());
-				requiresUpdate = true;
-			}
-
-			if (!compareStrings(p.getPhoneMain(), l.getPhoneMain()))
-			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "phone_main", p.getPhoneMain(),
-				                                          l.getPhoneMain()));
-				p.setPhoneMain(l.getPhoneMain());
-				requiresUpdate = true;
-			}
-
-			if (!compareStrings(p.getPhoneIll(), l.getPhoneIll()))
-			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "phone_ill", p.getPhoneIll(),
-				                                          l.getPhoneIll()));
-				p.setPhoneIll(l.getPhoneIll());
 				requiresUpdate = true;
 			}
 

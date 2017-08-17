@@ -21,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.nishen.resourcepartners.entity.ElasticSearchEntity;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
 import org.nishen.resourcepartners.util.DataUtils;
 import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
@@ -107,6 +108,9 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 				String source = p.get("_source").toString();
 				log.debug("source: {}", source);
 				ElasticSearchPartner e = JaxbUtil.get(source, ElasticSearchPartner.class);
+				if (e.getAddresses() == null)
+					e.setAddresses(new ArrayList<ElasticSearchPartnerAddress>());
+
 				log.debug("unmarshalled source: {}", e);
 				partners.put(e.getNuc(), e);
 			}

@@ -16,6 +16,7 @@ import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.model.Address.Country;
 import org.nishen.resourcepartners.model.ObjectFactory;
+import org.nishen.resourcepartners.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class TestIlrsDAO
 	}
 
 	@Test
-	public void testScraperPageFecth()
+	public void testIlrsGetPage()
 	{
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
@@ -69,13 +70,14 @@ public class TestIlrsDAO
 	}
 
 	@Test
-	public void testScraperFindAddress00()
+	public void testGetAddressFromPage()
 	{
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			String nuc = "NMQU";
-			String page = ilrsDAO.getPage(nuc);
+			// String nuc = "NMQU";
+			// String page = ilrsDAO.getPage(nuc);
+			String page = new String(DataUtils.loadFile("target/test-classes/data/irls-data-nmqu.html"), "UTF-8");
 
 			Map<String, Address> addresses = ilrsDAO.getAddressesFromPage(page);
 
@@ -118,6 +120,75 @@ public class TestIlrsDAO
 		}
 		catch (Exception e)
 		{
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void getEmailFromPage()
+	{
+		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
+
+		try
+		{
+			String page = new String(DataUtils.loadFile("target/test-classes/data/irls-data-nmqu.html"), "UTF-8");
+
+			String expected = "lib.ill@mq.edu.au";
+
+			String actual = ilrsDAO.getEmailFromPage(page).orElse(null);
+			log.debug("actual: {}", actual);
+
+			assertThat(actual, equalTo(expected));
+		}
+		catch (Exception e)
+		{
+			log.debug("{}", e.getMessage(), e);
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void getPhoneIllFromPage()
+	{
+		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
+
+		try
+		{
+			String page = new String(DataUtils.loadFile("target/test-classes/data/irls-data-nmqu.html"), "UTF-8");
+
+			String expected = "02 9850 7514";
+
+			String actual = ilrsDAO.getPhoneIllFromPage(page).orElse(null);
+			log.debug("actual: {}", actual);
+
+			assertThat(actual, equalTo(expected));
+		}
+		catch (Exception e)
+		{
+			log.debug("{}", e.getMessage(), e);
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void getPhoneFaxFromPage()
+	{
+		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
+
+		try
+		{
+			String page = new String(DataUtils.loadFile("target/test-classes/data/irls-data-nmqu.html"), "UTF-8");
+
+			String expected = "02 9850 6516";
+
+			String actual = ilrsDAO.getPhoneFaxFromPage(page).orElse(null);
+			log.debug("actual: {}", actual);
+
+			assertThat(actual, equalTo(expected));
+		}
+		catch (Exception e)
+		{
+			log.debug("{}", e.getMessage(), e);
 			fail(e.getMessage());
 		}
 	}

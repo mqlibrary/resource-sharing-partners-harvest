@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,9 +35,21 @@ public class IlrsDAOImpl implements IlrsDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(IlrsDAOImpl.class);
 
-	private static final String REGEX = "<P><B>(\\w+) address:</B>\\s*<BR>(.*?)</P>";
+	private static final String REGEX_ADDRESS = "<P><B>(\\w+) address:</B>\\s*<BR>(.*?)</P>";
 
-	private static final Pattern p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+	private static final String REGEX_EMAIL = "<B>ILL email:</B>\\s*<A HREF=\"mailto:(.*?)\"\\s*>";
+
+	private static final String REGEX_PHONE_ILL = "<B>ILL phone:</B>\\s*(.*?)\\s*<BR>";
+
+	private static final String REGEX_PHONE_FAX = "<B>ILL fax:</B>\\s*(.*?)\\s*<BR>";
+
+	private static final Pattern pAddress = Pattern.compile(REGEX_ADDRESS, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+	private static final Pattern pEmail = Pattern.compile(REGEX_EMAIL, Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern pPhoneIll = Pattern.compile(REGEX_PHONE_ILL, Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern pPhoneFax = Pattern.compile(REGEX_PHONE_FAX, Pattern.CASE_INSENSITIVE);
 
 	private static List<String> states = new ArrayList<String>();
 	static
@@ -101,7 +114,7 @@ public class IlrsDAOImpl implements IlrsDAO
 	{
 		Map<String, Address> addresses = new HashMap<String, Address>();
 
-		Matcher m = p.matcher(page);
+		Matcher m = pAddress.matcher(page);
 		while (m.find())
 		{
 			String type = m.group(1);
@@ -118,6 +131,48 @@ public class IlrsDAOImpl implements IlrsDAO
 		}
 
 		return addresses;
+	}
+
+	@Override
+	public Optional<String> getEmailFromPage(String page)
+	{
+		String email = null;
+		Matcher m = pEmail.matcher(page);
+		if (m.find())
+		{
+			email = m.group(1);
+			log.debug("found ill email: {}", email);
+		}
+
+		return Optional.ofNullable(email);
+	}
+
+	@Override
+	public Optional<String> getPhoneIllFromPage(String page)
+	{
+		String phoneIll = null;
+		Matcher m = pPhoneIll.matcher(page);
+		if (m.find())
+		{
+			phoneIll = m.group(1);
+			log.debug("found ill phone: {}", phoneIll);
+		}
+
+		return Optional.ofNullable(phoneIll);
+	}
+
+	@Override
+	public Optional<String> getPhoneFaxFromPage(String page)
+	{
+		String phoneFax = null;
+		Matcher m = pPhoneFax.matcher(page);
+		if (m.find())
+		{
+			phoneFax = m.group(1);
+			log.debug("found ill fax: {}", phoneFax);
+		}
+
+		return Optional.ofNullable(phoneFax);
 	}
 
 	private List<String> cleanAddress(String address)

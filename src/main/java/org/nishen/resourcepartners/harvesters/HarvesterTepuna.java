@@ -19,6 +19,8 @@ public class HarvesterTepuna implements Harvester
 {
 	private static final Logger log = LoggerFactory.getLogger(HarvesterTepuna.class);
 
+	private static final String SOURCE_SYSTEM = "TEPUNA";
+
 	private TepunaDAO tepuna;
 
 	@Inject
@@ -27,6 +29,12 @@ public class HarvesterTepuna implements Harvester
 		this.tepuna = tepuna;
 
 		log.debug("instantiated class: {}", this.getClass().getName());
+	}
+
+	@Override
+	public String getSource()
+	{
+		return SOURCE_SYSTEM;
 	}
 
 	@Override

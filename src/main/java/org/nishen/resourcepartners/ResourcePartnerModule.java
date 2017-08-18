@@ -21,14 +21,13 @@ import org.nishen.resourcepartners.dao.TepunaDAOImpl;
 import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterIlrs;
 import org.nishen.resourcepartners.harvesters.HarvesterLadd;
-import org.nishen.resourcepartners.harvesters.HarvesterTepuna;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 
 public class ResourcePartnerModule extends AbstractModule
 {
@@ -73,14 +72,16 @@ public class ResourcePartnerModule extends AbstractModule
 
 		// bind instances
 		bind(ResourcePartnerProcessor.class).to(ResourcePartnerProcessorImpl.class);
+
 		bind(ElasticSearchDAO.class).to(ElasticSearchDAOImpl.class);
 		bind(IlrsDAO.class).to(IlrsDAOImpl.class);
 		bind(LaddDAO.class).to(LaddDAOImpl.class);
 		bind(TepunaDAO.class).to(TepunaDAOImpl.class);
-		bind(Harvester.class).annotatedWith(Names.named("harvester.ladd")).to(HarvesterLadd.class);
-		bind(Harvester.class).annotatedWith(Names.named("harvester.ilrs")).to(HarvesterIlrs.class);
-		bind(Harvester.class).annotatedWith(Names.named("harvester.tepuna")).to(HarvesterTepuna.class);
 
+		Multibinder<Harvester> harvesterBinder = Multibinder.newSetBinder(binder(), Harvester.class);
+		harvesterBinder.addBinding().to(HarvesterLadd.class);
+		harvesterBinder.addBinding().to(HarvesterIlrs.class);
+		// harvesterBinder.addBinding().to(HarvesterTepuna.class);
 	}
 
 	@Provides

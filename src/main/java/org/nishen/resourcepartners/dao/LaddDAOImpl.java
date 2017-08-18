@@ -45,7 +45,7 @@ public class LaddDAOImpl implements LaddDAO
 	public LaddDAOImpl(@Named("ws.ladd") Provider<WebTarget> laddTargetProvider)
 	{
 		this.laddTarget = laddTargetProvider.get();
-		
+
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
 

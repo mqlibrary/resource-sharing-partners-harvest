@@ -2,12 +2,10 @@ package org.nishen.resourcepartners.harvesters;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -34,7 +32,7 @@ public class HarvesterIlrs implements Harvester
 {
 	private static final Logger log = LoggerFactory.getLogger(HarvesterIlrs.class);
 
-	private static final String SOURCE_SYSTEM = "LADD";
+	private static final String SOURCE_SYSTEM = "ILRS";
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -53,6 +51,12 @@ public class HarvesterIlrs implements Harvester
 		this.elastic = elastic;
 
 		log.debug("instantiated class: {}", this.getClass().getName());
+	}
+
+	@Override
+	public String getSource()
+	{
+		return SOURCE_SYSTEM;
 	}
 
 	@Override
@@ -79,30 +83,13 @@ public class HarvesterIlrs implements Harvester
 				String page = results.get(nuc).get();
 
 				Map<String, Address> addresses = ilrs.getAddressesFromPage(page);
-				for (String k : addresses.keySet())
-				{
-					if (log.isDebugEnabled())
-					{
-						String result = JaxbUtilModel.format(addresses.get(k));
-						log.debug("result:\n{}", result);
-					}
-				}
+				if (log.isDebugEnabled())
+					for (String k : addresses.keySet())
+						log.debug("result:\n{}", JaxbUtilModel.format(addresses.get(k)));
+
 				String emailIll = ilrs.getEmailFromPage(page).orElse(null);
 				String phoneIll = ilrs.getPhoneIllFromPage(page).orElse(null);
 				String phoneFax = ilrs.getPhoneFaxFromPage(page).orElse(null);
-
-				Map<String, ElasticSearchPartnerAddress> ilrsAddresses =
-				        new HashMap<String, ElasticSearchPartnerAddress>();
-
-				for (String type : addresses.keySet())
-				{
-					ElasticSearchPartnerAddress address = new ElasticSearchPartnerAddress();
-					address.setAddressStatus("active");
-					address.setAddressType(type);
-					address.setAddressDetail(addresses.get(type));
-
-					ilrsAddresses.put(type, address);
-				}
 
 				ElasticSearchPartner ep = esPartners.get(nuc);
 				ElasticSearchPartner ilrsPartner = new ElasticSearchPartner();
@@ -117,9 +104,17 @@ public class HarvesterIlrs implements Harvester
 				ilrsPartner.setSuspensionStart(ep.getSuspensionStart());
 				ilrsPartner.setSuspensionEnd(ep.getSuspensionEnd());
 				ilrsPartner.setUpdated(ep.getUpdated());
-				ilrsPartner.setAddresses(new ArrayList<ElasticSearchPartnerAddress>(ilrsAddresses.values()));
+				for (String type : addresses.keySet())
+				{
+					ElasticSearchPartnerAddress address = new ElasticSearchPartnerAddress();
+					address.setAddressStatus("active");
+					address.setAddressType(type);
+					address.setAddressDetail(addresses.get(type));
 
-				ilrsPartners.put(ilrsPartner.getNuc(), ep);
+					ilrsPartner.getAddresses().add(address);
+				}
+
+				ilrsPartners.put(ilrsPartner.getNuc(), ilrsPartner);
 			}
 			catch (Exception e)
 			{
@@ -194,6 +189,7 @@ public class HarvesterIlrs implements Harvester
 				{
 					changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + la.getAddressType(),
 					                                          JaxbUtil.format(pa), JaxbUtil.format(la)));
+					p.getAddresses().remove(pa);
 					p.getAddresses().add(la);
 					requiresUpdate = true;
 				}
@@ -211,6 +207,7 @@ public class HarvesterIlrs implements Harvester
 			{
 				p.setUpdated(sdf.format(new Date()));
 				updated.put(nuc, p);
+				log.debug("to be updated[{}]:\n{}", nuc, JaxbUtil.format(p));
 			}
 		}
 

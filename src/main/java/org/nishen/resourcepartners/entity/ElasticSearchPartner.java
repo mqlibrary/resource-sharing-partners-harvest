@@ -1,5 +1,6 @@
 package org.nishen.resourcepartners.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -48,7 +49,7 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	private String phoneIll;
 
 	@XmlElement(name = "addresses")
-	private List<ElasticSearchPartnerAddress> addresses;
+	private List<ElasticSearchPartnerAddress> addresses = new ArrayList<ElasticSearchPartnerAddress>();
 
 	@Override
 	public String getElasticSearchId()

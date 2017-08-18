@@ -38,6 +38,12 @@ public class HarvesterLadd implements Harvester
 	}
 
 	@Override
+	public String getSource()
+	{
+		return SOURCE_SYSTEM;
+	}
+
+	@Override
 	public Map<String, ElasticSearchPartner> harvest()
 	{
 		Map<String, ElasticSearchPartner> laddPartners = ladd.getData();

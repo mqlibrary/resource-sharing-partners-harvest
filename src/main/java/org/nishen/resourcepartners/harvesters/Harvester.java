@@ -9,6 +9,8 @@ import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 
 public interface Harvester
 {
+	public String getSource();
+
 	public Map<String, ElasticSearchPartner> harvest() throws IOException;
 
 	public Map<String, ElasticSearchPartner> update(Map<String, ElasticSearchPartner> partners,

@@ -21,7 +21,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.nishen.resourcepartners.entity.ElasticSearchEntity;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
 import org.nishen.resourcepartners.util.DataUtils;
 import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
@@ -36,6 +35,8 @@ import com.google.inject.name.Named;
 public class ElasticSearchDAOImpl implements ElasticSearchDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(ElasticSearchDAOImpl.class);
+
+	private static final int SEARCH_SIZE = 2;
 
 	private Set<String> indices;
 
@@ -95,7 +96,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			createElasticSearchIndex("partners");
 
 		WebTarget t = elasticTarget.path("partners").path("partner").path("_search").queryParam("sort", "nuc")
-		                           .queryParam("size", "10000");
+		                           .queryParam("size", SEARCH_SIZE);
 
 		String result = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
 
@@ -107,11 +108,10 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			{
 				String source = p.get("_source").toString();
 				log.debug("source: {}", source);
-				ElasticSearchPartner e = JaxbUtil.get(source, ElasticSearchPartner.class);
-				if (e.getAddresses() == null)
-					e.setAddresses(new ArrayList<ElasticSearchPartnerAddress>());
 
+				ElasticSearchPartner e = JaxbUtil.get(source, ElasticSearchPartner.class);
 				log.debug("unmarshalled source: {}", e);
+
 				partners.put(e.getNuc(), e);
 			}
 		}
@@ -240,7 +240,6 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			{
 				String index = scanner.nextLine().trim();
 				indices.add(index);
-				log.debug("index: {}", index);
 			}
 		}
 		catch (Exception e)
@@ -287,7 +286,13 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		Builder req = t.request(MediaType.APPLICATION_JSON);
 		String result = req.post(Entity.entity(data, MediaType.APPLICATION_JSON), String.class);
 
-		log.debug("result: {}", result);
+		log.debug("bulk result: {}", result);
+
+		t = elasticTarget.path("_refresh");
+		req = t.request(MediaType.APPLICATION_JSON);
+		result = req.post(Entity.text(""), String.class);
+
+		log.debug("refresh result: {}", result);
 
 		return result;
 	}

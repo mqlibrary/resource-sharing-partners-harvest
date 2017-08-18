@@ -1,8 +1,10 @@
 package org.nishen.resourcepartners;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
@@ -12,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 /**
  * @author nishen.naidoo
@@ -25,20 +26,13 @@ public class ResourcePartnerProcessorImpl implements ResourcePartnerProcessor
 
 	private ElasticSearchDAO elastic;
 
-	private Harvester laddHarvester;
-	private Harvester ilrsHarvester;
-	private Harvester tepunaHarvester;
+	private Set<Harvester> harvesters;
 
 	@Inject
-	public ResourcePartnerProcessorImpl(ElasticSearchDAO elastic, @Named("harvester.ladd") Harvester laddHarvester,
-	                                    @Named("harvester.ilrs") Harvester ilrsHarvester,
-	                                    @Named("harvester.tepuna") Harvester tepunaHarvester)
+	public ResourcePartnerProcessorImpl(ElasticSearchDAO elastic, Set<Harvester> harvesters)
 	{
 		this.elastic = elastic;
-
-		this.laddHarvester = laddHarvester;
-		this.ilrsHarvester = ilrsHarvester;
-		this.tepunaHarvester = tepunaHarvester;
+		this.harvesters = harvesters;
 
 		log.debug("instantiated ResourcePartnerProcessor");
 	}
@@ -46,18 +40,25 @@ public class ResourcePartnerProcessorImpl implements ResourcePartnerProcessor
 	@Override
 	public void process() throws Exception
 	{
-		List<ElasticSearchChangeRecord> changes = new ArrayList<ElasticSearchChangeRecord>();
-
 		Map<String, ElasticSearchPartner> partners = elastic.getPartners();
 
-		Map<String, ElasticSearchPartner> changedPartners = null;
-		Map<String, ElasticSearchPartner> harvestedPartners = null;
+		Map<String, ElasticSearchPartner> updatedPartners = new HashMap<String, ElasticSearchPartner>();
 
-		harvestedPartners = laddHarvester.harvest();
-		changedPartners = laddHarvester.update(partners, harvestedPartners, changes);
-		partners.putAll(changedPartners);
+		for (Harvester harvester : harvesters)
+		{
+			List<ElasticSearchChangeRecord> changes = new ArrayList<ElasticSearchChangeRecord>();
 
-		elastic.addEntities(new ArrayList<ElasticSearchPartner>(changedPartners.values()));
-		elastic.addEntities(changes);
+			log.info("harvesting from: {}", harvester.getSource());
+			Map<String, ElasticSearchPartner> harvestedPartners = harvester.harvest();
+
+			log.info("updating partners: {}", harvestedPartners.size());
+			Map<String, ElasticSearchPartner> changed = harvester.update(partners, harvestedPartners, changes);
+			updatedPartners.putAll(changed);
+			partners.putAll(updatedPartners);
+
+			log.info("saving elasticseaerch entities: {}", harvestedPartners.size());
+			elastic.addEntities(new ArrayList<ElasticSearchPartner>(updatedPartners.values()));
+			elastic.addEntities(changes);
+		}
 	}
 }

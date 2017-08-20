@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 
 /**
- * @author nishen.naidoo
+ * @author nishen
  *
  */
 public class HarvesterLadd implements Harvester
@@ -121,16 +121,5 @@ public class HarvesterLadd implements Harvester
 		}
 
 		return updated;
-	}
-
-	private boolean compareStrings(String a, String b)
-	{
-		if (a == null && b == null)
-			return true;
-
-		if (a == null || b == null)
-			return false;
-
-		return a.equals(b);
 	}
 }

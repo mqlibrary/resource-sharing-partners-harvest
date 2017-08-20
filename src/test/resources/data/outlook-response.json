@@ -1,0 +1,176 @@
+{
+	"@odata.context": "https://outlook.office.com/api/v2.0/$metadata#Users('lib.rspartners%40mq.edu.au')/MailFolders('Inbox')/Messages(Sender,Subject,ReceivedDateTime,Body)",
+	"value": [
+		{
+			"@odata.id": "https://outlook.office.com/api/v2.0/Users('857be0ef-1e43-4fc5-b89d-f4ca4ed8fb11@82c514c1-a717-4087-be06-d40d2070ad52')/Messages('AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA7rukaAAA=')",
+			"@odata.etag": "W/\"CQAAABYAAAA4ZAg/IPPsSqiOmmuD9lxcAAA7tHxU\"",
+			"Id": "AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA7rukaAAA=",
+			"ReceivedDateTime": "2017-08-18T14:11:07Z",
+			"Subject": "ISO-ILL Location Updates",
+			"Body": {
+				"ContentType": "Text",
+				"Content": "ISO-UPDATE-SOURCE LADD\r\n###\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'STATUS' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nSTATUS NPM NLNZ BEGIN SUSPENSION LIST\r\nSTATUS NPM NLNZ 18-AUG-17 27-AUG-17 SUSPENDED_NO_REQUESTING Leave_without_cover\r\nSTATUS NPM NLNZ END SUSPENSION LIST\r\n\r\n\r\n"
+			},
+			"Sender": {
+				"EmailAddress": {
+					"Name": "delivery-anz@vdxhost.com",
+					"Address": "delivery-anz@vdxhost.com"
+				}
+			}
+		},
+		{
+			"@odata.id": "https://outlook.office.com/api/v2.0/Users('857be0ef-1e43-4fc5-b89d-f4ca4ed8fb11@82c514c1-a717-4087-be06-d40d2070ad52')/Messages('AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA7rukZAAA=')",
+			"@odata.etag": "W/\"CQAAABYAAAA4ZAg/IPPsSqiOmmuD9lxcAAA7tHxO\"",
+			"Id": "AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA7rukZAAA=",
+			"ReceivedDateTime": "2017-08-18T03:06:54Z",
+			"Subject": "ISO-ILL Location Updates",
+			"Body": {
+				"ContentType": "Text",
+				"Content": "ISO-UPDATE-SOURCE LADD\r\n###\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'STATUS' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nSTATUS WHP NLNZ BEGIN SUSPENSION LIST\r\nSTATUS WHP NLNZ 20-AUG-17 23-AUG-17 SUSPENDED_REQUESTING_OK Interloans_Unavailable\r\nSTATUS WHP NLNZ END SUSPENSION LIST\r\n\r\n\r\n"
+			},
+			"Sender": {
+				"EmailAddress": {
+					"Name": "delivery-anz@vdxhost.com",
+					"Address": "delivery-anz@vdxhost.com"
+				}
+			}
+		},
+		{
+			"@odata.id": "https://outlook.office.com/api/v2.0/Users('857be0ef-1e43-4fc5-b89d-f4ca4ed8fb11@82c514c1-a717-4087-be06-d40d2070ad52')/Messages('AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA7rukYAAA=')",
+			"@odata.etag": "W/\"CQAAABYAAAA4ZAg/IPPsSqiOmmuD9lxcAAA7tHxL\"",
+			"Id": "AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA7rukYAAA=",
+			"ReceivedDateTime": "2017-08-17T14:07:37Z",
+			"Subject": "ISO-ILL Location Updates",
+			"Body": {
+				"ContentType": "Text",
+				"Content": "ISO-UPDATE-SOURCE LADD\r\n###\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'STATUS' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nSTATUS WCUL NLNZ BEGIN SUSPENSION LIST\r\nSTATUS WCUL NLNZ 21-AUG-17 28-AUG-17 CLOSED On_leave\r\nSTATUS WCUL NLNZ END SUSPENSION LIST\r\n\r\n\r\n"
+			},
+			"Sender": {
+				"EmailAddress": {
+					"Name": "delivery-anz@vdxhost.com",
+					"Address": "delivery-anz@vdxhost.com"
+				}
+			}
+		},
+		{
+			"@odata.id": "https://outlook.office.com/api/v2.0/Users('857be0ef-1e43-4fc5-b89d-f4ca4ed8fb11@82c514c1-a717-4087-be06-d40d2070ad52')/Messages('AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA7rukXAAA=')",
+			"@odata.etag": "W/\"CQAAABYAAAA4ZAg/IPPsSqiOmmuD9lxcAAA7tHxK\"",
+			"Id": "AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA7rukXAAA=",
+			"ReceivedDateTime": "2017-08-17T14:05:23Z",
+			"Subject": "ISO-ILL Location Updates",
+			"Body": {
+				"ContentType": "Text",
+				"Content": "ISO-UPDATE-SOURCE LADD\r\n###\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'UPDATE' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nUPDATE NPHM NLNZ ADDRESSEE maryh@pihms.ac.nz\r\nUPDATE NPHM NLNZ HOUSE_NAME Pacific International Hotel Management School Library\r\nUPDATE NPHM NLNZ STREET Henwood Road, RD2, Bell Block, New Plymouth 4372\r\nUPDATE NPHM NLNZ POBOX Private Bag 2062, New Plymouth Central\r\nUPDATE NPHM NLNZ DISTRICT \r\nUPDATE NPHM NLNZ CITY New Plymouth\r\nUPDATE NPHM NLNZ REGION \r\nUPDATE NPHM NLNZ COUNTRY New Zealand\r\nUPDATE NPHM NLNZ POSTCODE 4342\r\n\r\n\r\n"
+			},
+			"Sender": {
+				"EmailAddress": {
+					"Name": "delivery-anz@vdxhost.com",
+					"Address": "delivery-anz@vdxhost.com"
+				}
+			}
+		},
+		{
+			"@odata.id": "https://outlook.office.com/api/v2.0/Users('857be0ef-1e43-4fc5-b89d-f4ca4ed8fb11@82c514c1-a717-4087-be06-d40d2070ad52')/Messages('AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA64IZLAAA=')",
+			"@odata.etag": "W/\"CQAAABYAAAA4ZAg/IPPsSqiOmmuD9lxcAAA65gOW\"",
+			"Id": "AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA64IZLAAA=",
+			"ReceivedDateTime": "2017-08-15T14:07:28Z",
+			"Subject": "ISO-ILL Location Updates",
+			"Body": {
+				"ContentType": "Text",
+				"Content": "ISO-UPDATE-SOURCE LADD\r\n###\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'STATUS' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nSTATUS WHP NLNZ BEGIN SUSPENSION LIST\r\nSTATUS WHP NLNZ NO SUSPENSIONS\r\nSTATUS WHP NLNZ END SUSPENSION LIST\r\n\r\n\r\n"
+			},
+			"Sender": {
+				"EmailAddress": {
+					"Name": "delivery-anz@vdxhost.com",
+					"Address": "delivery-anz@vdxhost.com"
+				}
+			}
+		},
+		{
+			"@odata.id": "https://outlook.office.com/api/v2.0/Users('857be0ef-1e43-4fc5-b89d-f4ca4ed8fb11@82c514c1-a717-4087-be06-d40d2070ad52')/Messages('AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA64IZKAAA=')",
+			"@odata.etag": "W/\"CQAAABYAAAA4ZAg/IPPsSqiOmmuD9lxcAAA65gOU\"",
+			"Id": "AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA64IZKAAA=",
+			"ReceivedDateTime": "2017-08-15T14:04:19Z",
+			"Subject": "ISO-ILL Location Updates",
+			"Body": {
+				"ContentType": "Text",
+				"Content": "ISO-UPDATE-SOURCE LADD\r\n###\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'UPDATE' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nUPDATE MNPY NLNZ TEL_COUNTRYCODE 64\r\nUPDATE MNPY NLNZ TEL_AREACODE 09\r\nUPDATE MNPY NLNZ TELEPHONE 976 0901\r\nUPDATE MNPY NLNZ TEL_EXTENSION 8957\r\n\r\n\r\n"
+			},
+			"Sender": {
+				"EmailAddress": {
+					"Name": "delivery-anz@vdxhost.com",
+					"Address": "delivery-anz@vdxhost.com"
+				}
+			}
+		},
+		{
+			"@odata.id": "https://outlook.office.com/api/v2.0/Users('857be0ef-1e43-4fc5-b89d-f4ca4ed8fb11@82c514c1-a717-4087-be06-d40d2070ad52')/Messages('AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA4mjBaAAA=')",
+			"@odata.etag": "W/\"CQAAABYAAAA4ZAg/IPPsSqiOmmuD9lxcAAA4n3T0\"",
+			"Id": "AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA4mjBaAAA=",
+			"ReceivedDateTime": "2017-08-14T03:01:12Z",
+			"Subject": "ISO-ILL Location Updates",
+			"Body": {
+				"ContentType": "Text",
+				"Content": "ISO-UPDATE-SOURCE LADD\r\n###\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'UPDATE' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nUPDATE LS NLNZ LOCATION_DESCRIPTION Callaghan Innovation Research Library\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'UPDATE' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nUPDATE LS NLNZ ADDRESSEE library@callaghaninnovation.govt.nz\r\nUPDATE LS NLNZ HOUSE_NAME Callaghan Innovation Research Library\r\nUPDATE LS NLNZ STREET 69 Gracefield Road, Gracefield, Lower Hutt, 5040, New Zealand\r\nUPDATE LS NLNZ POBOX PO Box 31 310\r\nUPDATE LS NLNZ DISTRICT \r\nUPDATE LS NLNZ CITY Lower Hutt\r\nUPDATE LS NLNZ REGION \r\nUPDATE LS NLNZ COUNTRY New Zealand\r\nUPDATE LS NLNZ POSTCODE 5040\r\n\r\n\r\n"
+			},
+			"Sender": {
+				"EmailAddress": {
+					"Name": "delivery-anz@vdxhost.com",
+					"Address": "delivery-anz@vdxhost.com"
+				}
+			}
+		},
+		{
+			"@odata.id": "https://outlook.office.com/api/v2.0/Users('857be0ef-1e43-4fc5-b89d-f4ca4ed8fb11@82c514c1-a717-4087-be06-d40d2070ad52')/Messages('AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA4UefgAAA=')",
+			"@odata.etag": "W/\"CQAAABYAAAA4ZAg/IPPsSqiOmmuD9lxcAAA7tHxf\"",
+			"Id": "AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA4UefgAAA=",
+			"ReceivedDateTime": "2017-08-11T14:05:08Z",
+			"Subject": "ISO-ILL Location Updates",
+			"Body": {
+				"ContentType": "Text",
+				"Content": "ISO-UPDATE-SOURCE LADD\r\n###\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'STATUS' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nSTATUS WHP NLNZ BEGIN SUSPENSION LIST\r\nSTATUS WHP NLNZ 14-AUG-17 15-AUG-17 SUSPENDED_REQUESTING_OK Interloans_Unavailable\r\nSTATUS WHP NLNZ 14-AUG-17 15-AUG-17 SUSPENDED_REQUESTING_OK INTERLOANS_UNAVAILABLE\r\nSTATUS WHP NLNZ END SUSPENSION LIST\r\n\r\n\r\n"
+			},
+			"Sender": {
+				"EmailAddress": {
+					"Name": "delivery-anz@vdxhost.com",
+					"Address": "delivery-anz@vdxhost.com"
+				}
+			}
+		},
+		{
+			"@odata.id": "https://outlook.office.com/api/v2.0/Users('857be0ef-1e43-4fc5-b89d-f4ca4ed8fb11@82c514c1-a717-4087-be06-d40d2070ad52')/Messages('AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA2oxFDAAA=')",
+			"@odata.etag": "W/\"CQAAABYAAAA4ZAg/IPPsSqiOmmuD9lxcAAA7tHxe\"",
+			"Id": "AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAA2oxFDAAA=",
+			"ReceivedDateTime": "2017-08-11T03:04:43Z",
+			"Subject": "ISO-ILL Location Updates",
+			"Body": {
+				"ContentType": "Text",
+				"Content": "ISO-UPDATE-SOURCE LADD\r\n###\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'STATUS' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nSTATUS WHP NLNZ BEGIN SUSPENSION LIST\r\nSTATUS WHP NLNZ 14-AUG-17 15-AUG-17 SUSPENDED_REQUESTING_OK Interloans_Unavailable\r\nSTATUS WHP NLNZ 14-AUG-17 15-AUG-17 SUSPENDED_REQUESTING_OK INTERLOANS_UNAVAILABLE\r\nSTATUS WHP NLNZ END SUSPENSION LIST\r\n\r\n\r\n"
+			},
+			"Sender": {
+				"EmailAddress": {
+					"Name": "delivery-anz@vdxhost.com",
+					"Address": "delivery-anz@vdxhost.com"
+				}
+			}
+		},
+		{
+			"@odata.id": "https://outlook.office.com/api/v2.0/Users('857be0ef-1e43-4fc5-b89d-f4ca4ed8fb11@82c514c1-a717-4087-be06-d40d2070ad52')/Messages('AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAAwLwzTAAA=')",
+			"@odata.etag": "W/\"CQAAABYAAAA4ZAg/IPPsSqiOmmuD9lxcAAA65gOf\"",
+			"Id": "AAMkAGNhYzU3OTMwLWM5OTctNDMwZi1iZDVlLTY1ODlhMGI0YWYyMABGAAAAAABgCZqnsGCuSbesLq3ewv3UBwA4ZAg-IPPsSqiOmmuD9lxcAAAAAAEMAAA4ZAg-IPPsSqiOmmuD9lxcAAAwLwzTAAA=",
+			"ReceivedDateTime": "2017-08-08T14:03:39Z",
+			"Subject": "ISO-ILL Location Updates",
+			"Body": {
+				"ContentType": "Text",
+				"Content": "ISO-UPDATE-SOURCE LADD\r\n###\r\n###\r\n### This is a location which needs to be updated in your ISO-ILL System.\r\n### The Preferred Public Alias Symbol follows after the 'STATUS' keyword.\r\n### The next keyword is the Naming Authority for this location.\r\n### Following this is the information to be updated.\r\n###\r\nSTATUS LNU NLNZ BEGIN SUSPENSION LIST\r\nSTATUS LNU NLNZ NO SUSPENSIONS\r\nSTATUS LNU NLNZ END SUSPENSION LIST\r\n\r\n\r\n"
+			},
+			"Sender": {
+				"EmailAddress": {
+					"Name": "delivery-anz@vdxhost.com",
+					"Address": "delivery-anz@vdxhost.com"
+				}
+			}
+		}
+	],
+	"@odata.nextLink": "https://outlook.office.com/api/v2.0/users/lib.rspartners@mq.edu.au/MailFolders/Inbox/messages/?%24select=Sender%2cSubject%2cReceivedDateTime%2cBody&%24top=10&%24skip=10"
+}

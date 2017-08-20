@@ -1,7 +1,9 @@
 package org.nishen.resourcepartners.harvesters;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +17,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.nishen.resourcepartners.SkipHarvestException;
+import org.nishen.resourcepartners.dao.Config;
+import org.nishen.resourcepartners.dao.ConfigFactory;
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
@@ -28,25 +33,37 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
+/**
+ * @author nishen
+ *
+ */
 public class HarvesterIlrs implements Harvester
 {
 	private static final Logger log = LoggerFactory.getLogger(HarvesterIlrs.class);
 
 	private static final String SOURCE_SYSTEM = "ILRS";
 
+	private static final String NZ_NUC_PREFIX = "NLNZ";
+
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
+	private static final String DEFAULT_DAYS_BETWEEN = "7";
 
 	private static final int THREADS = 6;
 
 	private static final int BLOCKING_QUEUE_SIZE = 10;
+
+	private Config config;
 
 	private IlrsDAO ilrs;
 
 	private ElasticSearchDAO elastic;
 
 	@Inject
-	public HarvesterIlrs(IlrsDAO ilrs, ElasticSearchDAO elastic)
+	public HarvesterIlrs(ConfigFactory configFactory, IlrsDAO ilrs, ElasticSearchDAO elastic)
 	{
+		this.config = configFactory.create(SOURCE_SYSTEM);
+		log.debug("config[{}]: {}", SOURCE_SYSTEM, config.getAll());
 		this.ilrs = ilrs;
 		this.elastic = elastic;
 
@@ -60,8 +77,12 @@ public class HarvesterIlrs implements Harvester
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> harvest() throws IOException
+	public Map<String, ElasticSearchPartner> harvest() throws IOException, SkipHarvestException
 	{
+		config.set("last_run_attempt", sdf.format(new Date()));
+		if (!shouldHarvestRun())
+			throw new SkipHarvestException();
+
 		Map<String, ElasticSearchPartner> esPartners = elastic.getPartners();
 
 		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(BLOCKING_QUEUE_SIZE);
@@ -70,7 +91,8 @@ public class HarvesterIlrs implements Harvester
 
 		Map<String, Future<String>> results = new HashMap<String, Future<String>>();
 		for (String nuc : esPartners.keySet())
-			results.put(nuc, executor.submit(new Harvester(nuc)));
+			if (!nuc.startsWith(NZ_NUC_PREFIX))
+				results.put(nuc, executor.submit(new Harvester(nuc)));
 
 		executor.shutdown();
 
@@ -121,6 +143,8 @@ public class HarvesterIlrs implements Harvester
 				log.error("error: {}", e.getMessage(), e);
 			}
 		}
+
+		config.set("last_run", sdf.format(new Date()));
 
 		return ilrsPartners;
 	}
@@ -207,22 +231,36 @@ public class HarvesterIlrs implements Harvester
 			{
 				p.setUpdated(sdf.format(new Date()));
 				updated.put(nuc, p);
-				log.debug("to be updated[{}]:\n{}", nuc, JaxbUtil.format(p));
+				log.debug("to be updated[{}]: {}", nuc, JaxbUtil.format(p));
 			}
 		}
 
 		return updated;
 	}
 
-	private boolean compareStrings(String a, String b)
+	private boolean shouldHarvestRun()
 	{
-		if (a == null && b == null)
-			return true;
+		int daysBetween = Integer.parseInt(config.get("days_between_update").orElse(DEFAULT_DAYS_BETWEEN));
 
-		if (a == null || b == null)
-			return false;
+		Calendar lastRun = Calendar.getInstance();
+		lastRun.set(2017, Calendar.JANUARY, 1);
 
-		return a.equals(b);
+		if (config.get("last_run").isPresent())
+		{
+			try
+			{
+				lastRun.setTime(sdf.parse(config.get("last_run").get()));
+			}
+			catch (ParseException pe)
+			{
+				lastRun.set(2017, Calendar.JANUARY, 1);
+			}
+		}
+
+		Calendar checkRun = Calendar.getInstance();
+		checkRun.add(Calendar.DAY_OF_MONTH, -daysBetween);
+
+		return checkRun.after(lastRun);
 	}
 
 	private class Harvester implements Callable<String>

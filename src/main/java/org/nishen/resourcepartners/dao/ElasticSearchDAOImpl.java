@@ -36,7 +36,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(ElasticSearchDAOImpl.class);
 
-	private static final int SEARCH_SIZE = 2;
+	private static final int SEARCH_SIZE = 10000;
 
 	private Set<String> indices;
 
@@ -107,10 +107,10 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			for (JsonNode p : partnerList)
 			{
 				String source = p.get("_source").toString();
-				log.debug("source: {}", source);
+				log.trace("source: {}", source);
 
 				ElasticSearchPartner e = JaxbUtil.get(source, ElasticSearchPartner.class);
-				log.debug("unmarshalled source: {}", e);
+				log.trace("unmarshalled source: {}", e);
 
 				partners.put(e.getNuc(), e);
 			}
@@ -195,7 +195,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	{
 		if (esEntities == null || esEntities.size() == 0)
 		{
-			log.info("ESDAO saveData: no data to save");
+			log.debug("elasticsearch delete entities: no entities to delete");
 
 			return;
 		}

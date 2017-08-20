@@ -2,8 +2,8 @@ package org.nishen.resourcepartners.dao;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,12 +52,14 @@ public class LaddDAOImpl implements LaddDAO
 	@Override
 	public Map<String, ElasticSearchPartner> getData() throws ClientErrorException
 	{
-		Map<String, ElasticSearchPartner> data = new HashMap<String, ElasticSearchPartner>();
+		Map<String, ElasticSearchPartner> data = new TreeMap<String, ElasticSearchPartner>();
 
 		String page = laddTarget.request(MediaType.TEXT_HTML).get(String.class);
 
+		int max = 5;
+
 		Matcher m = p.matcher(page);
-		while (m.find())
+		while (m.find() && max-- > 0)
 		{
 			String nuc1 = m.group(1);
 			String name = m.group(3);

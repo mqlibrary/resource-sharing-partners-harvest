@@ -10,24 +10,32 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.nishen.resourcepartners.dao.Config;
+import org.nishen.resourcepartners.dao.ConfigFactory;
+import org.nishen.resourcepartners.dao.ConfigImpl;
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.dao.ElasticSearchDAOImpl;
 import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.dao.IlrsDAOImpl;
 import org.nishen.resourcepartners.dao.LaddDAO;
 import org.nishen.resourcepartners.dao.LaddDAOImpl;
+import org.nishen.resourcepartners.dao.OutlookDAO;
+import org.nishen.resourcepartners.dao.OutlookDAOImpl;
 import org.nishen.resourcepartners.dao.TepunaDAO;
 import org.nishen.resourcepartners.dao.TepunaDAOImpl;
 import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterIlrs;
 import org.nishen.resourcepartners.harvesters.HarvesterLadd;
+import org.nishen.resourcepartners.harvesters.HarvesterTepuna;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 public class ResourcePartnerModule extends AbstractModule
 {
@@ -44,6 +52,10 @@ public class ResourcePartnerModule extends AbstractModule
 	private WebTarget laddTarget = null;
 
 	private WebTarget tepunaTarget = null;
+
+	private WebTarget outlookTarget = null;
+
+	private WebTarget outlookTokenTarget = null;
 
 	@Override
 	protected void configure()
@@ -77,11 +89,19 @@ public class ResourcePartnerModule extends AbstractModule
 		bind(IlrsDAO.class).to(IlrsDAOImpl.class);
 		bind(LaddDAO.class).to(LaddDAOImpl.class);
 		bind(TepunaDAO.class).to(TepunaDAOImpl.class);
+		bind(OutlookDAO.class).to(OutlookDAOImpl.class);
 
 		Multibinder<Harvester> harvesterBinder = Multibinder.newSetBinder(binder(), Harvester.class);
 		harvesterBinder.addBinding().to(HarvesterLadd.class);
 		harvesterBinder.addBinding().to(HarvesterIlrs.class);
-		// harvesterBinder.addBinding().to(HarvesterTepuna.class);
+		harvesterBinder.addBinding().to(HarvesterTepuna.class);
+
+		install(new FactoryModuleBuilder().implement(Config.class, ConfigImpl.class).build(ConfigFactory.class));
+
+		bind(String.class).annotatedWith(Names.named("outlook.client.id"))
+		                  .toInstance(config.getProperty("outlook.client.id"));
+		bind(String.class).annotatedWith(Names.named("outlook.client.secret"))
+		                  .toInstance(config.getProperty("outlook.client.secret"));
 	}
 
 	@Provides
@@ -138,5 +158,31 @@ public class ResourcePartnerModule extends AbstractModule
 		}
 
 		return tepunaTarget;
+	}
+
+	@Provides
+	@Named("ws.outlook")
+	protected WebTarget provideWebTargetOutlook()
+	{
+		if (outlookTarget == null)
+		{
+			Client client = ClientBuilder.newClient();
+			outlookTarget = client.target(config.getProperty("outlook.url.endpoint"));
+		}
+
+		return outlookTarget;
+	}
+
+	@Provides
+	@Named("ws.outlook.token")
+	protected WebTarget provideWebTargetOutlookToken()
+	{
+		if (outlookTokenTarget == null)
+		{
+			Client client = ClientBuilder.newClient();
+			outlookTokenTarget = client.target(config.getProperty("outlook.url.token"));
+		}
+
+		return outlookTokenTarget;
 	}
 }

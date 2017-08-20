@@ -31,13 +31,17 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+/**
+ * @author nishen
+ *
+ */
 public class IlrsDAOImpl implements IlrsDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(IlrsDAOImpl.class);
 
 	private static final String REGEX_ADDRESS = "<P><B>(\\w+) address:</B>\\s*<BR>(.*?)</P>";
 
-	private static final String REGEX_EMAIL = "<B>ILL email:</B>\\s*<A HREF=\"mailto:(.*?)\"\\s*>";
+	private static final String REGEX_EMAIL = "<B>ILL email:</B>\\s*<A HREF=\"mailto:(.*?)\\s*\"\\s*>";
 
 	private static final String REGEX_PHONE_ILL = "<B>ILL phone:</B>\\s*(.*?)\\s*<BR>";
 

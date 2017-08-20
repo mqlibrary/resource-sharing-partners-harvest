@@ -1,7 +1,6 @@
 package org.nishen.resourcepartners;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,23 +41,30 @@ public class ResourcePartnerProcessorImpl implements ResourcePartnerProcessor
 	{
 		Map<String, ElasticSearchPartner> partners = elastic.getPartners();
 
-		Map<String, ElasticSearchPartner> updatedPartners = new HashMap<String, ElasticSearchPartner>();
-
 		for (Harvester harvester : harvesters)
 		{
-			List<ElasticSearchChangeRecord> changes = new ArrayList<ElasticSearchChangeRecord>();
+			try
+			{
+				log.info("harvesting from: {}", harvester.getSource());
+				Map<String, ElasticSearchPartner> harvestedPartners = harvester.harvest();
 
-			log.info("harvesting from: {}", harvester.getSource());
-			Map<String, ElasticSearchPartner> harvestedPartners = harvester.harvest();
+				List<ElasticSearchChangeRecord> changes = new ArrayList<ElasticSearchChangeRecord>();
 
-			log.info("updating partners: {}", harvestedPartners.size());
-			Map<String, ElasticSearchPartner> changed = harvester.update(partners, harvestedPartners, changes);
-			updatedPartners.putAll(changed);
-			partners.putAll(updatedPartners);
+				log.info("updating partners: {}", harvestedPartners.size());
+				Map<String, ElasticSearchPartner> changed = harvester.update(partners, harvestedPartners, changes);
+				partners.putAll(changed);
+				log.info("partners updated: {}", changed.size());
 
-			log.info("saving elasticseaerch entities: {}", harvestedPartners.size());
-			elastic.addEntities(new ArrayList<ElasticSearchPartner>(updatedPartners.values()));
-			elastic.addEntities(changes);
+				log.info("saving elasticsearch entities: {}", changed.size());
+				if (changed.size() > 0)
+					elastic.addEntities(new ArrayList<ElasticSearchPartner>(changed.values()));
+				if (changes.size() > 0)
+					elastic.addEntities(changes);
+			}
+			catch (SkipHarvestException sre)
+			{
+				log.info("skipping harvesting: {}", harvester.getSource());
+			}
 		}
 	}
 }

@@ -27,11 +27,15 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+/**
+ * @author nishen
+ *
+ */
 public class TepunaDAOImpl implements TepunaDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(TepunaDAOImpl.class);
 
-	private static final String NUC_PREFIX = "NLNZ";
+	private static final String NZ_NUC_PREFIX = "NLNZ";
 
 	private ObjectFactory of = new ObjectFactory();
 
@@ -57,8 +61,7 @@ public class TepunaDAOImpl implements TepunaDAO
 			for (CSVRecord record : parser)
 			{
 				ElasticSearchPartner partner = new ElasticSearchPartner();
-				partner.setAddresses(new ArrayList<ElasticSearchPartnerAddress>());
-				partner.setNuc(NUC_PREFIX + ":" + record.get(0));
+				partner.setNuc(NZ_NUC_PREFIX + ":" + record.get(0));
 				partner.setEnabled(true);
 				partner.setStatus("active");
 
@@ -95,7 +98,7 @@ public class TepunaDAOImpl implements TepunaDAO
 					Address a = getAddress(s);
 
 					ElasticSearchPartnerAddress address = new ElasticSearchPartnerAddress();
-					address.setAddressType("main");
+					address.setAddressType("postal");
 					address.setAddressStatus("active");
 					address.setAddressDetail(a);
 					partner.getAddresses().add(address);

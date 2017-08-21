@@ -27,6 +27,7 @@ import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterIlrs;
 import org.nishen.resourcepartners.harvesters.HarvesterLadd;
 import org.nishen.resourcepartners.harvesters.HarvesterTepuna;
+import org.nishen.resourcepartners.harvesters.HarvesterTepunaStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,6 +96,7 @@ public class ResourcePartnerModule extends AbstractModule
 		harvesterBinder.addBinding().to(HarvesterLadd.class);
 		harvesterBinder.addBinding().to(HarvesterIlrs.class);
 		harvesterBinder.addBinding().to(HarvesterTepuna.class);
+		harvesterBinder.addBinding().to(HarvesterTepunaStatus.class);
 
 		install(new FactoryModuleBuilder().implement(Config.class, ConfigImpl.class).build(ConfigFactory.class));
 

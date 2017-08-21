@@ -56,10 +56,8 @@ public class LaddDAOImpl implements LaddDAO
 
 		String page = laddTarget.request(MediaType.TEXT_HTML).get(String.class);
 
-		int max = 5;
-
 		Matcher m = p.matcher(page);
-		while (m.find() && max-- > 0)
+		while (m.find())
 		{
 			String nuc1 = m.group(1);
 			String name = m.group(3);

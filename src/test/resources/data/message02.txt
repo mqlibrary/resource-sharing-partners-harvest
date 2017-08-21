@@ -1,0 +1,12 @@
+ISO-UPDATE-SOURCE LADD
+###
+###
+### This is a location which needs to be updated in your ISO-ILL System.
+### The Preferred Public Alias Symbol follows after the 'STATUS' keyword.
+### The next keyword is the Naming Authority for this location.
+### Following this is the information to be updated.
+###
+STATUS WHP NLNZ BEGIN SUSPENSION LIST
+STATUS WHP NLNZ NO SUSPENSIONS
+STATUS WHP NLNZ END SUSPENSION LIST
+

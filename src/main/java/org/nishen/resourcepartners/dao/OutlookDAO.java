@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface OutlookDAO
 {
-	public Map<String, String> getMessages() throws Exception;
+	public Map<String, String> getMessages();
 
 	public String getProcessedFolderId() throws Exception;
 

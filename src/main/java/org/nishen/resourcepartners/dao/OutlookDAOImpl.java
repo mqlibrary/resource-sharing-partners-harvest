@@ -70,13 +70,20 @@ public class OutlookDAOImpl implements OutlookDAO
 
 		log.debug("folders:\n{}", response);
 
-		JsonNode root = mapper.readTree(response);
-		for (JsonNode entry : root.get("value"))
+		try
 		{
-			String id = entry.get("Id").asText();
-			String name = entry.get("DisplayName").asText();
-			if (PROCESSED_FOLDER_NAME.equals(name))
-				return id;
+			JsonNode root = mapper.readTree(response);
+			for (JsonNode entry : root.get("value"))
+			{
+				String id = entry.get("Id").asText();
+				String name = entry.get("DisplayName").asText();
+				if (PROCESSED_FOLDER_NAME.equals(name))
+					return id;
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("unable to obtain processed folderId: {}", PROCESSED_FOLDER_NAME);
 		}
 
 		return null;
@@ -84,6 +91,12 @@ public class OutlookDAOImpl implements OutlookDAO
 
 	public void markMessagesProcessed(Map<String, String> messages) throws Exception
 	{
+		if (processedFolderId == null)
+		{
+			log.error("unable to move emails to processed folder[{}]: {}", PROCESSED_FOLDER_NAME, processedFolderId);
+			return;
+		}
+
 		String body = "{ \"DestinationId\": \"" + processedFolderId + "\" }";
 		for (String id : messages.keySet())
 		{
@@ -98,7 +111,7 @@ public class OutlookDAOImpl implements OutlookDAO
 		}
 	}
 
-	public Map<String, String> getMessages() throws Exception
+	public Map<String, String> getMessages()
 	{
 		Map<String, String> messages = new LinkedHashMap<String, String>();
 
@@ -126,16 +139,23 @@ public class OutlookDAOImpl implements OutlookDAO
 			String response = request.get(String.class);
 			log.debug("messages:\n{}", response);
 
-			JsonNode root = mapper.readTree(response);
-			log.debug("next: {}", root.get("@odata.nextLink"));
-
-			hasMore = root.has("@odata.nextLink");
-
-			for (JsonNode entry : root.get("value"))
+			try
 			{
-				String id = entry.get("Id").asText();
-				String message = entry.get("Body").get("Content").asText().replace("\\r\\n", "\n");
-				messages.put(id, message);
+				JsonNode root = mapper.readTree(response);
+				log.debug("next: {}", root.get("@odata.nextLink"));
+
+				hasMore = root.has("@odata.nextLink");
+
+				for (JsonNode entry : root.get("value"))
+				{
+					String id = entry.get("Id").asText();
+					String message = entry.get("Body").get("Content").asText().replace("\\r\\n", "\n");
+					messages.put(id, message);
+				}
+			}
+			catch (Exception e)
+			{
+				log.error("error processing json response: {}", response);
 			}
 
 			skip += batchSize;

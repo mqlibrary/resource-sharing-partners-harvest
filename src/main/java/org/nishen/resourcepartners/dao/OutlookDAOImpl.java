@@ -115,7 +115,7 @@ public class OutlookDAOImpl implements OutlookDAO
 	{
 		Map<String, String> messages = new LinkedHashMap<String, String>();
 
-		int batchSize = 10;
+		int batchSize = 50;
 		int skip = 0;
 		boolean hasMore = true;
 		while (hasMore)

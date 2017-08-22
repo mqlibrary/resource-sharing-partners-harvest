@@ -130,6 +130,14 @@ public class HarvesterTepuna implements Harvester
 				requiresUpdate = true;
 			}
 
+			if (!compareStrings(p.getPhoneFax(), l.getPhoneFax()))
+			{
+				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "phone_fax", p.getPhoneFax(),
+				                                          l.getPhoneFax()));
+				p.setPhoneFax(l.getPhoneFax());
+				requiresUpdate = true;
+			}
+
 			Map<String, ElasticSearchPartnerAddress> pAddresses = new HashMap<String, ElasticSearchPartnerAddress>();
 			for (ElasticSearchPartnerAddress ea : p.getAddresses())
 				pAddresses.put(ea.getAddressType(), ea);

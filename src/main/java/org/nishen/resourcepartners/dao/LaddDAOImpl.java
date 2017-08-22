@@ -2,6 +2,7 @@ package org.nishen.resourcepartners.dao;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -76,43 +77,15 @@ public class LaddDAOImpl implements LaddDAO
 			ElasticSearchSuspension suspension = null;
 			if (susp != null && !"".equals(susp))
 			{
-				e.setStatus(susp.toLowerCase());
+				if ("not suspended".equals(susp.trim().toLowerCase()))
+					e.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+				else
+					e.setStatus(ElasticSearchSuspension.SUSPENDED);
 
 				suspension = new ElasticSearchSuspension();
-				suspension.setSuspensionStatus(susp.toLowerCase());
-				if (srts != null && !"".equals(srts))
-				{
-					try
-					{
-						String date = odf.format(idf.parse(srts));
-						suspension.setSuspensionStart(date);
-					}
-					catch (ParseException pe)
-					{
-						log.warn("[{}] unable to parse date: {}", nuc1, srts);
-					}
-				}
-				else
-				{
-					suspension.setSuspensionStart(null);
-				}
-
-				if (ends != null && !"".equals(ends))
-				{
-					try
-					{
-						String date = odf.format(idf.parse(ends));
-						suspension.setSuspensionEnd(date);
-					}
-					catch (ParseException pe)
-					{
-						log.warn("[{}] unable to parse date: {}", nuc1, ends);
-					}
-				}
-				else
-				{
-					suspension.setSuspensionEnd(null);
-				}
+				suspension.setSuspensionStatus(e.getStatus());
+				suspension.setSuspensionStart(formatDate(nuc1, srts));
+				suspension.setSuspensionEnd(formatDate(nuc1, ends));
 
 				e.getSuspensions().add(suspension);
 			}
@@ -121,5 +94,25 @@ public class LaddDAOImpl implements LaddDAO
 		}
 
 		return data;
+	}
+
+	private String formatDate(String nuc, String date)
+	{
+		String result = null;
+
+		if (date != null && !"".equals(date.trim()))
+		{
+			try
+			{
+				Date d = idf.parse(date);
+				result = odf.format(d);
+			}
+			catch (ParseException pe)
+			{
+				log.warn("can't parse tepuna date[{}]: {}", nuc, date);
+			}
+		}
+
+		return result;
 	}
 }

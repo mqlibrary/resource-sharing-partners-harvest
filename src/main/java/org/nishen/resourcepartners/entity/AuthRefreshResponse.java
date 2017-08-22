@@ -1,9 +1,13 @@
 package org.nishen.resourcepartners.entity;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class AuthRefreshResponse
+public class AuthRefreshResponse implements Serializable
 {
+	private static final long serialVersionUID = -3109431230519244513L;
+
 	@JsonProperty("token_type")
 	private String tokenType;
 

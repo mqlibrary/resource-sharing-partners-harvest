@@ -1,9 +1,12 @@
 package org.nishen.resourcepartners.entity;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.nishen.resourcepartners.model.Address;
@@ -11,8 +14,11 @@ import org.nishen.resourcepartners.model.Address;
 @XmlRootElement(name = "address")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = { "addressStatus", "addressType", "addressDetail" })
-public class ElasticSearchPartnerAddress
+public class ElasticSearchPartnerAddress implements Serializable
 {
+	@XmlTransient
+	private static final long serialVersionUID = -7788532956616833550L;
+
 	@XmlElement(name = "address_status")
 	private String addressStatus;
 

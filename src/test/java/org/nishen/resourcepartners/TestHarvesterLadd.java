@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
+import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterLadd;
 import org.nishen.resourcepartners.model.Address;
@@ -82,9 +83,13 @@ public class TestHarvesterLadd
 		partner = new ElasticSearchPartner();
 		partner.setNuc("TEST");
 		partner.setName("Test Organisation");
-		partner.setStatus("not suspended");
-		partner.setSuspensionStart(null);
-		partner.setSuspensionEnd(null);
+
+		ElasticSearchSuspension suspension = new ElasticSearchSuspension();
+		suspension.setSuspensionStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+		suspension.setSuspensionStart(null);
+		suspension.setSuspensionEnd(null);
+
+		partner.getSuspensions().add(suspension);
 
 		try
 		{

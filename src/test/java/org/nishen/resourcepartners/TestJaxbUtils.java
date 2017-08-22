@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.model.Address.Country;
 import org.nishen.resourcepartners.model.ObjectFactory;
@@ -104,8 +105,13 @@ public class TestJaxbUtils
 			partner.setEnabled(true);
 			partner.setName("Test Organisation");
 			partner.setUpdated("123123123");
-			partner.setSuspensionEnd(null);
-			partner.setSuspensionStart(null);
+
+			ElasticSearchSuspension suspension = new ElasticSearchSuspension();
+			suspension.setSuspensionStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+			suspension.setSuspensionStart(null);
+			suspension.setSuspensionEnd(null);
+
+			partner.getSuspensions().add(suspension);
 
 			String actual = JaxbUtil.format(partner);
 			log.debug("address: {}", actual);

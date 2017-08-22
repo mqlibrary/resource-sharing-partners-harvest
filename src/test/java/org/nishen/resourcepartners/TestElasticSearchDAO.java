@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
+import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.model.Address.Country;
 import org.nishen.resourcepartners.util.DataUtils;
@@ -84,9 +85,13 @@ public class TestElasticSearchDAO
 			ElasticSearchPartner expected = new ElasticSearchPartner();
 			expected.setNuc("TEST");
 			expected.setName("Test Organisation");
-			expected.setStatus("not suspended");
-			expected.setSuspensionStart(null);
-			expected.setSuspensionEnd(null);
+
+			ElasticSearchSuspension suspension = new ElasticSearchSuspension();
+			suspension.setSuspensionStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+			suspension.setSuspensionStart(null);
+			suspension.setSuspensionEnd(null);
+
+			expected.getSuspensions().add(suspension);
 
 			elastic.addEntity(expected);
 

@@ -1,5 +1,6 @@
 package org.nishen.resourcepartners.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -9,14 +10,18 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "partner")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "nuc", "updated", "name", "enabled", "status", "suspensionStart", "suspensionEnd", "emailMain",
-                       "emailIll", "phoneMain", "phoneIll", "phoneFax", "suspensions", "addresses" })
-public class ElasticSearchPartner implements ElasticSearchEntity
+@XmlType(propOrder = { "nuc", "updated", "name", "enabled", "status", "emailMain", "emailIll", "phoneMain", "phoneIll",
+                       "phoneFax", "suspensions", "addresses" })
+public class ElasticSearchPartner implements ElasticSearchEntity, Serializable
 {
+	@XmlTransient
+	private static final long serialVersionUID = 974331238066994902L;
+
 	@XmlElement(name = "nuc")
 	private String nuc;
 

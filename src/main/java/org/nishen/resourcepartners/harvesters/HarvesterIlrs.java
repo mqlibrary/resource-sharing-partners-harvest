@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -26,7 +25,6 @@ import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
-import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.util.JaxbUtil;
 import org.nishen.resourcepartners.util.JaxbUtilModel;
@@ -123,10 +121,10 @@ public class HarvesterIlrs implements Harvester
 				ilrsPartner.setStatus(ep.getStatus());
 				ilrsPartner.setEmailMain(ep.getEmailMain());
 				ilrsPartner.setEmailIll(emailIll);
-				ilrsPartner.setPhoneMain(phoneFax);
+				ilrsPartner.setPhoneMain(null);
 				ilrsPartner.setPhoneIll(phoneIll);
-				ilrsPartner.setSuspensions(new LinkedHashSet<ElasticSearchSuspension>(ep.getSuspensions()));
-				ilrsPartner.setUpdated(ep.getUpdated());
+				ilrsPartner.setPhoneFax(phoneFax);
+				ilrsPartner.getSuspensions().addAll(ep.getSuspensions());
 				for (String type : addresses.keySet())
 				{
 					ElasticSearchPartnerAddress address = new ElasticSearchPartnerAddress();
@@ -136,6 +134,7 @@ public class HarvesterIlrs implements Harvester
 
 					ilrsPartner.getAddresses().add(address);
 				}
+				ilrsPartner.setUpdated(ep.getUpdated());
 
 				ilrsPartners.put(ilrsPartner.getNuc(), ilrsPartner);
 			}
@@ -193,6 +192,14 @@ public class HarvesterIlrs implements Harvester
 				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "phone_ill", p.getPhoneIll(),
 				                                          l.getPhoneIll()));
 				p.setPhoneIll(l.getPhoneIll());
+				requiresUpdate = true;
+			}
+
+			if (!compareStrings(p.getPhoneFax(), l.getPhoneFax()))
+			{
+				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "phone_fax", p.getPhoneFax(),
+				                                          l.getPhoneFax()));
+				p.setPhoneFax(l.getPhoneFax());
 				requiresUpdate = true;
 			}
 

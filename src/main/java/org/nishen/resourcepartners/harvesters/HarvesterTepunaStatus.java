@@ -5,8 +5,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +19,8 @@ import org.nishen.resourcepartners.dao.OutlookDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
+import org.nishen.resourcepartners.util.JaxbUtil;
+import org.nishen.resourcepartners.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,59 +83,54 @@ public class HarvesterTepunaStatus implements Harvester
 
 		Map<String, String> messages = outlook.getMessages();
 
-		Map<String, ElasticSearchSuspension> suspensions = getSuspensions(messages);
+		Map<String, Set<ElasticSearchSuspension>> suspensions = getSuspensions(messages);
 
 		for (String nuc : suspensions.keySet())
 		{
-			ElasticSearchSuspension s = suspensions.get(nuc);
+			Set<ElasticSearchSuspension> s = suspensions.get(nuc);
 			ElasticSearchPartner p = partners.get(nuc);
-			p.setStatus(s.getSuspensionStatus());
+			ElasticSearchPartner l = ObjectUtil.deepClone(p);
 
-			Date start = null;
-			Date end = null;
-
-			try
-			{
-				if (s.getSuspensionStart() != null)
-				{
-					start = idf.parse(s.getSuspensionStart());
-					p.setSuspensionStart(sdf.format(start));
-				}
-			}
-			catch (ParseException pe)
-			{
-				log.warn("can't parse tepuna date[{}]: {}", nuc, s.getSuspensionStart());
-			}
-
-			try
-			{
-				if (s.getSuspensionEnd() != null)
-				{
-					end = idf.parse(s.getSuspensionEnd());
-					p.setSuspensionEnd(sdf.format(end));
-				}
-			}
-			catch (ParseException pe)
-			{
-				log.warn("can't parse tepuna date[{}]: {}", nuc, s.getSuspensionEnd());
-			}
+			for (ElasticSearchSuspension suspension : s)
+				l.getSuspensions().add(suspension);
 
 			Date now = new Date();
-			if (start != null && end != null)
-				if (now.after(start) && now.before(end))
-					p.setStatus("suspended");
 
-			tepunaPartners.put(nuc, p);
+			for (ElasticSearchSuspension susp : l.getSuspensions())
+			{
+				if (ElasticSearchSuspension.SUSPENDED.equals(susp.getSuspensionStatus()))
+				{
+					try
+					{
+						Date start = sdf.parse(susp.getSuspensionStart());
+						Date end = sdf.parse(susp.getSuspensionEnd());
+
+						if (now.after(start) && now.before(end))
+							l.setStatus(ElasticSearchSuspension.SUSPENDED);
+					}
+					catch (ParseException pe)
+					{
+						log.error("issue parsing date. This should not have happened: [{}] [{}]",
+						          susp.getSuspensionStart(), susp.getSuspensionEnd());
+					}
+				}
+				else if (ElasticSearchSuspension.NOT_SUSPENDED.equals(susp.getSuspensionStatus()))
+				{
+					l.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+				}
+			}
+
+			tepunaPartners.put(nuc, l);
 		}
 
 		return tepunaPartners;
 	}
 
-	public Map<String, ElasticSearchSuspension> getSuspensions(Map<String, String> messages)
+	public Map<String, Set<ElasticSearchSuspension>> getSuspensions(Map<String, String> messages)
 	{
 		log.debug("getting suspensions");
 
-		Map<String, ElasticSearchSuspension> suspensions = new TreeMap<String, ElasticSearchSuspension>();
+		Map<String, Set<ElasticSearchSuspension>> suspensions = new TreeMap<String, Set<ElasticSearchSuspension>>();
 
 		for (String id : messages.keySet())
 		{
@@ -140,20 +139,25 @@ public class HarvesterTepunaStatus implements Harvester
 			{
 				String nuc = NZ_NUC_PREFIX + ":" + m.group(1);
 
+				if (suspensions.get(nuc) == null)
+					suspensions.put(nuc, new LinkedHashSet<ElasticSearchSuspension>());
+
 				if ("NO SUSPENSIONS".equals(m.group(2)))
 				{
 					ElasticSearchSuspension s = new ElasticSearchSuspension();
-					s.setStatus("not suspended");
-					suspensions.put(nuc, s);
+					s.setSuspensionStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+
+					suspensions.get(nuc).add(s);
 				}
 				else if (m.group(2) == null)
 				{
 					ElasticSearchSuspension s = new ElasticSearchSuspension();
-					s.setStatus("suspended");
-					s.setSuspensionStart(m.group(3));
-					s.setSuspensionEnd(m.group(4));
+					s.setSuspensionStatus(ElasticSearchSuspension.SUSPENDED);
+					s.setSuspensionStart(formatDate(nuc, m.group(3)));
+					s.setSuspensionEnd(formatDate(nuc, m.group(4)));
 					s.setSuspensionReason(m.group(6));
-					suspensions.put(nuc, s);
+
+					suspensions.get(nuc).add(s);
 				}
 			}
 		}
@@ -175,27 +179,15 @@ public class HarvesterTepunaStatus implements Harvester
 
 			boolean requiresUpdate = false;
 
-			if (!compareStrings(p.getStatus(), l.getStatus()))
+			for (ElasticSearchSuspension s : l.getSuspensions())
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "status", p.getStatus(), l.getStatus()));
-				p.setStatus(l.getStatus());
-				requiresUpdate = true;
-			}
-
-			if (!compareStrings(p.getSuspensionStart(), l.getSuspensionStart()))
-			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "suspension_start",
-				                                          p.getSuspensionStart(), l.getSuspensionStart()));
-				p.setSuspensionStart(l.getSuspensionStart());
-				requiresUpdate = true;
-			}
-
-			if (!compareStrings(p.getSuspensionEnd(), l.getSuspensionEnd()))
-			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "suspension_end", p.getSuspensionEnd(),
-				                                          l.getSuspensionEnd()));
-				p.setSuspensionEnd(l.getSuspensionEnd());
-				requiresUpdate = true;
+				if (!p.getSuspensions().contains(s))
+				{
+					changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null,
+					                                          JaxbUtil.format(s)));
+					p.getSuspensions().add(s);
+					requiresUpdate = true;
+				}
 			}
 
 			if (requiresUpdate)
@@ -206,5 +198,25 @@ public class HarvesterTepunaStatus implements Harvester
 		}
 
 		return updated;
+	}
+
+	private String formatDate(String nuc, String date)
+	{
+		String result = null;
+
+		if (date != null)
+		{
+			try
+			{
+				Date d = idf.parse(date);
+				result = sdf.format(d);
+			}
+			catch (ParseException pe)
+			{
+				log.warn("can't parse tepuna date[{}]: {}", nuc, date);
+			}
+		}
+
+		return result;
 	}
 }

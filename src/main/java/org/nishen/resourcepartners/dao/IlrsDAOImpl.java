@@ -118,6 +118,9 @@ public class IlrsDAOImpl implements IlrsDAO
 	{
 		Map<String, Address> addresses = new HashMap<String, Address>();
 
+		if (page == null || "".equals(page))
+			return addresses;
+
 		Matcher m = pAddress.matcher(page);
 		while (m.find())
 		{

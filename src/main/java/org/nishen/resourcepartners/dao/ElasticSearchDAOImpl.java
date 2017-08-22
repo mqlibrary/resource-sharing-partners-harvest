@@ -49,12 +49,10 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	{
 		this.elasticTarget = elasticTargetProvider.get();
 
-		this.indices = getElasticSearchIndices();
-
 		try
 		{
-			if (!this.indices.contains("partners"))
-				createElasticSearchIndex("partners");
+			indices = getElasticSearchIndices();
+			createElasticSearchIndex("partners");
 		}
 		catch (IOException ioe)
 		{

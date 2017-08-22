@@ -12,6 +12,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,41 +73,48 @@ public class LaddDAOImpl implements LaddDAO
 			if (name != null && !"".equals(name))
 				e.setName(name);
 
+			ElasticSearchSuspension suspension = null;
 			if (susp != null && !"".equals(susp))
+			{
 				e.setStatus(susp.toLowerCase());
 
-			if (srts != null && !"".equals(srts))
-			{
-				try
+				suspension = new ElasticSearchSuspension();
+				suspension.setSuspensionStatus(susp.toLowerCase());
+				if (srts != null && !"".equals(srts))
 				{
-					String date = odf.format(idf.parse(srts));
-					e.setSuspensionStart(date);
+					try
+					{
+						String date = odf.format(idf.parse(srts));
+						suspension.setSuspensionStart(date);
+					}
+					catch (ParseException pe)
+					{
+						log.warn("[{}] unable to parse date: {}", nuc1, srts);
+					}
 				}
-				catch (ParseException pe)
+				else
 				{
-					log.warn("[{}] unable to parse date: {}", nuc1, srts);
+					suspension.setSuspensionStart(null);
 				}
-			}
-			else
-			{
-				e.setSuspensionStart(null);
-			}
 
-			if (ends != null && !"".equals(ends))
-			{
-				try
+				if (ends != null && !"".equals(ends))
 				{
-					String date = odf.format(idf.parse(ends));
-					e.setSuspensionEnd(date);
+					try
+					{
+						String date = odf.format(idf.parse(ends));
+						suspension.setSuspensionEnd(date);
+					}
+					catch (ParseException pe)
+					{
+						log.warn("[{}] unable to parse date: {}", nuc1, ends);
+					}
 				}
-				catch (ParseException pe)
+				else
 				{
-					log.warn("[{}] unable to parse date: {}", nuc1, ends);
+					suspension.setSuspensionEnd(null);
 				}
-			}
-			else
-			{
-				e.setSuspensionEnd(null);
+
+				e.getSuspensions().add(suspension);
 			}
 
 			data.put(nuc1, e);

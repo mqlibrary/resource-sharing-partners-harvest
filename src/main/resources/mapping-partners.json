@@ -12,13 +12,20 @@
         "updated": { "type": "date", "format": "date_time_no_millis" },
         "name": { "type": "keyword" },
         "enabled": { "type": "boolean" },
-        "status": { "type": "keyword" },
-        "suspension_start": { "type": "date", "format": "basic_date" },
-        "suspension_end": { "type": "date", "format": "basic_date" },
         "email_main": { "type": "text" },
         "email_ill": { "type": "text" },
         "phone_main": { "type": "text" },
         "phone_ill": { "type": "text" },
+        "phone_fax": { "type": "text" },
+        "suspension": {
+          "properties": {
+            "suspension_status": { "type": "keyword" },
+            "suspension_start": { "type": "date", "format": "basic_date" },
+            "suspension_end": { "type": "date", "format": "basic_date" },
+            "suspension_code": { "type": "keyword" },
+            "suspension_reason": { "type": "text" }
+          }
+        },
         "addresses": {
           "properties": {
             "address_status": { "type": "keyword" },

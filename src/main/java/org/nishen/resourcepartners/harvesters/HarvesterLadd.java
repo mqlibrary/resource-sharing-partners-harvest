@@ -3,12 +3,15 @@ package org.nishen.resourcepartners.harvesters;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.nishen.resourcepartners.dao.LaddDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,21 +100,15 @@ public class HarvesterLadd implements Harvester
 				requiresUpdate = true;
 			}
 
-			if (!compareStrings(p.getSuspensionStart(), l.getSuspensionStart()))
-			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "suspension_start",
-				                                          p.getSuspensionStart(), l.getSuspensionStart()));
-				p.setSuspensionStart(l.getSuspensionStart());
-				requiresUpdate = true;
-			}
-
-			if (!compareStrings(p.getSuspensionEnd(), l.getSuspensionEnd()))
-			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "suspension_end", p.getSuspensionEnd(),
-				                                          l.getSuspensionEnd()));
-				p.setSuspensionEnd(l.getSuspensionEnd());
-				requiresUpdate = true;
-			}
+			Set<ElasticSearchSuspension> lSuspensions = new LinkedHashSet<ElasticSearchSuspension>(l.getSuspensions());
+			for (ElasticSearchSuspension s : lSuspensions)
+				if (!p.getSuspensions().contains(s))
+				{
+					changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null,
+					                                          JaxbUtil.format(s)));
+					p.getSuspensions().add(s);
+					requiresUpdate = true;
+				}
 
 			if (requiresUpdate)
 			{

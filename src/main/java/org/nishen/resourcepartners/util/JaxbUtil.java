@@ -17,6 +17,7 @@ import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
+import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.model.Addresses;
 import org.slf4j.Logger;
@@ -41,7 +42,8 @@ public class JaxbUtil
 		try
 		{
 			Class<?>[] classes = new Class<?>[] { ElasticSearchPartner.class, ElasticSearchPartnerAddress.class,
-			                                      ElasticSearchChangeRecord.class, Addresses.class, Address.class };
+			                                      ElasticSearchChangeRecord.class, ElasticSearchSuspension.class,
+			                                      Addresses.class, Address.class };
 			context = JAXBContext.newInstance(classes);
 		}
 		catch (Exception e)

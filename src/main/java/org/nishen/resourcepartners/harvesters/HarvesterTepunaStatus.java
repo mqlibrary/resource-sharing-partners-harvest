@@ -16,8 +16,7 @@ import org.nishen.resourcepartners.dao.ElasticSearchDAO;
 import org.nishen.resourcepartners.dao.OutlookDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
-import org.nishen.resourcepartners.util.JaxbUtil;
+import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,41 +79,41 @@ public class HarvesterTepunaStatus implements Harvester
 
 		Map<String, String> messages = outlook.getMessages();
 
-		Map<String, Suspension> suspensions = getSuspensions(messages);
+		Map<String, ElasticSearchSuspension> suspensions = getSuspensions(messages);
 
 		for (String nuc : suspensions.keySet())
 		{
-			Suspension s = suspensions.get(nuc);
+			ElasticSearchSuspension s = suspensions.get(nuc);
 			ElasticSearchPartner p = partners.get(nuc);
-			p.setStatus(s.getStatus());
+			p.setStatus(s.getSuspensionStatus());
 
 			Date start = null;
 			Date end = null;
 
 			try
 			{
-				if (s.getSuspension_start() != null)
+				if (s.getSuspensionStart() != null)
 				{
-					start = idf.parse(s.getSuspension_start());
+					start = idf.parse(s.getSuspensionStart());
 					p.setSuspensionStart(sdf.format(start));
 				}
 			}
 			catch (ParseException pe)
 			{
-				log.warn("can't parse tepuna date[{}]: {}", nuc, s.getSuspension_start());
+				log.warn("can't parse tepuna date[{}]: {}", nuc, s.getSuspensionStart());
 			}
 
 			try
 			{
-				if (s.getSuspension_end() != null)
+				if (s.getSuspensionEnd() != null)
 				{
-					end = idf.parse(s.getSuspension_end());
+					end = idf.parse(s.getSuspensionEnd());
 					p.setSuspensionEnd(sdf.format(end));
 				}
 			}
 			catch (ParseException pe)
 			{
-				log.warn("can't parse tepuna date[{}]: {}", nuc, s.getSuspension_end());
+				log.warn("can't parse tepuna date[{}]: {}", nuc, s.getSuspensionEnd());
 			}
 
 			Date now = new Date();
@@ -128,11 +127,11 @@ public class HarvesterTepunaStatus implements Harvester
 		return tepunaPartners;
 	}
 
-	public Map<String, Suspension> getSuspensions(Map<String, String> messages)
+	public Map<String, ElasticSearchSuspension> getSuspensions(Map<String, String> messages)
 	{
 		log.debug("getting suspensions");
 
-		Map<String, Suspension> suspensions = new TreeMap<String, Suspension>();
+		Map<String, ElasticSearchSuspension> suspensions = new TreeMap<String, ElasticSearchSuspension>();
 
 		for (String id : messages.keySet())
 		{
@@ -143,17 +142,17 @@ public class HarvesterTepunaStatus implements Harvester
 
 				if ("NO SUSPENSIONS".equals(m.group(2)))
 				{
-					Suspension s = new Suspension();
+					ElasticSearchSuspension s = new ElasticSearchSuspension();
 					s.setStatus("not suspended");
 					suspensions.put(nuc, s);
 				}
 				else if (m.group(2) == null)
 				{
-					Suspension s = new Suspension();
+					ElasticSearchSuspension s = new ElasticSearchSuspension();
 					s.setStatus("suspended");
-					s.setSuspension_start(m.group(3));
-					s.setSuspension_end(m.group(4));
-					s.setSuspension_reason(m.group(6));
+					s.setSuspensionStart(m.group(3));
+					s.setSuspensionEnd(m.group(4));
+					s.setSuspensionReason(m.group(6));
 					suspensions.put(nuc, s);
 				}
 			}
@@ -207,130 +206,5 @@ public class HarvesterTepunaStatus implements Harvester
 		}
 
 		return updated;
-	}
-
-	private class Suspension
-	{
-		private String status;
-		private String suspension_start;
-		private String suspension_end;
-		private String suspension_reason;
-
-		public String getStatus()
-		{
-			return status;
-		}
-
-		public void setStatus(String status)
-		{
-			this.status = status;
-		}
-
-		public String getSuspension_start()
-		{
-			return suspension_start;
-		}
-
-		public void setSuspension_start(String suspension_start)
-		{
-			this.suspension_start = suspension_start;
-		}
-
-		public String getSuspension_end()
-		{
-			return suspension_end;
-		}
-
-		public void setSuspension_end(String suspension_end)
-		{
-			this.suspension_end = suspension_end;
-		}
-
-		public String getSuspension_reason()
-		{
-			return suspension_reason;
-		}
-
-		public void setSuspension_reason(String suspension_reason)
-		{
-			this.suspension_reason = suspension_reason;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getOuterType().hashCode();
-			result = prime * result + ((status == null) ? 0 : status.hashCode());
-			result = prime * result + ((suspension_end == null) ? 0 : suspension_end.hashCode());
-			result = prime * result + ((suspension_reason == null) ? 0 : suspension_reason.hashCode());
-			result = prime * result + ((suspension_start == null) ? 0 : suspension_start.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj)
-		{
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Suspension other = (Suspension) obj;
-			if (!getOuterType().equals(other.getOuterType()))
-				return false;
-			if (status == null)
-			{
-				if (other.status != null)
-					return false;
-			}
-			else if (!status.equals(other.status))
-				return false;
-			if (suspension_end == null)
-			{
-				if (other.suspension_end != null)
-					return false;
-			}
-			else if (!suspension_end.equals(other.suspension_end))
-				return false;
-			if (suspension_reason == null)
-			{
-				if (other.suspension_reason != null)
-					return false;
-			}
-			else if (!suspension_reason.equals(other.suspension_reason))
-				return false;
-			if (suspension_start == null)
-			{
-				if (other.suspension_start != null)
-					return false;
-			}
-			else if (!suspension_start.equals(other.suspension_start))
-				return false;
-			return true;
-		}
-
-		private HarvesterTepunaStatus getOuterType()
-		{
-			return HarvesterTepunaStatus.this;
-		}
-
-		@Override
-		public String toString()
-		{
-			StringBuilder builder = new StringBuilder();
-			builder.append("Suspension [status=");
-			builder.append(status);
-			builder.append(", suspension_start=");
-			builder.append(suspension_start);
-			builder.append(", suspension_end=");
-			builder.append(suspension_end);
-			builder.append(", suspension_reason=");
-			builder.append(suspension_reason);
-			builder.append("]");
-			return builder.toString();
-		}
 	}
 }

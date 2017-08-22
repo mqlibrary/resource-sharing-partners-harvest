@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,6 +26,7 @@ import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
+import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.util.JaxbUtil;
 import org.nishen.resourcepartners.util.JaxbUtilModel;
@@ -123,8 +125,7 @@ public class HarvesterIlrs implements Harvester
 				ilrsPartner.setEmailIll(emailIll);
 				ilrsPartner.setPhoneMain(phoneFax);
 				ilrsPartner.setPhoneIll(phoneIll);
-				ilrsPartner.setSuspensionStart(ep.getSuspensionStart());
-				ilrsPartner.setSuspensionEnd(ep.getSuspensionEnd());
+				ilrsPartner.setSuspensions(new LinkedHashSet<ElasticSearchSuspension>(ep.getSuspensions()));
 				ilrsPartner.setUpdated(ep.getUpdated());
 				for (String type : addresses.keySet())
 				{

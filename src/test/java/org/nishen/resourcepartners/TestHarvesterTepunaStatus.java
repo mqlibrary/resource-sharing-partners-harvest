@@ -11,7 +11,6 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterTepunaStatus;
 import org.nishen.resourcepartners.util.DataUtils;
 import org.slf4j.Logger;

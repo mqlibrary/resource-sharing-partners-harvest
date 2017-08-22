@@ -1,7 +1,9 @@
 package org.nishen.resourcepartners.entity;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -12,7 +14,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "partner")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = { "nuc", "updated", "name", "enabled", "status", "suspensionStart", "suspensionEnd", "emailMain",
-                       "emailIll", "phoneMain", "phoneIll", "addresses" })
+                       "emailIll", "phoneMain", "phoneIll", "phoneFax", "suspensions", "addresses" })
 public class ElasticSearchPartner implements ElasticSearchEntity
 {
 	@XmlElement(name = "nuc")
@@ -30,12 +32,6 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 	@XmlElement(name = "status")
 	private String status;
 
-	@XmlElement(name = "suspension_start", nillable = true)
-	private String suspensionStart;
-
-	@XmlElement(name = "suspension_end", nillable = true)
-	private String suspensionEnd;
-
 	@XmlElement(name = "email_main")
 	private String emailMain;
 
@@ -47,6 +43,12 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 
 	@XmlElement(name = "phone_ill")
 	private String phoneIll;
+
+	@XmlElement(name = "phone_fax")
+	private String phoneFax;
+
+	@XmlElement(name = "suspensions")
+	private Set<ElasticSearchSuspension> suspensions = new LinkedHashSet<ElasticSearchSuspension>();
 
 	@XmlElement(name = "addresses")
 	private List<ElasticSearchPartnerAddress> addresses = new ArrayList<ElasticSearchPartnerAddress>();
@@ -125,26 +127,6 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 		this.status = status;
 	}
 
-	public String getSuspensionStart()
-	{
-		return suspensionStart;
-	}
-
-	public void setSuspensionStart(String suspensionStart)
-	{
-		this.suspensionStart = suspensionStart;
-	}
-
-	public String getSuspensionEnd()
-	{
-		return suspensionEnd;
-	}
-
-	public void setSuspensionEnd(String suspensionEnd)
-	{
-		this.suspensionEnd = suspensionEnd;
-	}
-
 	public String getEmailMain()
 	{
 		return emailMain;
@@ -185,6 +167,26 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 		this.phoneIll = phoneIll;
 	}
 
+	public String getPhoneFax()
+	{
+		return phoneFax;
+	}
+
+	public void setPhoneFax(String phoneFax)
+	{
+		this.phoneFax = phoneFax;
+	}
+
+	public Set<ElasticSearchSuspension> getSuspensions()
+	{
+		return suspensions;
+	}
+
+	public void setSuspensions(Set<ElasticSearchSuspension> suspensions)
+	{
+		this.suspensions = suspensions;
+	}
+
 	public List<ElasticSearchPartnerAddress> getAddresses()
 	{
 		return addresses;
@@ -195,124 +197,4 @@ public class ElasticSearchPartner implements ElasticSearchEntity
 		this.addresses = addresses;
 	}
 
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((addresses == null) ? 0 : addresses.hashCode());
-		result = prime * result + ((emailIll == null) ? 0 : emailIll.hashCode());
-		result = prime * result + ((emailMain == null) ? 0 : emailMain.hashCode());
-		result = prime * result + (enabled ? 1231 : 1237);
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((nuc == null) ? 0 : nuc.hashCode());
-		result = prime * result + ((phoneIll == null) ? 0 : phoneIll.hashCode());
-		result = prime * result + ((phoneMain == null) ? 0 : phoneMain.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((suspensionEnd == null) ? 0 : suspensionEnd.hashCode());
-		result = prime * result + ((suspensionStart == null) ? 0 : suspensionStart.hashCode());
-		result = prime * result + ((updated == null) ? 0 : updated.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ElasticSearchPartner other = (ElasticSearchPartner) obj;
-		if (addresses == null)
-		{
-			if (other.addresses != null)
-				return false;
-		}
-		else if (!addresses.equals(other.addresses))
-			return false;
-		if (emailIll == null)
-		{
-			if (other.emailIll != null)
-				return false;
-		}
-		else if (!emailIll.equals(other.emailIll))
-			return false;
-		if (emailMain == null)
-		{
-			if (other.emailMain != null)
-				return false;
-		}
-		else if (!emailMain.equals(other.emailMain))
-			return false;
-		if (enabled != other.enabled)
-			return false;
-		if (name == null)
-		{
-			if (other.name != null)
-				return false;
-		}
-		else if (!name.equals(other.name))
-			return false;
-		if (nuc == null)
-		{
-			if (other.nuc != null)
-				return false;
-		}
-		else if (!nuc.equals(other.nuc))
-			return false;
-		if (phoneIll == null)
-		{
-			if (other.phoneIll != null)
-				return false;
-		}
-		else if (!phoneIll.equals(other.phoneIll))
-			return false;
-		if (phoneMain == null)
-		{
-			if (other.phoneMain != null)
-				return false;
-		}
-		else if (!phoneMain.equals(other.phoneMain))
-			return false;
-		if (status == null)
-		{
-			if (other.status != null)
-				return false;
-		}
-		else if (!status.equals(other.status))
-			return false;
-		if (suspensionEnd == null)
-		{
-			if (other.suspensionEnd != null)
-				return false;
-		}
-		else if (!suspensionEnd.equals(other.suspensionEnd))
-			return false;
-		if (suspensionStart == null)
-		{
-			if (other.suspensionStart != null)
-				return false;
-		}
-		else if (!suspensionStart.equals(other.suspensionStart))
-			return false;
-		if (updated == null)
-		{
-			if (other.updated != null)
-				return false;
-		}
-		else if (!updated.equals(other.updated))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString()
-	{
-		return "ElasticSearchPartner [nuc=" + nuc + ", updated=" + updated + ", name=" + name + ", enabled=" + enabled +
-		       ", status=" + status + ", suspensionStart=" + suspensionStart + ", suspensionEnd=" + suspensionEnd +
-		       ", emailMain=" + emailMain + ", emailIll=" + emailIll + ", phoneMain=" + phoneMain + ", phoneIll=" +
-		       phoneIll + ", addresses=" + addresses + "]";
-	}
 }

@@ -18,9 +18,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.model.Address.Country;
 import org.nishen.resourcepartners.model.ObjectFactory;
@@ -96,19 +93,30 @@ public class IlrsDAOImpl implements IlrsDAO
 		WebTarget ilrsTarget = webTargetProvider.get();
 		WebTarget t = ilrsTarget.path("apps").path("ilrs").queryParam("action", "IlrsSearch");
 
-		log.debug("target: {}", t.getUri());
+		log.debug("target: {}/{}", t.getUri(), nuc);
 
 		Form form = new Form();
 		form = form.param("nuc", nuc).param("term", "").param("termType", "Keyword").param("state", "All")
 		           .param("dosearch", "Search").param("chunk", "20");
 
-		String result = null;
+		String result = t.request(MediaType.TEXT_HTML).post(Entity.form(form), String.class);
 
-		result = t.request(MediaType.TEXT_HTML).post(Entity.form(form), String.class);
+		if (result != null)
+			log.debug("retrieved page of size [{}]: {} bytes", nuc, result.length());
+		else
+			log.debug("retrieved page of size [{}]: FAILED", nuc);
 
-		Document doc = Jsoup.parse(result);
-		String cleanPage = Jsoup.clean(doc.toString(), Whitelist.basic());
-		log.trace("\n{}", cleanPage);
+		// implement a delay to not hammer ILRS
+		try
+		{
+			long delay = Math.round(Math.random() * 3000) + 2000;
+			Thread.sleep(delay);
+			log.debug("[{}] sleeping for: {}ms", Thread.currentThread().getName(), delay);
+		}
+		catch (InterruptedException ie)
+		{
+			log.error("[{}] thread was interrupted: {}", Thread.currentThread().getName(), ie.getMessage());
+		}
 
 		return result;
 	}
@@ -117,9 +125,6 @@ public class IlrsDAOImpl implements IlrsDAO
 	public Map<String, Address> getAddressesFromPage(String page)
 	{
 		Map<String, Address> addresses = new HashMap<String, Address>();
-
-		if (page == null || "".equals(page))
-			return addresses;
 
 		Matcher m = pAddress.matcher(page);
 		while (m.find())
@@ -130,9 +135,7 @@ public class IlrsDAOImpl implements IlrsDAO
 			List<String> cleanAddr = cleanAddress(addr);
 			log.debug("type: {}", type.toLowerCase());
 			for (String s : cleanAddr)
-			{
 				log.debug("addr: {}", s);
-			}
 
 			addresses.put(type.toLowerCase(), extractAddress(cleanAddr));
 		}

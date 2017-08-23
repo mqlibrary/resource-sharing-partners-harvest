@@ -17,6 +17,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.ws.rs.NotFoundException;
+
 import org.nishen.resourcepartners.SkipHarvestException;
 import org.nishen.resourcepartners.dao.Config;
 import org.nishen.resourcepartners.dao.ConfigFactory;
@@ -49,9 +51,9 @@ public class HarvesterIlrs implements Harvester
 
 	private static final String DEFAULT_DAYS_BETWEEN = "7";
 
-	private static final int THREADS = 6;
+	private static final int THREADS = 4;
 
-	private static final int BLOCKING_QUEUE_SIZE = 10;
+	private static final int BLOCKING_QUEUE_SIZE = 4;
 
 	private Config config;
 
@@ -103,6 +105,12 @@ public class HarvesterIlrs implements Harvester
 			try
 			{
 				String page = results.get(nuc).get();
+
+				if (page == null)
+				{
+					log.warn("could not obtain ilrs page for: {}", nuc);
+					continue;
+				}
 
 				Map<String, Address> addresses = ilrs.getAddressesFromPage(page);
 				if (log.isDebugEnabled())
@@ -280,7 +288,7 @@ public class HarvesterIlrs implements Harvester
 			this.nuc = nuc;
 		}
 
-		public String call() throws Exception
+		public String call()
 		{
 			String page = null;
 
@@ -288,9 +296,13 @@ public class HarvesterIlrs implements Harvester
 			{
 				page = ilrs.getPage(nuc);
 			}
+			catch (NotFoundException nfe)
+			{
+				log.warn("failed to obtain ilrs page [{}]: {}", nuc, nfe.getMessage());
+			}
 			catch (Exception e)
 			{
-				log.error("failed to obtain ilrs page: {}", e.getMessage(), e);
+				log.error("failed to obtain ilrs page: {}", e.getMessage());
 			}
 
 			return page;

@@ -1,6 +1,7 @@
 package org.nishen.resourcepartners.harvesters;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -50,6 +51,12 @@ public class HarvesterLadd implements Harvester
 	public Map<String, ElasticSearchPartner> harvest()
 	{
 		Map<String, ElasticSearchPartner> laddPartners = ladd.getData();
+
+		List<String> nucs = new ArrayList<String>(laddPartners.keySet());
+
+		nucs = nucs.subList(0, 600);
+		for (String nuc : nucs)
+			laddPartners.remove(nuc);
 
 		return laddPartners;
 	}

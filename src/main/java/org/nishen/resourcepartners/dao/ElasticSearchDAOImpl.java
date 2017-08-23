@@ -52,6 +52,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		try
 		{
 			indices = getElasticSearchIndices();
+			createElasticSearchIndex("config");
 			createElasticSearchIndex("partners");
 		}
 		catch (IOException ioe)

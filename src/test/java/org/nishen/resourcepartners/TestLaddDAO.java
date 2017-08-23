@@ -1,5 +1,6 @@
 package org.nishen.resourcepartners;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -13,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nishen.resourcepartners.dao.LaddDAO;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,10 +55,17 @@ public class TestLaddDAO
 		{
 			Map<String, ElasticSearchPartner> laddPartners = laddDAO.getData();
 
-			for (String nuc : laddPartners.keySet())
-				log.debug("{}:\n{}", nuc, JaxbUtil.format(laddPartners.get(nuc)));
+			if (log.isTraceEnabled())
+				for (String nuc : laddPartners.keySet())
+					log.trace("{}:\n{}", nuc, JaxbUtil.format(laddPartners.get(nuc)));
 
 			assertThat(laddPartners.size(), greaterThan(650));
+
+			ElasticSearchPartner p = laddPartners.get("NMQU");
+			assertThat(p.getNuc(), equalTo("NMQU"));
+			assertThat(p.getName(), equalTo("Macquarie University Library"));
+			assertThat(p.isEnabled(), equalTo(Boolean.TRUE));
+			assertThat(p.getStatus(), equalTo(ElasticSearchSuspension.NOT_SUSPENDED));
 		}
 		catch (Exception e)
 		{

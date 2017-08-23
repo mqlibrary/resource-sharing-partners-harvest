@@ -70,14 +70,14 @@ public class TestIlrsDAO
 	}
 
 	@Test
-	public void testGetAddressFromPage()
+	public void testGetAddressFromPage01()
 	{
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
 			// String nuc = "NMQU";
 			// String page = ilrsDAO.getPage(nuc);
-			String page = new String(DataUtils.loadFile("target/test-classes/data/irls-data-nmqu.html"), "UTF-8");
+			String page = new String(DataUtils.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
 
 			Map<String, Address> addresses = ilrsDAO.getAddressesFromPage(page);
 
@@ -120,6 +120,62 @@ public class TestIlrsDAO
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace(System.out);
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testGetAddressFromPage02()
+	{
+		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
+		try
+		{
+			String page = new String(DataUtils.loadFile("target/test-classes/data/ilrs-data-aaar-raw.html"), "UTF-8");
+
+			Map<String, Address> addresses = ilrsDAO.getAddressesFromPage(page);
+
+			Address actual = null;
+			Address expected = null;
+
+			Country country = of.createAddressCountry();
+			country.setValue("AUS");
+			country.setDesc("Australia");
+
+			expected = of.createAddress();
+			expected.setLine1("Ground Floor");
+			expected.setLine2("National Archives Building / Queen Victoria Terrace");
+			expected.setCity("PARKES");
+			expected.setStateProvince("ACT");
+			expected.setPostalCode("2600");
+			expected.setCountry(country);
+
+			actual = addresses.get("main");
+
+			assertThat(actual, equalTo(expected));
+
+			expected = of.createAddress();
+			expected.setLine1("PO Box 7425");
+			expected.setCity("CANBERRA MAIL CENTRE");
+			expected.setStateProvince("ACT");
+			expected.setPostalCode("2610");
+			expected.setCountry(country);
+
+			actual = addresses.get("postal");
+
+			assertThat(actual, equalTo(expected));
+
+			expected = of.createAddress();
+			expected.setLine1("ATTN: Librarian");
+			expected.setLine2("Same as Postal address");
+
+			actual = addresses.get("billing");
+
+			assertThat(actual, equalTo(expected));
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace(System.out);
 			fail(e.getMessage());
 		}
 	}
@@ -131,7 +187,7 @@ public class TestIlrsDAO
 
 		try
 		{
-			String page = new String(DataUtils.loadFile("target/test-classes/data/irls-data-nmqu.html"), "UTF-8");
+			String page = new String(DataUtils.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
 
 			String expected = "lib.ill@mq.edu.au";
 
@@ -154,7 +210,7 @@ public class TestIlrsDAO
 
 		try
 		{
-			String page = new String(DataUtils.loadFile("target/test-classes/data/irls-data-nmqu.html"), "UTF-8");
+			String page = new String(DataUtils.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
 
 			String expected = "02 9850 7514";
 
@@ -177,7 +233,7 @@ public class TestIlrsDAO
 
 		try
 		{
-			String page = new String(DataUtils.loadFile("target/test-classes/data/irls-data-nmqu.html"), "UTF-8");
+			String page = new String(DataUtils.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
 
 			String expected = "02 9850 6516";
 

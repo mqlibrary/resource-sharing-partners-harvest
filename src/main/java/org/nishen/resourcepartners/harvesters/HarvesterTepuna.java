@@ -1,6 +1,7 @@
 package org.nishen.resourcepartners.harvesters;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -59,8 +60,15 @@ public class HarvesterTepuna implements Harvester
 	{
 		Map<String, ElasticSearchPartner> updated = new HashMap<String, ElasticSearchPartner>();
 
+		List<String> removeList = new ArrayList<String>();
+		for (String s : partners.keySet())
+			if (s.startsWith(NZ_NUC_PREFIX))
+				removeList.add(s);
+
 		for (String nuc : latest.keySet())
 		{
+			removeList.remove(nuc);
+
 			ElasticSearchPartner l = latest.get(nuc);
 			ElasticSearchPartner p = partners.get(nuc);
 
@@ -173,6 +181,17 @@ public class HarvesterTepuna implements Harvester
 			if (requiresUpdate)
 			{
 				p.setUpdated(sdf.format(new Date()));
+				updated.put(nuc, p);
+			}
+		}
+
+		for (String nuc : removeList)
+		{
+			ElasticSearchPartner p = partners.get(nuc);
+			if (p != null)
+			{
+				p.setUpdated(sdf.format(new Date()));
+				p.setEnabled(false);
 				updated.put(nuc, p);
 			}
 		}

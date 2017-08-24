@@ -71,7 +71,7 @@ public class TestOutlookDAO
 
 		try
 		{
-			Map<String, String> messages = outlookDAO.getMessages();
+			Map<String, JsonNode> messages = outlookDAO.getMessages();
 			for (String m : messages.keySet())
 				log.debug("id: {}, message:\n{}", m, messages.get(m));
 		}
@@ -88,7 +88,7 @@ public class TestOutlookDAO
 
 		try
 		{
-			Map<String, String> messages = outlookDAO.getMessages();
+			Map<String, JsonNode> messages = outlookDAO.getMessages();
 			outlookDAO.markMessagesProcessed(messages);
 		}
 		catch (Exception e)

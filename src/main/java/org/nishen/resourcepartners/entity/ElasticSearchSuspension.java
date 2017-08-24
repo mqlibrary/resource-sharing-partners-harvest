@@ -11,7 +11,8 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "suspension")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "suspensionStatus", "suspensionStart", "suspensionEnd", "suspensionCode", "suspensionReason" })
+@XmlType(propOrder = { "suspensionAdded", "suspensionStatus", "suspensionStart", "suspensionEnd", "suspensionCode",
+                       "suspensionReason" })
 public class ElasticSearchSuspension implements Serializable
 {
 	@XmlTransient
@@ -22,6 +23,9 @@ public class ElasticSearchSuspension implements Serializable
 
 	@XmlTransient
 	public static final String NOT_SUSPENDED = "not suspended";
+
+	@XmlElement(name = "suspension_added")
+	private String suspensionAdded;
 
 	@XmlElement(name = "suspension_status")
 	private String suspensionStatus;
@@ -38,14 +42,24 @@ public class ElasticSearchSuspension implements Serializable
 	@XmlElement(name = "suspension_reason")
 	private String suspensionReason;
 
+	public String getSuspensionAdded()
+	{
+		return suspensionAdded;
+	}
+
+	public void setSuspensionAdded(String suspensionAdded)
+	{
+		this.suspensionAdded = suspensionAdded;
+	}
+
 	public String getSuspensionStatus()
 	{
 		return suspensionStatus;
 	}
 
-	public void setSuspensionStatus(String status)
+	public void setSuspensionStatus(String suspensionStatus)
 	{
-		this.suspensionStatus = status;
+		this.suspensionStatus = suspensionStatus;
 	}
 
 	public String getSuspensionStart()
@@ -93,11 +107,12 @@ public class ElasticSearchSuspension implements Serializable
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((suspensionStatus == null) ? 0 : suspensionStatus.hashCode());
+		result = prime * result + ((suspensionAdded == null) ? 0 : suspensionAdded.hashCode());
 		result = prime * result + ((suspensionCode == null) ? 0 : suspensionCode.hashCode());
 		result = prime * result + ((suspensionEnd == null) ? 0 : suspensionEnd.hashCode());
 		result = prime * result + ((suspensionReason == null) ? 0 : suspensionReason.hashCode());
 		result = prime * result + ((suspensionStart == null) ? 0 : suspensionStart.hashCode());
+		result = prime * result + ((suspensionStatus == null) ? 0 : suspensionStatus.hashCode());
 		return result;
 	}
 
@@ -111,12 +126,12 @@ public class ElasticSearchSuspension implements Serializable
 		if (getClass() != obj.getClass())
 			return false;
 		ElasticSearchSuspension other = (ElasticSearchSuspension) obj;
-		if (suspensionStatus == null)
+		if (suspensionAdded == null)
 		{
-			if (other.suspensionStatus != null)
+			if (other.suspensionAdded != null)
 				return false;
 		}
-		else if (!suspensionStatus.equals(other.suspensionStatus))
+		else if (!suspensionAdded.equals(other.suspensionAdded))
 			return false;
 		if (suspensionCode == null)
 		{
@@ -146,6 +161,13 @@ public class ElasticSearchSuspension implements Serializable
 		}
 		else if (!suspensionStart.equals(other.suspensionStart))
 			return false;
+		if (suspensionStatus == null)
+		{
+			if (other.suspensionStatus != null)
+				return false;
+		}
+		else if (!suspensionStatus.equals(other.suspensionStatus))
+			return false;
 		return true;
 	}
 
@@ -153,7 +175,9 @@ public class ElasticSearchSuspension implements Serializable
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("Suspension [suspensionStatus=");
+		builder.append("ElasticSearchSuspension [suspensionAdded=");
+		builder.append(suspensionAdded);
+		builder.append(", suspensionStatus=");
 		builder.append(suspensionStatus);
 		builder.append(", suspensionStart=");
 		builder.append(suspensionStart);

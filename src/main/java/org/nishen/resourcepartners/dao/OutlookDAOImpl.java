@@ -89,7 +89,7 @@ public class OutlookDAOImpl implements OutlookDAO
 		return null;
 	}
 
-	public void markMessagesProcessed(Map<String, String> messages) throws Exception
+	public void markMessagesProcessed(Map<String, JsonNode> messages)
 	{
 		if (processedFolderId == null)
 		{
@@ -111,9 +111,9 @@ public class OutlookDAOImpl implements OutlookDAO
 		}
 	}
 
-	public Map<String, String> getMessages()
+	public Map<String, JsonNode> getMessages()
 	{
-		Map<String, String> messages = new LinkedHashMap<String, String>();
+		Map<String, JsonNode> messages = new LinkedHashMap<String, JsonNode>();
 
 		int batchSize = 50;
 		int skip = 0;
@@ -149,8 +149,7 @@ public class OutlookDAOImpl implements OutlookDAO
 				for (JsonNode entry : root.get("value"))
 				{
 					String id = entry.get("Id").asText();
-					String message = entry.get("Body").get("Content").asText().replace("\\r\\n", "\n");
-					messages.put(id, message);
+					messages.put(id, entry);
 				}
 			}
 			catch (Exception e)

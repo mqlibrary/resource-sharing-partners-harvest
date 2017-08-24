@@ -17,6 +17,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
+import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.model.Address.Country;
 import org.nishen.resourcepartners.model.ObjectFactory;
@@ -63,7 +64,7 @@ public class TepunaDAOImpl implements TepunaDAO
 				ElasticSearchPartner partner = new ElasticSearchPartner();
 				partner.setNuc(NZ_NUC_PREFIX + ":" + record.get(0));
 				partner.setEnabled(true);
-				partner.setStatus("active");
+				partner.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
 
 				if (record.get(2) != null && !"".equals(record.get(2).trim()))
 					partner.setName(record.get(2));

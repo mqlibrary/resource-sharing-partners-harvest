@@ -93,8 +93,8 @@ public class ResourcePartnerModule extends AbstractModule
 		bind(OutlookDAO.class).to(OutlookDAOImpl.class);
 
 		Multibinder<Harvester> harvesterBinder = Multibinder.newSetBinder(binder(), Harvester.class);
-		//harvesterBinder.addBinding().to(HarvesterLadd.class);
-		//harvesterBinder.addBinding().to(HarvesterIlrs.class);
+		harvesterBinder.addBinding().to(HarvesterLadd.class);
+		harvesterBinder.addBinding().to(HarvesterIlrs.class);
 		harvesterBinder.addBinding().to(HarvesterTepuna.class);
 		harvesterBinder.addBinding().to(HarvesterTepunaStatus.class);
 

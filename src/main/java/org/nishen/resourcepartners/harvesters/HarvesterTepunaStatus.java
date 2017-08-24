@@ -24,6 +24,7 @@ import org.nishen.resourcepartners.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 
 /**
@@ -36,23 +37,27 @@ public class HarvesterTepunaStatus implements Harvester
 
 	private static final String SOURCE_SYSTEM = "OUTLOOK";
 
-	private static final String NZ_NUC_PREFIX = "NLNZ";
-
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
 	private static final SimpleDateFormat idf = new SimpleDateFormat("dd-MMM-yy");
 
-	private static Pattern p;
+	private static Pattern pHeader;
+
+	private static Pattern pBody;
 
 	static
 	{
-		String regex = "";
-		regex += "STATUS (\\w+?) NLNZ BEGIN SUSPENSION LIST\\s+";
-		regex += "STATUS \\w+ NLNZ (?:(NO SUSPENSIONS)|(\\d\\d-\\w\\w\\w-\\d\\d) " +
-		         "(\\d\\d-\\w\\w\\w-\\d\\d) (\\w+) (\\w+))\\s+";
-		regex += "STATUS \\w+ NLNZ END SUSPENSION LIST";
+		String regexHeader = "";
+		regexHeader += "STATUS (\\w+?) NLNZ BEGIN SUSPENSION LIST\\s+";
+		regexHeader += "(.+)";
+		regexHeader += "STATUS \\w+ NLNZ END SUSPENSION LIST";
 
-		p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+		String regexBody = "";
+		regexBody += "STATUS \\w+ NLNZ (?:(NO SUSPENSIONS)|(\\d\\d-\\w\\w\\w-\\d\\d) " +
+		             "(\\d\\d-\\w\\w\\w-\\d\\d) (\\w+) (\\w+))\\s+";
+
+		pHeader = Pattern.compile(regexHeader, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+		pBody = Pattern.compile(regexBody, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	}
 
 	private OutlookDAO outlook;
@@ -81,9 +86,11 @@ public class HarvesterTepunaStatus implements Harvester
 		Map<String, ElasticSearchPartner> partners = elastic.getPartners();
 		Map<String, ElasticSearchPartner> tepunaPartners = new TreeMap<String, ElasticSearchPartner>();
 
-		Map<String, String> messages = outlook.getMessages();
+		Map<String, JsonNode> messages = outlook.getMessages();
 
 		Map<String, Set<ElasticSearchSuspension>> suspensions = getSuspensions(messages);
+
+		Date now = new Date();
 
 		for (String nuc : suspensions.keySet())
 		{
@@ -91,11 +98,12 @@ public class HarvesterTepunaStatus implements Harvester
 			ElasticSearchPartner p = partners.get(nuc);
 			ElasticSearchPartner l = ObjectUtil.deepClone(p);
 
-			for (ElasticSearchSuspension suspension : s)
-				l.getSuspensions().add(suspension);
+			l.getSuspensions().addAll(s);
 
-			Date now = new Date();
+			// initial state
+			l.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
 
+			// process all suspensions in order - last one is the latest
 			for (ElasticSearchSuspension susp : l.getSuspensions())
 			{
 				if (ElasticSearchSuspension.SUSPENDED.equals(susp.getSuspensionStatus()))
@@ -107,6 +115,8 @@ public class HarvesterTepunaStatus implements Harvester
 
 						if (now.after(start) && now.before(end))
 							l.setStatus(ElasticSearchSuspension.SUSPENDED);
+						else
+							l.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
 					}
 					catch (ParseException pe)
 					{
@@ -114,7 +124,7 @@ public class HarvesterTepunaStatus implements Harvester
 						          susp.getSuspensionStart(), susp.getSuspensionEnd());
 					}
 				}
-				else if (ElasticSearchSuspension.NOT_SUSPENDED.equals(susp.getSuspensionStatus()))
+				else
 				{
 					l.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
 				}
@@ -123,10 +133,12 @@ public class HarvesterTepunaStatus implements Harvester
 			tepunaPartners.put(nuc, l);
 		}
 
+		outlook.markMessagesProcessed(messages);
+		
 		return tepunaPartners;
 	}
 
-	public Map<String, Set<ElasticSearchSuspension>> getSuspensions(Map<String, String> messages)
+	public Map<String, Set<ElasticSearchSuspension>> getSuspensions(Map<String, JsonNode> messages)
 	{
 		log.debug("getting suspensions");
 
@@ -134,28 +146,55 @@ public class HarvesterTepunaStatus implements Harvester
 
 		for (String id : messages.keySet())
 		{
-			Matcher m = p.matcher(messages.get(id));
+			JsonNode entry = messages.get(id);
+
+			String content = entry.get("Body").get("Content").asText().replace("\\r\\n", "\n");
+
+			Matcher m = pHeader.matcher(content);
+
+			String nuc = null;
+			String body = null;
 			if (m.find())
 			{
-				String nuc = NZ_NUC_PREFIX + ":" + m.group(1);
+				nuc = NZ_NUC_PREFIX + ":" + m.group(1);
+				body = m.group(2);
 
-				if (suspensions.get(nuc) == null)
-					suspensions.put(nuc, new LinkedHashSet<ElasticSearchSuspension>());
+				log.debug("regex [{}]: {}", nuc, body);
+			}
 
-				if ("NO SUSPENSIONS".equals(m.group(2)))
+			if (nuc == null || body == null)
+			{
+				log.debug("no applicable content: {}", content);
+				continue;
+			}
+
+			if (suspensions.get(nuc) == null)
+				suspensions.put(nuc, new LinkedHashSet<ElasticSearchSuspension>());
+
+			m = pBody.matcher(body);
+			while (m.find())
+			{
+				if (log.isDebugEnabled())
+					for (int x = 0; x <= m.groupCount(); x++)
+						log.debug("found[{}]: {}", x, m.group(x));
+
+				if ("NO SUSPENSIONS".equals(m.group(1)))
 				{
 					ElasticSearchSuspension s = new ElasticSearchSuspension();
+					s.setSuspensionAdded(entry.get("ReceivedDateTime").asText());
 					s.setSuspensionStatus(ElasticSearchSuspension.NOT_SUSPENDED);
 
 					suspensions.get(nuc).add(s);
 				}
-				else if (m.group(2) == null)
+				else if (m.group(1) == null)
 				{
 					ElasticSearchSuspension s = new ElasticSearchSuspension();
+					s.setSuspensionAdded(entry.get("ReceivedDateTime").asText());
 					s.setSuspensionStatus(ElasticSearchSuspension.SUSPENDED);
-					s.setSuspensionStart(formatDate(nuc, m.group(3)));
-					s.setSuspensionEnd(formatDate(nuc, m.group(4)));
-					s.setSuspensionReason(m.group(6));
+					s.setSuspensionStart(formatDate(nuc, m.group(2)));
+					s.setSuspensionEnd(formatDate(nuc, m.group(3)));
+					s.setSuspensionCode(m.group(4));
+					s.setSuspensionReason(m.group(4));
 
 					suspensions.get(nuc).add(s);
 				}

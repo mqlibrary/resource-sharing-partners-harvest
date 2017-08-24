@@ -10,6 +10,8 @@ import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 
 public interface Harvester
 {
+	public static final String NZ_NUC_PREFIX = "NLNZ";
+
 	public String getSource();
 
 	public Map<String, ElasticSearchPartner> harvest() throws IOException, SkipHarvestException;

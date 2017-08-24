@@ -52,11 +52,11 @@ public class HarvesterLadd implements Harvester
 	{
 		Map<String, ElasticSearchPartner> laddPartners = ladd.getData();
 
-		List<String> nucs = new ArrayList<String>(laddPartners.keySet());
+		// List<String> nucs = new ArrayList<String>(laddPartners.keySet());
 
-		nucs = nucs.subList(0, 600);
-		for (String nuc : nucs)
-			laddPartners.remove(nuc);
+		// nucs = nucs.subList(0, 600);
+		// for (String nuc : nucs)
+		// laddPartners.remove(nuc);
 
 		return laddPartners;
 	}
@@ -68,8 +68,15 @@ public class HarvesterLadd implements Harvester
 	{
 		Map<String, ElasticSearchPartner> updated = new HashMap<String, ElasticSearchPartner>();
 
+		List<String> removeList = new ArrayList<String>();
+		for (String s : partners.keySet())
+			if (!s.startsWith(NZ_NUC_PREFIX))
+				removeList.add(s);
+
 		for (String nuc : latest.keySet())
 		{
+			removeList.remove(nuc);
+
 			ElasticSearchPartner l = latest.get(nuc);
 			ElasticSearchPartner p = partners.get(nuc);
 
@@ -120,6 +127,17 @@ public class HarvesterLadd implements Harvester
 			if (requiresUpdate)
 			{
 				p.setUpdated(sdf.format(new Date()));
+				updated.put(nuc, p);
+			}
+		}
+
+		for (String nuc : removeList)
+		{
+			ElasticSearchPartner p = partners.get(nuc);
+			if (p != null)
+			{
+				p.setUpdated(sdf.format(new Date()));
+				p.setEnabled(false);
 				updated.put(nuc, p);
 			}
 		}

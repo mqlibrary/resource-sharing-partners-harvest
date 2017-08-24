@@ -51,9 +51,9 @@ public class HarvesterIlrs implements Harvester
 
 	private static final String DEFAULT_DAYS_BETWEEN = "7";
 
-	private static final int THREADS = 4;
+	private static final int THREADS = 3;
 
-	private static final int BLOCKING_QUEUE_SIZE = 4;
+	private static final int BLOCKING_QUEUE_SIZE = 3;
 
 	private Config config;
 

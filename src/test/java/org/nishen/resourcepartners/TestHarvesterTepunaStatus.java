@@ -16,6 +16,8 @@ import org.nishen.resourcepartners.util.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -24,6 +26,8 @@ public class TestHarvesterTepunaStatus
 {
 	private static final Logger log = LoggerFactory.getLogger(TestHarvesterTepunaStatus.class);
 
+	private static ObjectMapper mapper = null;
+
 	private static Injector injector = null;
 
 	private static HarvesterTepunaStatus harvester = null;
@@ -31,6 +35,8 @@ public class TestHarvesterTepunaStatus
 	@BeforeClass
 	public static void setupClass()
 	{
+		mapper = new ObjectMapper();
+
 		// list for injector modules
 		List<Module> modules = new ArrayList<Module>();
 
@@ -51,9 +57,18 @@ public class TestHarvesterTepunaStatus
 
 		try
 		{
-			Map<String, String> messages = new HashMap<String, String>();
-			messages.put("msg01", new String(DataUtils.loadFile("target/test-classes/data/message01.txt"), "UTF-8"));
-			messages.put("msg02", new String(DataUtils.loadFile("target/test-classes/data/message02.txt"), "UTF-8"));
+			JsonNode node = null;
+			Map<String, JsonNode> messages = new HashMap<String, JsonNode>();
+
+			//node = mapper.readTree(DataUtils.loadFile("target/test-classes/data/message01.txt"));
+			//messages.put("NLNZ:HP", node);
+
+			node = mapper.readTree(DataUtils.loadFile("target/test-classes/data/message02.txt"));
+			messages.put("NLNZ:NPM", node);
+
+			node = mapper.readTree(DataUtils.loadFile("target/test-classes/data/message03.txt"));
+			messages.put("NLNZ:WHP", node);
+
 			harvester.getSuspensions(messages);
 		}
 		catch (Exception e)

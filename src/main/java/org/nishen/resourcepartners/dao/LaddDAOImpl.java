@@ -27,7 +27,7 @@ public class LaddDAOImpl implements LaddDAO
 
 	private static final SimpleDateFormat idf = new SimpleDateFormat("dd MMM yyyy");
 
-	private static final SimpleDateFormat odf = new SimpleDateFormat("yyyyMMdd");
+	private static final SimpleDateFormat odf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
 	private static Pattern p;
 
@@ -74,20 +74,20 @@ public class LaddDAOImpl implements LaddDAO
 			if (name != null && !"".equals(name))
 				e.setName(name);
 
-			ElasticSearchSuspension suspension = null;
+			if ("not suspended".equals(susp.trim().toLowerCase()))
+				e.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+			else
+				e.setStatus(ElasticSearchSuspension.SUSPENDED);
+
 			if (susp != null && !"".equals(susp))
 			{
-				if ("not suspended".equals(susp.trim().toLowerCase()))
-					e.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
-				else
-					e.setStatus(ElasticSearchSuspension.SUSPENDED);
-
-				suspension = new ElasticSearchSuspension();
+				ElasticSearchSuspension suspension = new ElasticSearchSuspension();
 				suspension.setSuspensionStatus(e.getStatus());
 				suspension.setSuspensionStart(formatDate(nuc1, srts));
 				suspension.setSuspensionEnd(formatDate(nuc1, ends));
 
-				e.getSuspensions().add(suspension);
+				if (!e.getSuspensions().contains(suspension))
+					e.getSuspensions().add(suspension);
 			}
 
 			data.put(nuc1, e);
@@ -100,17 +100,17 @@ public class LaddDAOImpl implements LaddDAO
 	{
 		String result = null;
 
-		if (date != null && !"".equals(date.trim()))
+		if (date == null || "".equals(date))
+			return result;
+
+		try
 		{
-			try
-			{
-				Date d = idf.parse(date);
-				result = odf.format(d);
-			}
-			catch (ParseException pe)
-			{
-				log.warn("can't parse tepuna date[{}]: {}", nuc, date);
-			}
+			Date d = idf.parse(date);
+			result = odf.format(d);
+		}
+		catch (ParseException pe)
+		{
+			log.warn("can't parse tepuna date[{}]: {}", nuc, date);
 		}
 
 		return result;

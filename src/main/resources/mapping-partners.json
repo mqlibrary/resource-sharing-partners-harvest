@@ -12,6 +12,7 @@
         "updated": { "type": "date", "format": "date_time_no_millis" },
         "name": { "type": "keyword" },
         "enabled": { "type": "boolean" },
+        "status": { "type": "keyword" },
         "email_main": { "type": "text" },
         "email_ill": { "type": "text" },
         "phone_main": { "type": "text" },
@@ -19,9 +20,10 @@
         "phone_fax": { "type": "text" },
         "suspension": {
           "properties": {
+            "suspension_added": { "type": "date", "format": "date_time_no_millis" },
             "suspension_status": { "type": "keyword" },
-            "suspension_start": { "type": "date", "format": "basic_date" },
-            "suspension_end": { "type": "date", "format": "basic_date" },
+            "suspension_start": { "type": "date", "format": "date_time_no_millis" },
+            "suspension_end": { "type": "date", "format": "date_time_no_millis" },
             "suspension_code": { "type": "keyword" },
             "suspension_reason": { "type": "text" }
           }
@@ -47,8 +49,8 @@
                   }
                 },
                 "address_note": { "type": "text" },
-                "start_date": { "type": "date", "format": "basic_date" },
-                "end_date": { "type": "date", "format": "basic_date" },
+                "start_date": { "type": "date", "format": "date_time_no_millis" },
+                "end_date": { "type": "date", "format": "date_time_no_millis" },
                 "address_types": { "type": "keyword" }
               }
             }

@@ -4,14 +4,14 @@
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>DEBUG</level>
+			<level>${log.level}</level>
 		</filter>
 		<encoder>
 			<pattern>%d{yyyyMMdd'T'HH:mm:ss.SSS} [%-5level]: %msg%n</pattern>
 		</encoder>
 	</appender>
 
-	<logger name="org.nishen" level="TRACE" additivity="false">
+	<logger name="org.nishen" level="${log.level}" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 

@@ -24,6 +24,9 @@ public class ElasticSearchSuspension implements Serializable
 	@XmlTransient
 	public static final String NOT_SUSPENDED = "not suspended";
 
+	@XmlTransient
+	public static final String UNKNOWN = "unknown";
+
 	@XmlElement(name = "suspension_added")
 	private String suspensionAdded;
 

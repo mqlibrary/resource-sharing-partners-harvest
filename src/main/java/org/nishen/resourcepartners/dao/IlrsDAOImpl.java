@@ -106,18 +106,6 @@ public class IlrsDAOImpl implements IlrsDAO
 		else
 			log.debug("retrieved page of size [{}]: FAILED", nuc);
 
-		// implement a delay to not hammer ILRS
-		try
-		{
-			long delay = Math.round(Math.random() * 3000) + 2000;
-			Thread.sleep(delay);
-			log.debug("[{}] sleeping for: {}ms", Thread.currentThread().getName(), delay);
-		}
-		catch (InterruptedException ie)
-		{
-			log.error("[{}] thread was interrupted: {}", Thread.currentThread().getName(), ie.getMessage());
-		}
-
 		return result;
 	}
 

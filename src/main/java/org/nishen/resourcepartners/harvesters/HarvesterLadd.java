@@ -50,15 +50,7 @@ public class HarvesterLadd implements Harvester
 	@Override
 	public Map<String, ElasticSearchPartner> harvest()
 	{
-		Map<String, ElasticSearchPartner> laddPartners = ladd.getData();
-
-		// List<String> nucs = new ArrayList<String>(laddPartners.keySet());
-
-		// nucs = nucs.subList(0, 600);
-		// for (String nuc : nucs)
-		// laddPartners.remove(nuc);
-
-		return laddPartners;
+		return ladd.getData();
 	}
 
 	@Override

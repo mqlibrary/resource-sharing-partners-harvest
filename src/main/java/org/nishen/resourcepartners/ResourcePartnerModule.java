@@ -3,8 +3,13 @@ package org.nishen.resourcepartners;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -108,7 +113,7 @@ public class ResourcePartnerModule extends AbstractModule
 
 	@Provides
 	@Named("ws.elastic")
-	protected WebTarget provideWebTargetElastic()
+	protected WebTarget provideWebTargetElastic() throws Exception
 	{
 		if (elasticTarget == null)
 		{
@@ -116,7 +121,22 @@ public class ResourcePartnerModule extends AbstractModule
 			String pwd = config.getProperty("ws.url.elastic.password");
 			HttpAuthenticationFeature auth = HttpAuthenticationFeature.basic(usr, pwd);
 
-			Client client = ClientBuilder.newClient().register(auth);
+			SSLContext sslcontext = SSLContext.getInstance("TLS");
+			sslcontext.init(null, new TrustManager[] { new X509TrustManager() {
+				public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException
+				{}
+
+				public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException
+				{}
+
+				public X509Certificate[] getAcceptedIssuers()
+				{
+					return new X509Certificate[0];
+				}
+			} }, new java.security.SecureRandom());
+
+			Client client = ClientBuilder.newBuilder().sslContext(sslcontext).hostnameVerifier((s1, s2) -> true)
+			                             .register(auth).build();
 			elasticTarget = client.target(config.getProperty("ws.url.elastic.index"));
 		}
 

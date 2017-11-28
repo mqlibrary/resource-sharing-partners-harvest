@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
+import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,20 +26,30 @@ public class LaddDAOImpl implements LaddDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(LaddDAOImpl.class);
 
-	private static final SimpleDateFormat idf = new SimpleDateFormat("dd MMM yyyy");
+	private static final SimpleDateFormat idf = new SimpleDateFormat("dd MMM, yyyy");
 
 	private static final SimpleDateFormat odf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
 	private static Pattern p;
 
+	private static Pattern pDate;
+
 	static
 	{
 		String regex = "";
-		regex += "<tr id=\"(.*?)\">\\s*<td>.*?</td>\\s*";
-		regex += "<td>(.*?)</td>\\s*<td>(.*?)</td>\\s*<td>(.*?)</td>\\s*";
-		regex += "<td>(.*?)</td>\\s*<td>(.*?)</td>\\s*</tr>";
+		regex += "<tr class=\"(?:odd|even).*?\">\\s*";
+		regex += "<td .*?>\\s*(.*?)\\s*</td>\\s*";
+		regex += "<td .*?>\\s*(.*?)\\s*</td>\\s*";
+		regex += "<td .*?>\\s*(.*?)\\s*</td>\\s*";
+		regex += "<td .*?>\\s*(.*?)\\s*</td>\\s*";
+		regex += "<td .*?>\\s*(.*?)\\s*</td>\\s*";
+		regex += "<td .*?>\\s*(.*?)\\s*</td>\\s*";
+		regex += "</tr>";
 
 		p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+		regex = "<span .*?>\\s*(.*)\\s*</span>";
+		pDate = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 	}
 
 	private WebTarget laddTarget;
@@ -57,16 +68,29 @@ public class LaddDAOImpl implements LaddDAO
 		Map<String, ElasticSearchPartner> data = new TreeMap<String, ElasticSearchPartner>();
 
 		String page = laddTarget.request(MediaType.TEXT_HTML).get(String.class);
+		log.debug("fetched page: {}", laddTarget.getUri());
 
 		Matcher m = p.matcher(page);
 		while (m.find())
 		{
+			log.debug("found item:");
+			if (log.isDebugEnabled())
+				for (int x = 1; x <= m.groupCount(); x++)
+					log.debug("group[{}]: {}", x, m.group(x));
+
 			String nuc1 = m.group(1);
 			String name = m.group(2);
 			String isoi = m.group(3);
 			String susp = m.group(4);
 			String begs = m.group(5);
 			String ends = m.group(6);
+
+			log.debug("nuc1: {}", nuc1);
+			log.debug("name: {}", name);
+			log.debug("isoi: {}", isoi);
+			log.debug("susp: {}", susp);
+			log.debug("begs: {}", begs);
+			log.debug("ends: {}", ends);
 
 			ElasticSearchPartner e = new ElasticSearchPartner();
 			e.setNuc(nuc1);
@@ -108,8 +132,13 @@ public class LaddDAOImpl implements LaddDAO
 				log.warn("unknown status [{}]: {}", nuc1, susp);
 			}
 
+			if (log.isDebugEnabled())
+				log.debug("elasticSearchPartner: {}", JaxbUtil.format(e));
+
 			data.put(nuc1, e);
 		}
+
+		log.debug("elasticSearchPartners found: {}", data.size());
 
 		return data;
 	}
@@ -118,13 +147,17 @@ public class LaddDAOImpl implements LaddDAO
 	{
 		String result = null;
 
-		if (date == null || "".equals(date))
+		if (date == null || "".equals(date.trim()))
 			return result;
 
 		try
 		{
-			Date d = idf.parse(date);
-			result = odf.format(d);
+			Matcher m = pDate.matcher(date);
+			if (m.find())
+			{
+				Date d = idf.parse(m.group(1));
+				result = odf.format(d);
+			}
 		}
 		catch (ParseException pe)
 		{

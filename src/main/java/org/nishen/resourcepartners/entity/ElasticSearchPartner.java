@@ -40,19 +40,19 @@ public class ElasticSearchPartner implements ElasticSearchEntity, Serializable
 	@XmlElement(name = "status")
 	private String status;
 
-	@XmlElement(name = "email_main")
+	@XmlElement(name = "email_main", nillable = true)
 	private String emailMain;
 
-	@XmlElement(name = "email_ill")
+	@XmlElement(name = "email_ill", nillable = true)
 	private String emailIll;
 
-	@XmlElement(name = "phone_main")
+	@XmlElement(name = "phone_main", nillable = true)
 	private String phoneMain;
 
-	@XmlElement(name = "phone_ill")
+	@XmlElement(name = "phone_ill", nillable = true)
 	private String phoneIll;
 
-	@XmlElement(name = "phone_fax")
+	@XmlElement(name = "phone_fax", nillable = true)
 	private String phoneFax;
 
 	@XmlElement(name = "suspensions")

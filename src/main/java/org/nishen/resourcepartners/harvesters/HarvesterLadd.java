@@ -118,6 +118,11 @@ public class HarvesterLadd implements Harvester
 
 			if (requiresUpdate)
 			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("latest:\n{}\npartner:\n{}\n", JaxbUtil.format(l), JaxbUtil.format(p));
+				}
+
 				p.setUpdated(sdf.format(new Date()));
 				updated.put(nuc, p);
 			}
@@ -126,7 +131,7 @@ public class HarvesterLadd implements Harvester
 		for (String nuc : removeList)
 		{
 			ElasticSearchPartner p = partners.get(nuc);
-			if (p != null)
+			if (p != null && p.isEnabled())
 			{
 				p.setUpdated(sdf.format(new Date()));
 				p.setEnabled(false);

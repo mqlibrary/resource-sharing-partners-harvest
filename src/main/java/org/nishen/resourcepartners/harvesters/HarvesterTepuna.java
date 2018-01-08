@@ -188,7 +188,7 @@ public class HarvesterTepuna implements Harvester
 		for (String nuc : removeList)
 		{
 			ElasticSearchPartner p = partners.get(nuc);
-			if (p != null)
+			if (p != null && p.isEnabled())
 			{
 				p.setUpdated(sdf.format(new Date()));
 				p.setEnabled(false);

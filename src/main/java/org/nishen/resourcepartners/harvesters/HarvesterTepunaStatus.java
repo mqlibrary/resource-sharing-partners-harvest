@@ -96,6 +96,13 @@ public class HarvesterTepunaStatus implements Harvester
 		{
 			Set<ElasticSearchSuspension> s = suspensions.get(nuc);
 			ElasticSearchPartner p = partners.get(nuc);
+
+			if (p == null)
+			{
+				log.warn("processing suspensions and partner does not exist: {}", nuc);
+				continue;
+			}
+
 			ElasticSearchPartner l = ObjectUtil.deepClone(p);
 
 			l.getSuspensions().addAll(s);
@@ -134,7 +141,7 @@ public class HarvesterTepunaStatus implements Harvester
 		}
 
 		outlook.markMessagesProcessed(messages);
-		
+
 		return tepunaPartners;
 	}
 

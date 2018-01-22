@@ -71,10 +71,13 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	@Override
 	public Optional<ElasticSearchPartner> getPartner(String id) throws IOException
 	{
-		if (!indices.contains("partners"))
-			createElasticSearchIndex("partners");
+		ElasticSearchPartner configInfo = new ElasticSearchPartner();
 
-		WebTarget t = elasticTarget.path("partners").path("partner").path(id).path("_source");
+		if (!indices.contains(configInfo.getElasticSearchIndex()))
+			createElasticSearchIndex(configInfo.getElasticSearchIndex());
+
+		WebTarget t = elasticTarget.path(configInfo.getElasticSearchIndex()).path(configInfo.getElasticSearchType())
+		                           .path(id).path("_source");
 
 		ElasticSearchPartner partner = null;
 		try

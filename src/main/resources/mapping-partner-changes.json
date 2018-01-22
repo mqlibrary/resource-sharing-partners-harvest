@@ -1,0 +1,20 @@
+{
+  "settings" : {
+    "index" : {
+      "number_of_shards" : 1, 
+      "number_of_replicas" : 1 
+    }
+  },
+  "mappings": {
+    "partner-change": { 
+      "properties": {
+        "time": { "type": "date", "format": "date_time_no_millis" },
+        "source_system": { "type": "keyword"},
+        "nuc": { "type": "keyword"},
+        "field": { "type": "keyword" },
+        "before": { "type": "text" },
+        "after": { "type": "text" }
+      }
+    }
+  }
+}

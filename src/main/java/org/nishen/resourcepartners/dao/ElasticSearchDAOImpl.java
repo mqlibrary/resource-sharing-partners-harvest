@@ -52,8 +52,11 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		try
 		{
 			indices = getElasticSearchIndices();
-			createElasticSearchIndex("config");
-			createElasticSearchIndex("partners");
+
+			createElasticSearchIndex(Config.ES_INDEX);
+
+			ElasticSearchPartner configPartner = new ElasticSearchPartner();
+			createElasticSearchIndex(configPartner.getElasticSearchIndex());
 		}
 		catch (IOException ioe)
 		{
@@ -91,11 +94,13 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	{
 		Map<String, ElasticSearchPartner> partners = new HashMap<String, ElasticSearchPartner>();
 
-		if (!indices.contains("partners"))
-			createElasticSearchIndex("partners");
+		ElasticSearchPartner configInfo = new ElasticSearchPartner();
 
-		WebTarget t = elasticTarget.path("partners").path("partner").path("_search").queryParam("sort", "nuc")
-		                           .queryParam("size", SEARCH_SIZE);
+		if (!indices.contains(configInfo.getElasticSearchIndex()))
+			createElasticSearchIndex(configInfo.getElasticSearchIndex());
+
+		WebTarget t = elasticTarget.path(configInfo.getElasticSearchIndex()).path(configInfo.getElasticSearchType())
+		                           .path("_search").queryParam("sort", "nuc").queryParam("size", SEARCH_SIZE);
 
 		String result = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
 

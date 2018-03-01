@@ -1,13 +1,13 @@
 # Harvesting Resource Sharing Partner Data for Alma
 
-For an overview, refer to documentation at https://mqlibrary.github.io/resource-sharing-partners-sync.
+For an overview, refer to documentation at https://mqlibrary.github.io/resource-sharing-partners-sync/.
 
 #### Harvesting Resource Sharing Partner Data
 ![Harvesting Resource Sharing Partner Data](rsp-harvest-01.png)
 
 ## 1. Harvesting LADD (_Australia_)
 
-This module scrapes from the following page: https://www.nla.gov.au/librariesaustralia/connect/find-library/ladd-members-and-suspensions.
+This module scrapes from the following page: https://www.nla.gov.au/librariesaustralia/connect/find-library/ladd-members-and-suspensions/.
 
 Harvester then extracts information regarding the:
 1. NUC symbol

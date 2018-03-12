@@ -35,6 +35,8 @@ public class OutlookDAOImpl implements OutlookDAO
 
 	private String clientSecret;
 
+	private String email;
+
 	private WebTarget outlook;
 
 	private WebTarget outlookToken;
@@ -45,7 +47,7 @@ public class OutlookDAOImpl implements OutlookDAO
 
 	@Inject
 	public OutlookDAOImpl(ConfigFactory configFactory, @Named("outlook.client.id") String clientId,
-	                      @Named("outlook.client.secret") String clientSecret,
+	                      @Named("outlook.client.secret") String clientSecret, @Named("outlook.email") String email,
 	                      @Named("ws.outlook") Provider<WebTarget> outlookWebTarget,
 	                      @Named("ws.outlook.token") Provider<WebTarget> outlookTokenWebTarget) throws Exception
 	{
@@ -53,6 +55,7 @@ public class OutlookDAOImpl implements OutlookDAO
 		this.config = configFactory.create(SOURCE_SYSTEM);
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
+		this.email = email;
 		this.outlook = outlookWebTarget.get();
 		this.outlookToken = outlookTokenWebTarget.get();
 		this.accessToken = getAccessToken();
@@ -63,8 +66,8 @@ public class OutlookDAOImpl implements OutlookDAO
 
 	public String getProcessedFolderId() throws Exception
 	{
-		String response = outlook.path("users").path("lib.rspartners@mq.edu.au").path("MailFolders")
-		                         .queryParam("$top", 50).request().header("Authorization", "Bearer " + accessToken)
+		String response = outlook.path("users").path(email).path("MailFolders").queryParam("$top", 50).request()
+		                         .header("Authorization", "Bearer " + accessToken)
 		                         .header("Prefer", "outlook.body-content-type=\"text\"")
 		                         .accept(MediaType.APPLICATION_JSON).get(String.class);
 
@@ -75,8 +78,8 @@ public class OutlookDAOImpl implements OutlookDAO
 			JsonNode root = mapper.readTree(response);
 			for (JsonNode entry : root.get("value"))
 			{
-				String id = entry.get("Id").asText();
-				String name = entry.get("DisplayName").asText();
+				String id = entry.get("id").asText();
+				String name = entry.get("displayName").asText();
 				if (PROCESSED_FOLDER_NAME.equals(name))
 					return id;
 			}
@@ -84,6 +87,7 @@ public class OutlookDAOImpl implements OutlookDAO
 		catch (Exception e)
 		{
 			log.error("unable to obtain processed folderId: {}", PROCESSED_FOLDER_NAME);
+			log.debug("", e);
 		}
 
 		return null;
@@ -100,8 +104,8 @@ public class OutlookDAOImpl implements OutlookDAO
 		String body = "{ \"DestinationId\": \"" + processedFolderId + "\" }";
 		for (String id : messages.keySet())
 		{
-			WebTarget t = outlook.path("users").path("lib.rspartners@mq.edu.au").path("MailFolders").path("Inbox")
-			                     .path("messages").path(id).path("move");
+			WebTarget t = outlook.path("users").path(email).path("MailFolders").path("Inbox").path("messages").path(id)
+			                     .path("move");
 
 			Builder request = t.request();
 			request = request.header("Authorization", "Bearer " + accessToken);
@@ -120,8 +124,7 @@ public class OutlookDAOImpl implements OutlookDAO
 		boolean hasMore = true;
 		while (hasMore)
 		{
-			WebTarget t = outlook.path("users").path("lib.rspartners@mq.edu.au").path("MailFolders").path("Inbox")
-			                     .path("messages");
+			WebTarget t = outlook.path("users").path(email).path("MailFolders").path("Inbox").path("messages");
 			t = t.queryParam("$select", "ReceivedDateTime,Body");
 			t = t.queryParam("$filter",
 			                 "ReceivedDateTime ge 1900-01-01T00:00:00Z and Subject eq 'ISO-ILL Location Updates'");
@@ -148,7 +151,7 @@ public class OutlookDAOImpl implements OutlookDAO
 
 				for (JsonNode entry : root.get("value"))
 				{
-					String id = entry.get("Id").asText();
+					String id = entry.get("id").asText();
 					messages.put(id, entry);
 				}
 			}
@@ -173,8 +176,7 @@ public class OutlookDAOImpl implements OutlookDAO
 		String refreshToken = authRefreshResponse.getRefreshToken();
 
 		Form tokenForm = new Form().param("client_id", clientId).param("refresh_token", refreshToken)
-		                           .param("grant_type", "refresh_token").param("resource", "https://outlook.office.com")
-		                           .param("client_secret", clientSecret);
+		                           .param("grant_type", "refresh_token").param("client_secret", clientSecret);
 
 		authRefreshResponseData = outlookToken.request(MediaType.APPLICATION_FORM_URLENCODED)
 		                                      .accept(MediaType.TEXT_HTML).post(Entity.form(tokenForm), String.class);

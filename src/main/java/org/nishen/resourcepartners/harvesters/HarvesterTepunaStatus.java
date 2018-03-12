@@ -155,7 +155,7 @@ public class HarvesterTepunaStatus implements Harvester
 		{
 			JsonNode entry = messages.get(id);
 
-			String content = entry.get("Body").get("Content").asText().replace("\\r\\n", "\n");
+			String content = entry.get("body").get("content").asText().replace("\\r\\n", "\n");
 
 			Matcher m = pHeader.matcher(content);
 

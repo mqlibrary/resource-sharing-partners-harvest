@@ -188,7 +188,7 @@ public class HarvesterTepunaStatus implements Harvester
 				if ("NO SUSPENSIONS".equals(m.group(1)))
 				{
 					ElasticSearchSuspension s = new ElasticSearchSuspension();
-					s.setSuspensionAdded(entry.get("ReceivedDateTime").asText());
+					s.setSuspensionAdded(entry.get("receivedDateTime").asText());
 					s.setSuspensionStatus(ElasticSearchSuspension.NOT_SUSPENDED);
 
 					suspensions.get(nuc).add(s);
@@ -196,7 +196,7 @@ public class HarvesterTepunaStatus implements Harvester
 				else if (m.group(1) == null)
 				{
 					ElasticSearchSuspension s = new ElasticSearchSuspension();
-					s.setSuspensionAdded(entry.get("ReceivedDateTime").asText());
+					s.setSuspensionAdded(entry.get("receivedDateTime").asText());
 					s.setSuspensionStatus(ElasticSearchSuspension.SUSPENDED);
 					s.setSuspensionStart(formatDate(nuc, m.group(2)));
 					s.setSuspensionEnd(formatDate(nuc, m.group(3)));

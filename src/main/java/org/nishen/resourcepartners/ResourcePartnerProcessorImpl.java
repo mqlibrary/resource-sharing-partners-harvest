@@ -1,6 +1,8 @@
 package org.nishen.resourcepartners;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,12 +39,44 @@ public class ResourcePartnerProcessorImpl implements ResourcePartnerProcessor
 	}
 
 	@Override
-	public void process() throws Exception
+	public void process(Map<String, String> options) throws Exception
 	{
 		Map<String, ElasticSearchPartner> partners = elastic.getPartners();
 
+		Set<String> harvestersToProcess = new HashSet<String>();
+
+		Set<String> harvestersPresent = new HashSet<String>();
+		for (Harvester harvester : harvesters)
+			harvestersPresent.add(harvester.getSource());
+
+		Set<String> harvesterSet = null;
+		String harvesterOption = options.get("harvesters");
+		if (harvesterOption != null)
+			harvesterSet = new HashSet<String>(Arrays.asList(harvesterOption.split(",")));
+
+		if (harvesterSet != null && harvesterSet.size() > 0)
+		{
+			for (String h : harvesterSet)
+			{
+				if (harvestersPresent.contains(h))
+					harvestersToProcess.add(h);
+				else
+					throw new Exception("invalid harvester specified: " + h);
+			}
+		}
+		else
+		{
+			harvestersToProcess = new HashSet<String>(harvestersPresent);
+		}
+
 		for (Harvester harvester : harvesters)
 		{
+			if (!harvestersToProcess.contains(harvester.getSource()))
+			{
+				log.debug("skipping harvester [{}]: harvester filtered out on command line", harvester.getSource());
+				continue;
+			}
+
 			try
 			{
 				log.info("harvesting from: {}", harvester.getSource());

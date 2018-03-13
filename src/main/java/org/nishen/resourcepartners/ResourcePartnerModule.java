@@ -105,7 +105,8 @@ public class ResourcePartnerModule extends AbstractModule
 
 		install(new FactoryModuleBuilder().implement(Config.class, ConfigImpl.class).build(ConfigFactory.class));
 
-		bind(String.class).annotatedWith(Names.named("outlook.email")).toInstance(config.getProperty("outlook.email"));
+		bind(String.class).annotatedWith(Names.named("outlook.client.email"))
+		                  .toInstance(config.getProperty("outlook.client.email"));
 		bind(String.class).annotatedWith(Names.named("outlook.client.id"))
 		                  .toInstance(config.getProperty("outlook.client.id"));
 		bind(String.class).annotatedWith(Names.named("outlook.client.secret"))

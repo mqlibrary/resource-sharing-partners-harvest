@@ -46,8 +46,9 @@ public class OutlookDAOImpl implements OutlookDAO
 	private String processedFolderId;
 
 	@Inject
-	public OutlookDAOImpl(ConfigFactory configFactory, @Named("outlook.client.id") String clientId,
-	                      @Named("outlook.client.secret") String clientSecret, @Named("outlook.email") String email,
+	public OutlookDAOImpl(ConfigFactory configFactory, @Named("outlook.client.email") String email,
+	                      @Named("outlook.client.id") String clientId,
+	                      @Named("outlook.client.secret") String clientSecret,
 	                      @Named("ws.outlook") Provider<WebTarget> outlookWebTarget,
 	                      @Named("ws.outlook.token") Provider<WebTarget> outlookTokenWebTarget) throws Exception
 	{

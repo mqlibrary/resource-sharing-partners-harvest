@@ -1,5 +1,7 @@
 package org.nishen.resourcepartners;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,13 +21,13 @@ public class ResourcePartnerApp
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
 
-	public void run()
+	public void run(Map<String, String> options)
 	{
 		log.debug("application execution starting");
 
 		try
 		{
-			processor.process();
+			processor.process(options);
 		}
 		catch (Exception e)
 		{

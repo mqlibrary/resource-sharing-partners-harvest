@@ -62,7 +62,7 @@ Set the memory requirements for the Elasticsearch instance. No more than half th
 
 8. Create a systemd service (if your system uses systemd):
 
-```
+```bash
 [Service]
 User=elastic
 Group=elastic

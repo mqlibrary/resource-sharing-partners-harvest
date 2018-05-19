@@ -53,7 +53,7 @@ Set the memory requirements for the Elasticsearch instance. No more than half th
     -Xms512m
     -Xmx512m
     ```
-1. Create a systemd service (if your system uses systemd):
+1. Create a systemd service (if your system uses systemd) by creating the following file: __/etc/systemd/system/elasticsearch.service__ with the following content:
 
     ```bash
     [Service]

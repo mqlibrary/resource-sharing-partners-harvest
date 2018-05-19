@@ -2,6 +2,8 @@
 
 For an overview, refer to documentation at https://mqlibrary.github.io/resource-sharing-partners-sync/.
 
+[Instructions](install-elasticsearch.md) on installing a small single node Elasticsearch cluster.
+
 #### Harvesting Resource Sharing Partner Data
 ![Harvesting Resource Sharing Partner Data](rsp-harvest-01.png)
 

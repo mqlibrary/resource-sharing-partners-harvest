@@ -10,17 +10,20 @@ Installing a small instance of a single node Elasticsearch cluster will involve 
 1. Logon as the root user (or prefix commands with 'sudo').
 
 2. Set the __vm.max_map_count__ setting in the current context and the __/etc/sysctl.conf__ file.
+
 ```bash
 echo 'vm.max_map_count=262144' >> /etc/sysctl.conf
 sysctl vm.max_map_count=262144
 ```
 
 3. Create an Elasticsearch user.
+
 ```bash
 useradd -c "Elasticsearch User" elastic
 ```
 
 4. Create folder structure and change ownership.
+
 ```bash
 mkdir -p /opt/es/data
 mkdir -p /opt/es/logs
@@ -29,6 +32,7 @@ chown -R elastic:elastic /opt/es
 ```
 
 5. Extract the downloaded Elasticsearch package into /opt, create a symlink and change ownerships.
+
 ```bash
 cd /opt
 tar xzf /path/to/elasticsearch-6.2.4.tar.gz
@@ -50,12 +54,14 @@ http.port: 9200
 
 7. Create/edit the jvm parameters in the configuration file __/opt/elasticsearch/config/jvm.options__.
 Set the memory requirements for the Elasticsearch instance. No more than half the available RAM available on a machine. You could use 256m as well.
+
 ```bash
 -Xms512m
 -Xmx512m
 ```
 
 8. Create a systemd service (if your system uses systemd):
+
 ```
 [Service]
 User=elastic
@@ -71,18 +77,21 @@ WantedBy=multi-user.target
 ```
 
 9. Open the firewall (if using firewalld and the elasticsearch service is already in place)
+
 ```bash
 firewall-cmd --zone=public --add-service=elasticsearch --permanent
 firewall-cmd --zone=public --add-service=elasticsearch
 ```
 
 10. Enable and start the elasticsearch service.
+
 ```bash
 systemctl enable elasticsearch
 systemctl start elasticsearch
 ```
 
 11. View the startup logs and ensure all looks good:
+
 ```bash
 journalctl -efu elasticsearch
 ```

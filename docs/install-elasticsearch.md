@@ -47,7 +47,7 @@ Installing a small instance of a single node Elasticsearch cluster will involve 
     http.port: 9200
     ```
 1. Create/edit the jvm parameters in the configuration file __/opt/elasticsearch/config/jvm.options__.
-Set the memory requirements for the Elasticsearch instance. No more than half the available RAM available on a machine. You could use 256m as well.
+Set the memory requirements for the Elasticsearch instance. No more than half the available RAM available on a machine. You could use __256m__ as well.
 
     ```bash
     -Xms512m

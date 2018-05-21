@@ -1,5 +1,6 @@
 package org.nishen.resourcepartners.dao;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -169,24 +170,30 @@ public class OutlookDAOImpl implements OutlookDAO
 
 	public String getAccessToken() throws Exception
 	{
-		String authRefreshResponseData =
+		String refreshToken =
 		        config.get("refresh_token").orElseThrow(() -> new Exception("could not get refresh_token"));
-
-		AuthRefreshResponse authRefreshResponse = mapper.readValue(authRefreshResponseData, AuthRefreshResponse.class);
-
-		String refreshToken = authRefreshResponse.getRefreshToken();
 
 		Form tokenForm = new Form().param("client_id", clientId).param("refresh_token", refreshToken)
 		                           .param("grant_type", "refresh_token").param("client_secret", clientSecret);
 
-		authRefreshResponseData = outlookToken.request(MediaType.APPLICATION_FORM_URLENCODED)
-		                                      .accept(MediaType.TEXT_HTML).post(Entity.form(tokenForm), String.class);
+		String authRefreshResponseData =
+		        outlookToken.request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.TEXT_HTML)
+		                    .post(Entity.form(tokenForm), String.class);
 
 		log.debug("response: {}", authRefreshResponseData);
 
-		config.set("refresh_token", authRefreshResponseData);
+		AuthRefreshResponse authRefreshResponse = mapper.readValue(authRefreshResponseData, AuthRefreshResponse.class);
 
-		authRefreshResponse = mapper.readValue(authRefreshResponseData, AuthRefreshResponse.class);
+		Map<String, String> token = new HashMap<String, String>();
+		token.put("token_type", authRefreshResponse.getTokenType());
+		token.put("scope", authRefreshResponse.getScope());
+		token.put("expires_in", String.valueOf(authRefreshResponse.getExpiresIn()));
+		token.put("ext_expires_in", String.valueOf(authRefreshResponse.getExtExpiresIn()));
+		token.put("access_token", authRefreshResponse.getAccessToken());
+		token.put("refresh_token", authRefreshResponse.getRefreshToken());
+		token.put("id_token", authRefreshResponse.getIdToken());
+
+		config.setAll(token);
 
 		return authRefreshResponse.getAccessToken();
 	}

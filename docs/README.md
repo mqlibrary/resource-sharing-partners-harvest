@@ -1,11 +1,27 @@
 # Harvesting Resource Sharing Partner Data for Alma
 
 For an overview, refer to documentation at https://mqlibrary.github.io/resource-sharing-partners-sync/.
-
-[Instructions](install-elasticsearch.md) on installing a small single node Elasticsearch cluster.
-
 #### Harvesting Resource Sharing Partner Data
 ![Harvesting Resource Sharing Partner Data](rsp-harvest-01.png)
+
+# Installing the Infrastructure
+
+## Prerequisites
+1. Java 8
+1. Maven 3.x
+1. Git
+1. RestAPI client application (e.g. Curl, HTTPie, Postman)
+
+## Steps
+1. [Download, install and configure Elasticsearch.](install-elasticsearch.md)
+1. [Create the indexes on Elasticsearch.](create-elasticsearch-indexes.md)
+1. [Clone, build and configure the harvester](prepare-harvester.md)
+1. Clone, build and configure the sync server
+1. Perform a harvest
+1. Run the sync server and perform a harvest
+
+
+# Harvesting Data Concepts
 
 ## 1. Harvesting LADD (_Australia_)
 
@@ -178,17 +194,15 @@ Each email is processed - data is extracted, compared with the partner-record in
 The Outlook configuration is stored in the partner-configs index under 'OUTLOOK'. Basically, we store the access token here and update it each time we log in:
 
 ```json
-"refresh_token": "{
-	\"token_type\":\"Bearer\",
-	\"scope\":\"Mail.ReadWrite Mail.ReadWrite.Shared\",
-	\"expires_in\":\"3599\",
-	\"ext_expires_in\":\"262800\",
-	\"expires_on\":\"1519877708\",
-	\"not_before\":\"1519873808\",
-	\"resource\":\"https://outlook.office.com\",
-	\"access_token\":\"[access token]\",
-	\"refresh_token\":\"[refresh token]\"
-}"
+{
+	"token_type": "Bearer",
+	"scope": "Mail.ReadWrite https://graph.microsoft.com/User.Read",
+	"expires_in": 3600,
+	"ext_expires_in": 0,
+	"access_token": "EwBAA8l6BAAURSN...",
+	"refresh_token": "MCUN82zuoFJNOm...",
+	"id_token": "eyJ0eXAiOiJKV1QiLCJ..."
+}
 ```
 For New Zealand partners, the following fields are updated/created:
 ```json

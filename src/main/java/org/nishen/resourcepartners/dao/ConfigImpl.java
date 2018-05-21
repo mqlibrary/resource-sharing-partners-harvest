@@ -61,15 +61,15 @@ public class ConfigImpl implements Config
 	}
 
 	@Override
-	public Map<String, String> getAll()
-	{
-		return Collections.unmodifiableMap(config);
-	}
-
-	@Override
 	public Optional<String> get(String key)
 	{
 		return Optional.ofNullable(config.get(key));
+	}
+
+	@Override
+	public Map<String, String> getAll()
+	{
+		return Collections.unmodifiableMap(config);
 	}
 
 	@Override
@@ -100,12 +100,45 @@ public class ConfigImpl implements Config
 		}
 	}
 
+	@Override
+	public Optional<String> remove(String key)
+	{
+		String value = config.remove(key);
+		try
+		{
+			saveConfig();
+		}
+		catch (Exception e)
+		{
+			log.error("unable to save config[{}]: {}", configId + "." + key, e.getMessage(), e);
+		}
+
+		return Optional.ofNullable(value);
+	}
+
+	@Override
+	public Map<String, String> removeAll()
+	{
+		Map<String, String> result = new HashMap<String, String>(config);
+		config.clear();
+		try
+		{
+			saveConfig();
+		}
+		catch (Exception e)
+		{
+			log.error("unable to save config[{}]: {}", configId + ".*", e.getMessage(), e);
+		}
+
+		return Collections.unmodifiableMap(result);
+	}
+
 	private void saveConfig() throws Exception
 	{
 		ObjectMapper mapper = new ObjectMapper();
 		String esConfig = mapper.writeValueAsString(config);
 
-		WebTarget t = elasticTarget.path("partner-configs").path("config").path(configId);
+		WebTarget t = elasticTarget.path(Config.ES_INDEX).path(Config.ES_TYPE).path(configId);
 		Builder req = t.request(MediaType.APPLICATION_JSON);
 		String result = req.put(Entity.entity(esConfig, MediaType.APPLICATION_JSON), String.class);
 
@@ -117,7 +150,7 @@ public class ConfigImpl implements Config
 		Map<String, String> config = null;
 		try
 		{
-			WebTarget t = elasticTarget.path("partner-configs").path("config").path(configId).path("_source");
+			WebTarget t = elasticTarget.path(Config.ES_INDEX).path(Config.ES_TYPE).path(configId).path("_source");
 			String esConfig = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
 
 			TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {};

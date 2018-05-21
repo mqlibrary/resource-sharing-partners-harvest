@@ -1,7 +1,7 @@
-# Cloning, Building and Configuring the Harvester
+# Cloning, Building, Configuring and Running the Harvester
 
 The Harvester is on GitHub at:
-https://github.com/mqlibrary/resource-sharing-partners-harvest/.
+[https://github.com/mqlibrary/resource-sharing-partners-harvest/](https://github.com/mqlibrary/resource-sharing-partners-harvest/).
 
 1. Create an Outlook account if you do not already have one. It is also possible to use an Office365 institution account, but this will require some work to be done by your IT team that manages the Office365 organisation to configure an 'App'. The Outlook account is needed to create to receive Tepuna Status emails. You can simply go to https://outlook.live.com and create a new account.
 
@@ -35,7 +35,7 @@ https://github.com/mqlibrary/resource-sharing-partners-harvest/.
     ```
 
     The default app.properties file should look like this:
-    ```bash
+    ```conf
     ws.url.elastic.index=
     ws.url.elastic.username=
     ws.url.elastic.password=
@@ -54,7 +54,7 @@ https://github.com/mqlibrary/resource-sharing-partners-harvest/.
     ```
 
     You will need to configure the settings below:
-    ```bash
+    ```conf
     ws.url.elastic.index=http://localhost:9200/
     ws.url.elastic.username=none
     ws.url.elastic.password=none

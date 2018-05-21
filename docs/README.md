@@ -10,15 +10,14 @@ For an overview, refer to documentation at https://mqlibrary.github.io/resource-
 1. Java 8
 1. Maven 3.x
 1. Git
-1. RestAPI client application (e.g. Curl, HTTPie, Postman)
+1. RestAPI client application (e.g. Curl, HTTPie, Postman). For the examples we use [HTTPie](https://httpie.org)
 
-## Steps
+## Process
 1. [Download, install and configure Elasticsearch.](install-elasticsearch.md)
 1. [Create the indexes on Elasticsearch.](create-elasticsearch-indexes.md)
-1. [Clone, build and configure the harvester](prepare-harvester.md)
-1. Clone, build and configure the sync server
-1. Perform a harvest
-1. Run the sync server and perform a harvest
+1. [Clone, build, configure and run the harvester.](prepare-harvester.md)
+1. [Clone, build, configure and run the sync server.](prepare-sync.md)
+1. [Interact with the sync server to perform various actions.](usage.md)
 
 
 # Harvesting Data Concepts

@@ -294,6 +294,7 @@ There are __5__ operations that you can use the Sync Server for:
             "time": "2018-05-21T23:17:57+1000"
         }
     ]
+    ```
 
 1. GET /partner-sync/{nuc}/__orphaned__
 

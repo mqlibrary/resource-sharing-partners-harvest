@@ -14,11 +14,16 @@ For an overview, refer to documentation at https://mqlibrary.github.io/resource-
 
 ## Process
 1. [Download, install and configure Elasticsearch.](install-elasticsearch.md)
+    * [YouTube: Installing Elasticsearch](https://www.youtube.com/watch?v=8Zhr9Nd8oSw)
 1. [Create the indexes on Elasticsearch.](create-elasticsearch-indexes.md)
+    * [YouTube: Resource Sharing Partners - Configure Indexes](https://youtu.be/QYBMUliLCPo)
 1. [Clone, build, configure and run the harvester.](prepare-harvester.md)
+    * [YouTube: Resource Sharing Partners - Build, Deploy, Configure and Run the Harvester](https://youtu.be/Ak3Jcnihtp8)
 1. [Clone, build, configure and run the sync server.](prepare-sync.md)
+    * [YouTube: Resource Sharing Partners - Build, Deploy, Configure and Run the Sync Server](https://youtu.be/ALw_9pEUJPc)
 1. [Interact with the sync server to perform various actions.](usage.md)
 
+[YouTube Playlist - Resource Sharing Partners Configuration](https://www.youtube.com/playlist?list=PLr1gFE_jzVeYx922_wPtym2fTpAFIor53)
 
 # Harvesting Data Concepts
 

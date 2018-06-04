@@ -11,6 +11,7 @@ For an overview, refer to documentation at https://mqlibrary.github.io/resource-
 1. Maven 3.x
 1. Git
 1. RestAPI client application (e.g. Curl, HTTPie, Postman). For the examples we use [HTTPie](https://httpie.org)
+1. Alma API Key (R/W on Resource Sharing Partners API)
 
 ## Process
 1. [Download, install and configure Elasticsearch.](install-elasticsearch.md)

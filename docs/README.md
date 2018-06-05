@@ -12,8 +12,12 @@ For an overview, refer to documentation at https://mqlibrary.github.io/resource-
 1. Git
 1. RestAPI client application (e.g. Curl, HTTPie, Postman). For the examples we use [HTTPie](https://httpie.org)
 1. Alma API Key (R/W on Resource Sharing Partners API)
+1. Outlook Email Account (Office365 also supported, but need to get Organisation managers to create an 'Application')
 
 ## Process
+
+Sample config files that are used in the documentation can be found [here](sample-config-files/).
+
 1. [Download, install and configure Elasticsearch.](install-elasticsearch.md)
     * [YouTube: Installing Elasticsearch](https://www.youtube.com/watch?v=8Zhr9Nd8oSw)
 1. [Create the indexes on Elasticsearch.](create-elasticsearch-indexes.md)

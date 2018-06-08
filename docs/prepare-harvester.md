@@ -94,7 +94,7 @@ The Harvester is on GitHub at:
 
     Check the config:
     ```bash
-    http PUT localhost:9200/partner-configs/config/OUTLOOK/_source
+    http localhost:9200/partner-configs/config/OUTLOOK/_source
     ```
 
     You should hopefully see something like:

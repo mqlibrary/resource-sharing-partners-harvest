@@ -1,7 +1,7 @@
 # Cloning, Building, Configuring and Running the Sync Server
 
 The Sync Server is on GitHub at:
-[https://github.com/mqlibrary/resource-sharing-partners-sync/](https://github.com/mqlibrary/resource-sharing-partners-sync/).
+[https://github.com/mqlibrary/resource-sharing-partners-sync/](https://github.com/mqlibrary/resource-sharing-partners-sync/). This document is using version __0.1.3__ of the sync server. You should always use the latest version where possible.
 
 1. Clone the repository:
 

@@ -362,7 +362,7 @@ There are __5__ operations that you can use the Sync Server for:
 
     Sample request:
     ```bash
-    http localhost:8080/partner-sync/NMQU/preview Authorization:"apikey l7xx123a123b123c123d123e123f123g123h"
+    http localhost:8080/partner-sync/NMQU/sync Authorization:"apikey l7xx123a123b123c123d123e123f123g123h"
     ```
     
     Sample output:

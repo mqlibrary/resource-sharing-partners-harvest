@@ -48,6 +48,25 @@ http PUT localhost:9200/partner-configs/config/NMQU @/path/to/NMQU.json
     "preferredEmailType": "ill"
 }
 ```
+The following are valid preferred types:
+- Address:
+   - billing
+   - claim
+   - order
+   - payment
+   - returns
+   - shipping
+- Phone:
+   - claimPhone
+   - orderPhone
+   - paymentPhone
+   - returnsPhone
+- Email:
+   - claimMail
+   - orderMail
+   - paymentMail
+   - queries
+   - returnsMail
 
 ```
 DATASTORE RECORD + INSTITUTION CONFIGURATION = ALMA RECORD

@@ -44,8 +44,8 @@ http PUT localhost:9200/partner-configs/config/NMQU @/path/to/NMQU.json
 
     // Some flags to allow setting of the 'preferred' option for contact info
     "preferredAddressType": "shipping",
-    "preferredPhoneType": "ill",
-    "preferredEmailType": "ill"
+    "preferredPhoneType": "claimPhone",
+    "preferredEmailType": "queries"
 }
 ```
 The following are valid preferred types:

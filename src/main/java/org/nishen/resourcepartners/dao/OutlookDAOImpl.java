@@ -3,6 +3,7 @@ package org.nishen.resourcepartners.dao;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
@@ -68,10 +69,15 @@ public class OutlookDAOImpl implements OutlookDAO
 
 	public String getProcessedFolderId() throws Exception
 	{
-		String response = outlook.path("users").path(email).path("MailFolders").queryParam("$top", 50).request()
+		String response = outlook.path("users")
+		                         .path(email)
+		                         .path("MailFolders")
+		                         .queryParam("$top", 50)
+		                         .request()
 		                         .header("Authorization", "Bearer " + accessToken)
 		                         .header("Prefer", "outlook.body-content-type=\"text\"")
-		                         .accept(MediaType.APPLICATION_JSON).get(String.class);
+		                         .accept(MediaType.APPLICATION_JSON)
+		                         .get(String.class);
 
 		log.debug("folders:\n{}", response);
 
@@ -106,7 +112,12 @@ public class OutlookDAOImpl implements OutlookDAO
 		String body = "{ \"DestinationId\": \"" + processedFolderId + "\" }";
 		for (String id : messages.keySet())
 		{
-			WebTarget t = outlook.path("users").path(email).path("MailFolders").path("Inbox").path("messages").path(id)
+			WebTarget t = outlook.path("users")
+			                     .path(email)
+			                     .path("MailFolders")
+			                     .path("Inbox")
+			                     .path("messages")
+			                     .path(id)
 			                     .path("move");
 
 			Builder request = t.request();
@@ -173,12 +184,14 @@ public class OutlookDAOImpl implements OutlookDAO
 		String refreshToken =
 		        config.get("refresh_token").orElseThrow(() -> new Exception("could not get refresh_token"));
 
-		Form tokenForm = new Form().param("client_id", clientId).param("refresh_token", refreshToken)
-		                           .param("grant_type", "refresh_token").param("client_secret", clientSecret);
+		Form tokenForm = new Form().param("client_id", clientId)
+		                           .param("refresh_token", refreshToken)
+		                           .param("grant_type", "refresh_token")
+		                           .param("client_secret", clientSecret);
 
-		String authRefreshResponseData =
-		        outlookToken.request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.TEXT_HTML)
-		                    .post(Entity.form(tokenForm), String.class);
+		String authRefreshResponseData = outlookToken.request(MediaType.APPLICATION_FORM_URLENCODED)
+		                                             .accept(MediaType.TEXT_HTML)
+		                                             .post(Entity.form(tokenForm), String.class);
 
 		log.debug("response: {}", authRefreshResponseData);
 
@@ -191,6 +204,7 @@ public class OutlookDAOImpl implements OutlookDAO
 		token.put("ext_expires_in", String.valueOf(authRefreshResponse.getExtExpiresIn()));
 		token.put("access_token", authRefreshResponse.getAccessToken());
 		token.put("refresh_token", authRefreshResponse.getRefreshToken());
+		token.put("id_token", Optional.ofNullable(authRefreshResponse.getIdToken()).orElse(""));
 
 		config.setAll(token);
 

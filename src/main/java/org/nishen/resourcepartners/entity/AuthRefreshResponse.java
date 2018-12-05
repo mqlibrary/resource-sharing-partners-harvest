@@ -35,6 +35,9 @@ public class AuthRefreshResponse implements Serializable
 	@JsonProperty("refresh_token")
 	private String refreshToken;
 
+	@JsonProperty("id_token")
+	private String idToken;
+
 	public AuthRefreshResponse()
 	{}
 
@@ -126,5 +129,15 @@ public class AuthRefreshResponse implements Serializable
 	public void setRefreshToken(String refreshToken)
 	{
 		this.refreshToken = refreshToken;
+	}
+
+	public String getIdToken()
+	{
+		return idToken;
+	}
+
+	public void setIdToken(String idToken)
+	{
+		this.idToken = idToken;
 	}
 }

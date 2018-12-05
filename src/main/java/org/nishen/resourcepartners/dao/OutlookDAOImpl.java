@@ -191,7 +191,6 @@ public class OutlookDAOImpl implements OutlookDAO
 		token.put("ext_expires_in", String.valueOf(authRefreshResponse.getExtExpiresIn()));
 		token.put("access_token", authRefreshResponse.getAccessToken());
 		token.put("refresh_token", authRefreshResponse.getRefreshToken());
-		token.put("id_token", authRefreshResponse.getIdToken());
 
 		config.setAll(token);
 

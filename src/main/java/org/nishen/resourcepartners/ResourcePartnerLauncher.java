@@ -34,6 +34,9 @@ public class ResourcePartnerLauncher
 				printUsage();
 				return;
 			}
+
+			if (options.containsKey("harvesters"))
+				System.setProperty("harvesters", options.get("harvesters"));
 		}
 		catch (Exception e)
 		{

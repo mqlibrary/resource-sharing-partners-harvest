@@ -5,7 +5,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -88,6 +91,11 @@ public class ResourcePartnerModule extends AbstractModule
 			return;
 		}
 
+		String harvesters = System.getProperty("harvesters");
+		Set<String> harvesterSet = null;
+		if (harvesters != null)
+			harvesterSet = new HashSet<String>(Arrays.asList(harvesters.toLowerCase().split(",")));
+
 		// bind instances
 		bind(ResourcePartnerProcessor.class).to(ResourcePartnerProcessorImpl.class);
 
@@ -98,10 +106,17 @@ public class ResourcePartnerModule extends AbstractModule
 		bind(OutlookDAO.class).to(OutlookDAOImpl.class);
 
 		Multibinder<Harvester> harvesterBinder = Multibinder.newSetBinder(binder(), Harvester.class);
-		harvesterBinder.addBinding().to(HarvesterLadd.class);
-		harvesterBinder.addBinding().to(HarvesterIlrs.class);
-		harvesterBinder.addBinding().to(HarvesterTepuna.class);
-		harvesterBinder.addBinding().to(HarvesterTepunaStatus.class);
+		if (harvesterSet == null || harvesterSet.contains("ladd"))
+			harvesterBinder.addBinding().to(HarvesterLadd.class);
+
+		if (harvesterSet == null || harvesterSet.contains("ilrs"))
+			harvesterBinder.addBinding().to(HarvesterIlrs.class);
+
+		if (harvesterSet == null || harvesterSet.contains("tepuna"))
+			harvesterBinder.addBinding().to(HarvesterTepuna.class);
+
+		if (harvesterSet == null || harvesterSet.contains("outlook"))
+			harvesterBinder.addBinding().to(HarvesterTepunaStatus.class);
 
 		install(new FactoryModuleBuilder().implement(Config.class, ConfigImpl.class).build(ConfigFactory.class));
 
@@ -137,8 +152,11 @@ public class ResourcePartnerModule extends AbstractModule
 				}
 			} }, new java.security.SecureRandom());
 
-			Client client = ClientBuilder.newBuilder().sslContext(sslcontext).hostnameVerifier((s1, s2) -> true)
-			                             .register(auth).build();
+			Client client = ClientBuilder.newBuilder()
+			                             .sslContext(sslcontext)
+			                             .hostnameVerifier((s1, s2) -> true)
+			                             .register(auth)
+			                             .build();
 			elasticTarget = client.target(config.getProperty("ws.url.elastic.index"));
 		}
 

@@ -139,18 +139,7 @@ public class ResourcePartnerModule extends AbstractModule
 			HttpAuthenticationFeature auth = HttpAuthenticationFeature.basic(usr, pwd);
 
 			SSLContext sslcontext = SSLContext.getInstance("TLS");
-			sslcontext.init(null, new TrustManager[] { new X509TrustManager() {
-				public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException
-				{}
-
-				public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException
-				{}
-
-				public X509Certificate[] getAcceptedIssuers()
-				{
-					return new X509Certificate[0];
-				}
-			} }, new java.security.SecureRandom());
+			sslcontext.init(null, getTrustManager(), new java.security.SecureRandom());
 
 			Client client = ClientBuilder.newBuilder()
 			                             .sslContext(sslcontext)
@@ -183,18 +172,7 @@ public class ResourcePartnerModule extends AbstractModule
 		if (laddTarget == null)
 		{
 			SSLContext sslcontext = SSLContext.getInstance("TLS");
-			sslcontext.init(null, new TrustManager[] { new X509TrustManager() {
-				public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException
-				{}
-
-				public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException
-				{}
-
-				public X509Certificate[] getAcceptedIssuers()
-				{
-					return new X509Certificate[0];
-				}
-			} }, new java.security.SecureRandom());
+			sslcontext.init(null, getTrustManager(), new java.security.SecureRandom());
 
 			Client client =
 			        ClientBuilder.newBuilder().sslContext(sslcontext).hostnameVerifier((s1, s2) -> true).build();
@@ -219,11 +197,15 @@ public class ResourcePartnerModule extends AbstractModule
 
 	@Provides
 	@Named("ws.outlook")
-	protected WebTarget provideWebTargetOutlook()
+	protected WebTarget provideWebTargetOutlook() throws Exception
 	{
 		if (outlookTarget == null)
 		{
-			Client client = ClientBuilder.newClient();
+			SSLContext sslcontext = SSLContext.getInstance("TLS");
+			sslcontext.init(null, getTrustManager(), new java.security.SecureRandom());
+
+			Client client =
+			        ClientBuilder.newBuilder().sslContext(sslcontext).hostnameVerifier((s1, s2) -> true).build();
 			outlookTarget = client.target(config.getProperty("outlook.url.endpoint"));
 		}
 
@@ -232,14 +214,34 @@ public class ResourcePartnerModule extends AbstractModule
 
 	@Provides
 	@Named("ws.outlook.token")
-	protected WebTarget provideWebTargetOutlookToken()
+	protected WebTarget provideWebTargetOutlookToken() throws Exception
 	{
 		if (outlookTokenTarget == null)
 		{
-			Client client = ClientBuilder.newClient();
+			SSLContext sslcontext = SSLContext.getInstance("TLS");
+			sslcontext.init(null, getTrustManager(), new java.security.SecureRandom());
+
+			Client client =
+			        ClientBuilder.newBuilder().sslContext(sslcontext).hostnameVerifier((s1, s2) -> true).build();
 			outlookTokenTarget = client.target(config.getProperty("outlook.url.token"));
 		}
 
 		return outlookTokenTarget;
+	}
+
+	private TrustManager[] getTrustManager()
+	{
+		return new TrustManager[] { new X509TrustManager() {
+			public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException
+			{}
+
+			public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException
+			{}
+
+			public X509Certificate[] getAcceptedIssuers()
+			{
+				return new X509Certificate[0];
+			}
+		} };
 	}
 }

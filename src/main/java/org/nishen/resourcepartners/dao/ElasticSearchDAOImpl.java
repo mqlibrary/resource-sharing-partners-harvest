@@ -76,8 +76,10 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		if (!indices.contains(configInfo.getElasticSearchIndex()))
 			createElasticSearchIndex(configInfo.getElasticSearchIndex());
 
-		WebTarget t = elasticTarget.path(configInfo.getElasticSearchIndex()).path(configInfo.getElasticSearchType())
-		                           .path(id).path("_source");
+		WebTarget t = elasticTarget.path(configInfo.getElasticSearchIndex())
+		                           .path(configInfo.getElasticSearchType())
+		                           .path(id)
+		                           .path("_source");
 
 		ElasticSearchPartner partner = null;
 		try
@@ -102,8 +104,11 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 		if (!indices.contains(configInfo.getElasticSearchIndex()))
 			createElasticSearchIndex(configInfo.getElasticSearchIndex());
 
-		WebTarget t = elasticTarget.path(configInfo.getElasticSearchIndex()).path(configInfo.getElasticSearchType())
-		                           .path("_search").queryParam("sort", "nuc").queryParam("size", SEARCH_SIZE);
+		WebTarget t = elasticTarget.path(configInfo.getElasticSearchIndex())
+		                           .path(configInfo.getElasticSearchType())
+		                           .path("_search")
+		                           .queryParam("sort", "nuc")
+		                           .queryParam("size", SEARCH_SIZE);
 
 		String result = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
 
@@ -159,7 +164,7 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			if (!indices.contains(e.getElasticSearchIndex()))
 				createElasticSearchIndex(e.getElasticSearchIndex());
 
-			String pattern = "{\"update\": { \"_index\": \"%s\", \"_type\": \"%s\", \"_id\": \"%s\"}}\n";
+			String pattern = "{\"update\": { \"_index\": \"%s\", \"_id\": \"%s\"}}\n";
 			Object[] args = new String[3];
 			args[0] = e.getElasticSearchIndex();
 			args[1] = e.getElasticSearchType();
@@ -184,7 +189,8 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 	@Override
 	public void delEntity(ElasticSearchEntity esEntity)
 	{
-		WebTarget t = elasticTarget.path(esEntity.getElasticSearchIndex()).path(esEntity.getElasticSearchType())
+		WebTarget t = elasticTarget.path(esEntity.getElasticSearchIndex())
+		                           .path(esEntity.getElasticSearchType())
 		                           .path(esEntity.getElasticSearchId());
 
 		try

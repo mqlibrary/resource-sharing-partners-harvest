@@ -3,6 +3,7 @@ package org.nishen.resourcepartners.dao;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -26,9 +27,9 @@ public class LaddDAOImpl implements LaddDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(LaddDAOImpl.class);
 
-	private static final SimpleDateFormat idf = new SimpleDateFormat("dd MMM, yyyy");
+	private static final SimpleDateFormat idf = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
 
-	private static final SimpleDateFormat odf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+	private static final SimpleDateFormat odf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ENGLISH);
 
 	private static Pattern p;
 

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -37,9 +38,9 @@ public class HarvesterTepunaStatus implements Harvester
 
 	private static final String SOURCE_SYSTEM = "OUTLOOK";
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ENGLISH);
 
-	private static final SimpleDateFormat idf = new SimpleDateFormat("dd-MMM-yy");
+	private static final SimpleDateFormat idf = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
 
 	private static Pattern pHeader;
 

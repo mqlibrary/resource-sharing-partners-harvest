@@ -2,6 +2,7 @@ package org.nishen.resourcepartners.entity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -18,7 +19,7 @@ import javax.xml.bind.annotation.XmlType;
 public class ElasticSearchChangeRecord implements ElasticSearchEntity
 {
 	@XmlTransient
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ENGLISH);
 
 	@XmlTransient
 	private UUID id;

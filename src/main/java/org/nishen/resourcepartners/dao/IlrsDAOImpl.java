@@ -96,8 +96,12 @@ public class IlrsDAOImpl implements IlrsDAO
 		log.debug("target: {}/{}", t.getUri(), nuc);
 
 		Form form = new Form();
-		form = form.param("nuc", nuc).param("term", "").param("termType", "Keyword").param("state", "All")
-		           .param("dosearch", "Search").param("chunk", "20");
+		form = form.param("nuc", nuc)
+		           .param("term", "")
+		           .param("termType", "Keyword")
+		           .param("state", "All")
+		           .param("dosearch", "Search")
+		           .param("chunk", "20");
 
 		String result = t.request(MediaType.TEXT_HTML).post(Entity.form(form), String.class);
 

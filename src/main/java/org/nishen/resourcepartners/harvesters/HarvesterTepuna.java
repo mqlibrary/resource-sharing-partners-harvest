@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.nishen.resourcepartners.dao.TepunaDAO;
@@ -27,7 +28,7 @@ public class HarvesterTepuna implements Harvester
 
 	private static final String SOURCE_SYSTEM = "TEPUNA";
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ENGLISH);
 
 	private TepunaDAO tepuna;
 

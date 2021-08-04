@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.WebTarget;
@@ -57,7 +59,7 @@ public class TepunaDAOImpl implements TepunaDAO
 
 		Map<String, ElasticSearchPartner> tepunaPartners = new HashMap<String, ElasticSearchPartner>();
 
-		try (CSVParser parser = CSVParser.parse(data, CSVFormat.DEFAULT.withHeader()))
+		try (CSVParser parser = CSVParser.parse(data, CSVFormat.DEFAULT.withSkipHeaderRecord()))
 		{
 			for (CSVRecord record : parser)
 			{
@@ -66,22 +68,22 @@ public class TepunaDAOImpl implements TepunaDAO
 				partner.setEnabled(true);
 				partner.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
 
-				if (record.get(2) != null && !"".equals(record.get(2).trim()))
-					partner.setName(record.get(2));
+				if (record.get(4) != null && !"".equals(record.get(4).trim()))
+					partner.setName(record.get(4));
 
-				if (record.get(6) != null && !"".equals(record.get(6).trim()))
-					partner.setEmailMain(record.get(6));
+				if (record.get(8) != null && !"".equals(record.get(8).trim()))
+					partner.setEmailMain(record.get(8));
 
-				if (record.get(16) != null && !"".equals(record.get(16).trim()))
-					partner.setEmailIll(record.get(16));
+				if (record.get(18) != null && !"".equals(record.get(18).trim()))
+					partner.setEmailIll(record.get(18));
 
-				if (record.get(7) != null && !"".equals(record.get(7).trim()))
-					partner.setPhoneMain(record.get(7));
+				if (record.get(9) != null && !"".equals(record.get(9).trim()))
+					partner.setPhoneMain(record.get(9));
 
-				if (record.get(15) != null && !"".equals(record.get(15).trim()))
-					partner.setPhoneIll(record.get(15));
+				if (record.get(17) != null && !"".equals(record.get(17).trim()))
+					partner.setPhoneIll(record.get(17));
 
-				String s = record.get(4);
+				String s = record.get(6);
 				if (s != null && !"".equals(s.trim()))
 				{
 					Address a = getAddress(s);
@@ -93,7 +95,7 @@ public class TepunaDAOImpl implements TepunaDAO
 					partner.getAddresses().add(address);
 				}
 
-				s = record.get(5);
+				s = record.get(7);
 				if (s != null && !"".equals(s.trim()))
 				{
 					Address a = getAddress(s);
@@ -123,7 +125,7 @@ public class TepunaDAOImpl implements TepunaDAO
 		if (s == null || s.trim().length() == 0)
 			return address;
 
-		List<String> tmpl = Arrays.asList(s.split(" *, *"));
+		List<String> tmpl = Arrays.asList(s.split(" *\r?\n *"));
 		List<String> addr = new ArrayList<String>();
 		for (String tli : tmpl)
 			if (tli != null && !"".equals(tli))
@@ -134,51 +136,49 @@ public class TepunaDAOImpl implements TepunaDAO
 
 		address.setLine1(addr.get(addr.size() - 1));
 
-		Country country = new Country();
-		switch (addr.get(0))
+		if (addr.get(0).equalsIgnoreCase("New Zealand"))
 		{
-			case "Australia":
-				country.setValue("AUS");
-				country.setDesc("Australia");
-				addr.remove(0);
-				address.setCountry(country);
-				break;
-
-			case "New Zealand":
-				country.setValue("NZL");
-				country.setDesc("New Zealand");
-				addr.remove(0);
-				address.setCountry(country);
-				break;
-
-			default:
+			Country country = new Country();
+			country.setValue("NZL");
+			country.setDesc("New Zealand");
+			address.setCountry(country);
+			addr.remove(0);
+		}
+		else if (addr.get(0).equalsIgnoreCase("Australia"))
+		{
+			Country country = new Country();
+			country.setValue("AUS");
+			country.setDesc("Australia");
+			address.setCountry(country);
+			addr.remove(0);
+		}
+		else if (addr.get(0).equalsIgnoreCase("Samoa"))
+		{
+			Country country = new Country();
+			country.setValue("WSM");
+			country.setDesc("Samoa");
+			address.setCountry(country);
+			addr.remove(0);
 		}
 
 		if (addr.size() == 0)
 			return address;
 
-		if (addr.get(0).matches("\\d{4}"))
+		Pattern p = Pattern.compile("^(.+) (\\d{3,4})$");
+		for (int pos = 0; pos < addr.size(); pos++)
 		{
-			address.setPostalCode(addr.get(0));
-			addr.remove(0);
-
-			if (addr.size() == 0)
-				return address;
-
-			address.setCity(addr.get(0));
-			addr.remove(0);
-
-			if (addr.size() == 0)
-				return address;
+			Matcher m = p.matcher(addr.get(pos));
+			if (m.matches())
+			{
+				address.setCity(m.group(1));
+				address.setPostalCode(m.group(2));
+				addr.remove(pos);
+				break;
+			}
 		}
-		else
-		{
-			address.setCity(addr.get(0));
-			addr.remove(0);
 
-			if (addr.size() == 0)
-				return address;
-		}
+		if (addr.size() == 0)
+			return address;
 
 		Collections.reverse(addr);
 

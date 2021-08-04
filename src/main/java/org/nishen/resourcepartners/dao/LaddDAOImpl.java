@@ -1,9 +1,5 @@
 package org.nishen.resourcepartners.dao;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -27,10 +23,6 @@ public class LaddDAOImpl implements LaddDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(LaddDAOImpl.class);
 
-	private static final SimpleDateFormat idf = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-
-	private static final SimpleDateFormat odf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ENGLISH);
-
 	private static Pattern p;
 
 	private static Pattern pDate;
@@ -38,8 +30,8 @@ public class LaddDAOImpl implements LaddDAO
 	static
 	{
 		String regex = "";
-		regex += "<tr class=\"(?:odd|even).*?\">\\s*";
-		regex += "<td .*?>\\s*(.*?)\\s*</td>\\s*";
+		regex += "<tr>\\s*";
+		regex += "<td .*?>\\s*<p>\\s*(.*?)\\s*</p>\\s*</td>\\s*";
 		regex += "<td .*?>\\s*(.*?)\\s*</td>\\s*";
 		regex += "<td .*?>\\s*(.*?)\\s*</td>\\s*";
 		regex += "<td .*?>\\s*(.*?)\\s*</td>\\s*";
@@ -49,7 +41,7 @@ public class LaddDAOImpl implements LaddDAO
 
 		p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-		regex = "<span .*?>\\s*(.*)\\s*</span>";
+		regex = "<time datetime=\"(.*?)\".*</time>";
 		pDate = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 	}
 
@@ -83,8 +75,8 @@ public class LaddDAOImpl implements LaddDAO
 			String name = m.group(2);
 			String isoi = m.group(3);
 			String susp = m.group(4);
-			String begs = m.group(5);
-			String ends = m.group(6);
+			String begs = getDate(nuc1, m.group(5));
+			String ends = getDate(nuc1, m.group(6));
 
 			log.debug("nuc1: {}", nuc1);
 			log.debug("name: {}", name);
@@ -114,8 +106,8 @@ public class LaddDAOImpl implements LaddDAO
 			{
 				e.setStatus(ElasticSearchSuspension.SUSPENDED);
 
-				String begSusp = formatDate(nuc1, begs);
-				String endSusp = formatDate(nuc1, ends);
+				String begSusp = begs;
+				String endSusp = ends;
 				if (begSusp != null && endSusp != null)
 				{
 					ElasticSearchSuspension suspension = new ElasticSearchSuspension();
@@ -144,25 +136,18 @@ public class LaddDAOImpl implements LaddDAO
 		return data;
 	}
 
-	private String formatDate(String nuc, String date)
+	private String getDate(String nuc, String date)
 	{
 		String result = null;
 
 		if (date == null || "".equals(date.trim()))
 			return result;
 
-		try
+		Matcher m = pDate.matcher(date);
+		if (m.find())
 		{
-			Matcher m = pDate.matcher(date);
-			if (m.find())
-			{
-				Date d = idf.parse(m.group(1));
-				result = odf.format(d);
-			}
-		}
-		catch (ParseException pe)
-		{
-			log.warn("can't parse tepuna date[{}]: {}", nuc, date);
+			result = m.group(1);
+			log.debug("found date [{}]: {}", nuc, result);
 		}
 
 		return result;

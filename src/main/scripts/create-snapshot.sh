@@ -12,4 +12,4 @@ ES_DATA="{ \"indices\": \"partner-*\", \"ignore_unavailable\": true, \"include_g
 
 URL="$ES_BASE/_snapshot/$ES_REPO/$ES_SNAP" 
 
-curl -s --user $ES_USER:$ES_PASS -XPUT "$URL" -H "Content-Type: application/json" -H "Accept: application/json" -d $ES_DATA
+curl -s --user $ES_USER:$ES_PASS -XPUT "$URL" -H "Content-Type: application/json" -H "Accept: application/json" -d "$ES_DATA"

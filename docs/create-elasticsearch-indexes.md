@@ -47,7 +47,8 @@ Lets take a look at the _partner-changes.json_ file and go through the structure
       "after": { "type": "text" }
     }
   }
-}```
+}
+```
 
 The only changes that you'd typically make are to the _number_of_shards_ and _number_of_replicas_ settings. If you have two or more nodes in your elasticsearch cluster, the default settings are fine and you do not need to make any changes or create the __partner-changes__ or __partner-records__ indexes.
 

@@ -10,7 +10,7 @@ For an overview, refer to documentation at https://mqlibrary.github.io/resource-
 
 ## Prerequisites
 
-1.  Java 8
+1.  Java 8/11
 1.  Maven 3.x
 1.  Git
 1.  RestAPI client application (e.g. Curl, HTTPie, Postman). For the examples we use [HTTPie](https://httpie.org)

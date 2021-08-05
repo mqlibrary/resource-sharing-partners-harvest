@@ -96,3 +96,7 @@ http.port: 9200
 # Require explicit names when deleting indices:
 #
 #action.destructive_requires_name: true
+
+xpack.ml.enabled: false
+xpack.security.enabled: false
+ingest.geoip.downloader.enabled: false

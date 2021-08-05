@@ -67,15 +67,13 @@ Take a copy of the mapping (you can use the links above) and edit the _number_of
     }
   },
   "mappings": {
-    "partner-change": { 
-      "properties": {
-        "time": { "type": "date", "format": "date_time_no_millis" },
-        "source_system": { "type": "keyword"},
-        "nuc": { "type": "keyword"},
-        "field": { "type": "keyword" },
-        "before": { "type": "text" },
-        "after": { "type": "text" }
-      }
+    "properties": {
+      "time": { "type": "date", "format": "date_time_no_millis" },
+      "source_system": { "type": "keyword"},
+      "nuc": { "type": "keyword"},
+      "field": { "type": "keyword" },
+      "before": { "type": "text" },
+      "after": { "type": "text" }
     }
   }
 }

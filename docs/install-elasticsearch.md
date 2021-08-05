@@ -31,9 +31,9 @@ Installing a small instance of a single node Elasticsearch cluster will involve 
 
     ```bash
     cd /opt
-    tar xzf /path/to/elasticsearch-6.2.4.tar.gz
-    ln -s elasticsearch-6.2.4 elasticsearch
-    chown -R elastic:elastic elasticsearch-6.2.4
+    tar xzf /path/to/elasticsearch-7.14.0-linux-x86_64.tar.gz
+    ln -s elasticsearch-7.14.0 elasticsearch
+    chown -R elastic:elastic elasticsearch-7.14.0
     ```
 1. Create/edit the elasticsearch configuration file and ensure the following are set: __/opt/elasticsearch/config/elasticsearch.yml__
 

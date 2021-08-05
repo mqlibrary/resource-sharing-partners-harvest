@@ -3,7 +3,7 @@
 Elasticsearch can be downloaded from the following URL:
 https://www.elastic.co/downloads/elasticsearch
 
-This document is using __elasticsearch-6.2.4.tar.gz__.
+This document is using __elasticsearch-7.14.0-linux-x86_64.tar.gz__.
 
 Installing a small instance of a single node Elasticsearch cluster will involve the following steps:
 

@@ -7,7 +7,7 @@ public interface Config
 {
 	public static final String ES_INDEX = "partner-configs";
 
-	public static final String ES_TYPE = "config";
+	public static final String ES_TYPE = "_doc";
 
 	public Optional<String> get(String key);
 

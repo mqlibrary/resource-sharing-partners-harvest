@@ -105,7 +105,6 @@ public class ElasticSearchDAOImpl implements ElasticSearchDAO
 			createElasticSearchIndex(configInfo.getElasticSearchIndex());
 
 		WebTarget t = elasticTarget.path(configInfo.getElasticSearchIndex())
-		                           .path(configInfo.getElasticSearchType())
 		                           .path("_search")
 		                           .queryParam("sort", "nuc")
 		                           .queryParam("size", SEARCH_SIZE);

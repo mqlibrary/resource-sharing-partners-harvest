@@ -1,7 +1,5 @@
 package org.nishen.resourcepartners;
 
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,6 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+
+import static org.junit.Assert.fail;
 
 public class TestHarvesterTepunaStatus
 {
@@ -60,8 +60,8 @@ public class TestHarvesterTepunaStatus
 			JsonNode node = null;
 			Map<String, JsonNode> messages = new HashMap<String, JsonNode>();
 
-			//node = mapper.readTree(DataUtils.loadFile("target/test-classes/data/message01.txt"));
-			//messages.put("NLNZ:HP", node);
+			// node = mapper.readTree(DataUtils.loadFile("target/test-classes/data/message01.txt"));
+			// messages.put("NLNZ:HP", node);
 
 			node = mapper.readTree(DataUtils.loadFile("target/test-classes/data/message02.txt"));
 			messages.put("NLNZ:NPM", node);

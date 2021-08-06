@@ -1,7 +1,5 @@
 package org.nishen.resourcepartners;
 
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+
+import static org.junit.Assert.fail;
 
 public class TestHarvesterIlrs
 {

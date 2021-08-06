@@ -13,10 +13,10 @@ import org.nishen.resourcepartners.util.JaxbUtilModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import static org.junit.Assert.fail;
 
 public class TestJaxbUtils
 {

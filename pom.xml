@@ -4,7 +4,7 @@
 
 	<groupId>org.nishen</groupId>
 	<artifactId>resource-sharing-partners-harvest</artifactId>
-	<version>0.2.1</version>
+	<version>0.2.2</version>
 	<packaging>jar</packaging>
 
 	<name>resource-partners</name>
@@ -43,22 +43,17 @@
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
-			<version>4.2.3</version>
+			<version>5.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-persist</artifactId>
-			<version>4.2.3</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-multibindings</artifactId>
-			<version>4.2.3</version>
+			<version>5.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-assistedinject</artifactId>
-			<version>4.2.3</version>
+			<version>5.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nishen.resourcepartners.entity.ElasticSearchPartner;
 import org.nishen.resourcepartners.harvesters.Harvester;
@@ -19,6 +20,7 @@ import com.google.inject.Module;
 
 import static org.junit.Assert.fail;
 
+@Ignore
 public class TestHarvesterIlrs
 {
 	private static final Logger log = LoggerFactory.getLogger(TestHarvesterIlrs.class);

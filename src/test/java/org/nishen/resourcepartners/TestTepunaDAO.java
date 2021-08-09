@@ -56,7 +56,7 @@ public class TestTepunaDAO
 			for (String nuc : partners.keySet())
 				log.debug("{}:\n{}", nuc, partners.get(nuc));
 
-			assertThat(partners.size(), greaterThan(400));
+			assertThat(partners.size(), greaterThan(300));
 		}
 		catch (Exception e)
 		{

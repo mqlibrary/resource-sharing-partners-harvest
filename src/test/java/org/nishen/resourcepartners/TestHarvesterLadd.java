@@ -26,7 +26,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 import static org.junit.Assert.fail;
 
@@ -90,21 +90,12 @@ public class TestHarvesterLadd
 		suspension.setSuspensionEnd(null);
 
 		partner.getSuspensions().add(suspension);
-
-		try
-		{
-			elastic.addEntity(partner);
-		}
-		catch (Exception e)
-		{
-			log.error("unable to add entity: {}", e.getMessage(), e);
-		}
 	}
 
 	@Before
 	public void setup() throws Exception
 	{
-		elastic.addEntity(partner);
+		// elastic.addEntity(partner);
 	}
 
 	@After
@@ -119,11 +110,9 @@ public class TestHarvesterLadd
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			Map<String, ElasticSearchPartner> changed = harvester.harvest();
-			for (String nuc : changed.keySet())
-				log.debug("{}: {}", nuc, changed.get(nuc));
+			Map<String, ElasticSearchPartner> laddPartners = harvester.harvest();
 
-			assertThat(changed.values(), contains(partner));
+			assertThat(laddPartners.size(), greaterThanOrEqualTo(500));
 		}
 		catch (Exception e)
 		{

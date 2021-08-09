@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nishen.resourcepartners.dao.OutlookDAO;
 import org.nishen.resourcepartners.util.DataUtils;
@@ -20,6 +21,7 @@ import com.google.inject.Module;
 
 import static org.junit.Assert.fail;
 
+@Ignore
 public class TestOutlookDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(TestOutlookDAO.class);

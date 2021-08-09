@@ -95,8 +95,11 @@ public class TestJaxbUtils
 	{
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 
-		String expected = "{\"nuc\":\"TEST\",\"updated\":\"123123123\",\"name\":\"Test Organisation\"," +
-		                  "\"enabled\":true,\"suspension_start\":null,\"suspension_end\":null}";
+		String expected =
+		        "{\"nuc\":\"TEST\",\"updated\":\"123123123\",\"name\":\"Test Organisation\",\"enabled\":true," +
+		                  "\"iso_ill\":false,\"email_main\":null,\"email_ill\":null,\"phone_main\":null," +
+		                  "\"phone_ill\":null,\"phone_fax\":null," +
+		                  "\"suspensions\":[{\"suspension_status\":\"not suspended\"}],\"addresses\":[]}";
 
 		try
 		{
@@ -114,7 +117,8 @@ public class TestJaxbUtils
 			partner.getSuspensions().add(suspension);
 
 			String actual = JaxbUtil.format(partner);
-			log.debug("address: {}", actual);
+			log.debug("expect: {}", expected);
+			log.debug("actual: {}", actual);
 			assertThat(actual, equalTo(expected));
 		}
 		catch (Exception e)

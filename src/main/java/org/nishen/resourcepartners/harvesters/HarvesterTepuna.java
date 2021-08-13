@@ -151,23 +151,35 @@ public class HarvesterTepuna implements Harvester
 			for (ElasticSearchPartnerAddress ea : p.getAddresses())
 				pAddresses.put(ea.getAddressType(), ea);
 
-			for (ElasticSearchPartnerAddress la : l.getAddresses())
+			if (l.getAddresses() == null || l.getAddresses().size() == 0)
 			{
-				ElasticSearchPartnerAddress pa = pAddresses.remove(la.getAddressType());
-				if (pa == null)
+				pAddresses.clear();
+				if (p.getAddresses() != null && p.getAddresses().size() > 0)
 				{
-					changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + la.getAddressType(),
-					                                          null, JaxbUtil.format(la)));
-					p.getAddresses().add(la);
+					p.getAddresses().clear();
 					requiresUpdate = true;
 				}
-				else if (!la.equals(pa))
+			}
+			else
+			{
+				for (ElasticSearchPartnerAddress la : l.getAddresses())
 				{
-					changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + la.getAddressType(),
-					                                          JaxbUtil.format(pa), JaxbUtil.format(la)));
-					p.getAddresses().remove(pa);
-					p.getAddresses().add(la);
-					requiresUpdate = true;
+					ElasticSearchPartnerAddress pa = pAddresses.remove(la.getAddressType());
+					if (pa == null)
+					{
+						changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + la.getAddressType(),
+						                                          null, JaxbUtil.format(la)));
+						p.getAddresses().add(la);
+						requiresUpdate = true;
+					}
+					else if (!la.equals(pa))
+					{
+						changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + la.getAddressType(),
+						                                          JaxbUtil.format(pa), JaxbUtil.format(la)));
+						p.getAddresses().remove(pa);
+						p.getAddresses().add(la);
+						requiresUpdate = true;
+					}
 				}
 			}
 

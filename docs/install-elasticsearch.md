@@ -3,7 +3,7 @@
 Elasticsearch can be downloaded from the following URL:
 https://www.elastic.co/downloads/elasticsearch
 
-This document is using __elasticsearch-7.14.0-linux-x86_64.tar.gz__.
+This document is using __elasticsearch-7.16.2-linux-x86_64.tar.gz__.
 
 Installing a small instance of a single node Elasticsearch cluster will involve the following steps:
 
@@ -45,6 +45,7 @@ Installing a small instance of a single node Elasticsearch cluster will involve 
     path.repo: /opt/es/backups
     network.host: ["_local_","_site_"]
     http.port: 9200
+    discovery.type: single-node
     ```
 1. Create/edit the jvm parameters in the configuration file __/opt/elasticsearch/config/jvm.options__.
 Set the memory requirements for the Elasticsearch instance. No more than half the available RAM available on a machine. You could use __256m__ as well.

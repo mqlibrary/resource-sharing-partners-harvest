@@ -39,12 +39,12 @@
   <br/>
   
   <form method="POST" action="https://login.microsoftonline.com/common/oauth2/v2.0/token">
-    <input type="hidden" name="client_id" value="dc150958-7791-4b3a-8496-6c07cc6f2acd" />
+    <input type="hidden" name="client_id" value="dc958150-4b3a-7791-8496-6c07cc6f2acd" />
     <input type="hidden" name="scope" value="mail.readwrite mail.readwrite.shared offline_access" />
     <input type="hidden" name="code" value="<?= @$_REQUEST['code'] ?>" />
     <input type="hidden" name="grant_type" value="authorization_code" />
     <input type="hidden" name="redirect_uri" value="http://localhost/rspartners/lib.resourcepartners.php" />
-    <input type="hidden" name="client_secret" value="gTISSS64:|rmouspAQ639@%" />
+    <input type="hidden" name="client_secret" value="agdTItSgSawSa64:|ramfouggspAQ639@%" />
     
     <input type="submit" value="Generate Token" />
   </form>  

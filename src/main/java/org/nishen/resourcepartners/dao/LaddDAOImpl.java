@@ -9,8 +9,8 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
 import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +56,9 @@ public class LaddDAOImpl implements LaddDAO
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> getData() throws ClientErrorException
+	public Map<String, ResourcePartner> getData() throws ClientErrorException
 	{
-		Map<String, ElasticSearchPartner> data = new TreeMap<String, ElasticSearchPartner>();
+		Map<String, ResourcePartner> data = new TreeMap<String, ResourcePartner>();
 
 		String page = laddTarget.request(MediaType.TEXT_HTML).get(String.class);
 		log.debug("fetched page: {}", laddTarget.getUri());
@@ -85,7 +85,7 @@ public class LaddDAOImpl implements LaddDAO
 			log.debug("begs: {}", begs);
 			log.debug("ends: {}", ends);
 
-			ElasticSearchPartner e = new ElasticSearchPartner();
+			ResourcePartner e = new ResourcePartner();
 			e.setNuc(nuc1);
 			e.setEnabled(true);
 
@@ -100,17 +100,17 @@ public class LaddDAOImpl implements LaddDAO
 
 			if ("not suspended".equals(susp))
 			{
-				e.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+				e.setStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
 			}
 			else if ("suspended".equals(susp))
 			{
-				e.setStatus(ElasticSearchSuspension.SUSPENDED);
+				e.setStatus(ResourcePartnerSuspension.SUSPENDED);
 
 				String begSusp = begs;
 				String endSusp = ends;
 				if (begSusp != null && endSusp != null)
 				{
-					ElasticSearchSuspension suspension = new ElasticSearchSuspension();
+					ResourcePartnerSuspension suspension = new ResourcePartnerSuspension();
 					suspension.setSuspensionStatus(e.getStatus());
 					suspension.setSuspensionStart(begSusp);
 					suspension.setSuspensionEnd(endSusp);
@@ -121,7 +121,7 @@ public class LaddDAOImpl implements LaddDAO
 			}
 			else
 			{
-				e.setStatus(ElasticSearchSuspension.UNKNOWN);
+				e.setStatus(ResourcePartnerSuspension.UNKNOWN);
 				log.warn("unknown status [{}]: {}", nuc1, susp);
 			}
 

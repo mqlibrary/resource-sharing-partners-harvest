@@ -8,8 +8,8 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nishen.resourcepartners.dao.LaddDAO;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
 import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class TestLaddDAO
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			Map<String, ElasticSearchPartner> laddPartners = laddDAO.getData();
+			Map<String, ResourcePartner> laddPartners = laddDAO.getData();
 
 			if (log.isTraceEnabled())
 				for (String nuc : laddPartners.keySet())
@@ -62,11 +62,11 @@ public class TestLaddDAO
 
 			assertThat(laddPartners.size(), greaterThan(650));
 
-			ElasticSearchPartner p = laddPartners.get("NMQU");
+			ResourcePartner p = laddPartners.get("NMQU");
 			assertThat(p.getNuc(), equalTo("NMQU"));
 			assertThat(p.getName(), equalTo("Macquarie University Library"));
 			assertThat(p.isEnabled(), equalTo(Boolean.TRUE));
-			assertThat(p.getStatus(), equalTo(ElasticSearchSuspension.NOT_SUSPENDED));
+			assertThat(p.getStatus(), equalTo(ResourcePartnerSuspension.NOT_SUSPENDED));
 		}
 		catch (Exception e)
 		{

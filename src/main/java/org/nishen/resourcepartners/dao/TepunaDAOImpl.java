@@ -17,12 +17,9 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
-import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
-import org.nishen.resourcepartners.model.Address;
-import org.nishen.resourcepartners.model.Address.Country;
-import org.nishen.resourcepartners.model.ObjectFactory;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerAddress;
+import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +37,6 @@ public class TepunaDAOImpl implements TepunaDAO
 
 	private static final String NZ_NUC_PREFIX = "NLNZ";
 
-	private ObjectFactory of = new ObjectFactory();
-
 	private WebTarget tepunaTarget;
 
 	@Inject
@@ -53,20 +48,20 @@ public class TepunaDAOImpl implements TepunaDAO
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> getData() throws ClientErrorException
+	public Map<String, ResourcePartner> getData() throws ClientErrorException
 	{
 		String data = tepunaTarget.request(MediaType.TEXT_PLAIN).get(String.class);
 
-		Map<String, ElasticSearchPartner> tepunaPartners = new HashMap<String, ElasticSearchPartner>();
+		Map<String, ResourcePartner> tepunaPartners = new HashMap<String, ResourcePartner>();
 
 		try (CSVParser parser = CSVParser.parse(data, CSVFormat.DEFAULT.withSkipHeaderRecord()))
 		{
 			for (CSVRecord record : parser)
 			{
-				ElasticSearchPartner partner = new ElasticSearchPartner();
+				ResourcePartner partner = new ResourcePartner();
 				partner.setNuc(NZ_NUC_PREFIX + ":" + record.get(0));
 				partner.setEnabled(true);
-				partner.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+				partner.setStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
 
 				if (record.get(4) != null && !"".equals(record.get(4).trim()))
 					partner.setName(record.get(4));
@@ -86,24 +81,18 @@ public class TepunaDAOImpl implements TepunaDAO
 				String s = record.get(6);
 				if (s != null && !"".equals(s.trim()))
 				{
-					Address a = getAddress(s);
-
-					ElasticSearchPartnerAddress address = new ElasticSearchPartnerAddress();
+					ResourcePartnerAddress address = getAddress(s);
 					address.setAddressType("main");
 					address.setAddressStatus("active");
-					address.setAddressDetail(a);
 					partner.getAddresses().add(address);
 				}
 
 				s = record.get(7);
 				if (s != null && !"".equals(s.trim()))
 				{
-					Address a = getAddress(s);
-
-					ElasticSearchPartnerAddress address = new ElasticSearchPartnerAddress();
+					ResourcePartnerAddress address = getAddress(s);
 					address.setAddressType("postal");
 					address.setAddressStatus("active");
-					address.setAddressDetail(a);
 					partner.getAddresses().add(address);
 				}
 
@@ -118,9 +107,9 @@ public class TepunaDAOImpl implements TepunaDAO
 		return tepunaPartners;
 	}
 
-	public Address getAddress(String s)
+	public ResourcePartnerAddress getAddress(String s)
 	{
-		Address address = of.createAddress();
+		ResourcePartnerAddress address = new ResourcePartnerAddress();
 
 		if (s == null || s.trim().length() == 0)
 			return address;
@@ -138,26 +127,17 @@ public class TepunaDAOImpl implements TepunaDAO
 
 		if (addr.get(0).equalsIgnoreCase("New Zealand"))
 		{
-			Country country = new Country();
-			country.setValue("NZL");
-			country.setDesc("New Zealand");
-			address.setCountry(country);
+			address.setCountry("New Zealand");
 			addr.remove(0);
 		}
 		else if (addr.get(0).equalsIgnoreCase("Australia"))
 		{
-			Country country = new Country();
-			country.setValue("AUS");
-			country.setDesc("Australia");
-			address.setCountry(country);
+			address.setCountry("Australia");
 			addr.remove(0);
 		}
 		else if (addr.get(0).equalsIgnoreCase("Samoa"))
 		{
-			Country country = new Country();
-			country.setValue("WSM");
-			country.setDesc("Samoa");
-			address.setCountry(country);
+			address.setCountry("Samoa");
 			addr.remove(0);
 		}
 

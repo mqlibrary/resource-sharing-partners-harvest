@@ -9,10 +9,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.nishen.resourcepartners.dao.TepunaDAO;
-import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerAddress;
+import org.nishen.resourcepartners.entity.ResourcePartnerChangeRecord;
 import org.nishen.resourcepartners.util.JaxbUtil;
+import org.nishen.resourcepartners.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,19 +48,19 @@ public class HarvesterTepuna implements Harvester
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> harvest()
+	public Map<String, ResourcePartner> harvest()
 	{
-		Map<String, ElasticSearchPartner> tepunaPartners = tepuna.getData();
+		Map<String, ResourcePartner> tepunaPartners = tepuna.getData();
 
 		return tepunaPartners;
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> update(Map<String, ElasticSearchPartner> partners,
-	                                                Map<String, ElasticSearchPartner> latest,
-	                                                List<ElasticSearchChangeRecord> changes)
+	public Map<String, ResourcePartner> update(Map<String, ResourcePartner> partners,
+	                                           Map<String, ResourcePartner> latest,
+	                                           List<ResourcePartnerChangeRecord> changes)
 	{
-		Map<String, ElasticSearchPartner> updated = new HashMap<String, ElasticSearchPartner>();
+		Map<String, ResourcePartner> updated = new HashMap<String, ResourcePartner>();
 
 		List<String> removeList = new ArrayList<String>();
 		for (String s : partners.keySet())
@@ -70,8 +71,8 @@ public class HarvesterTepuna implements Harvester
 		{
 			removeList.remove(nuc);
 
-			ElasticSearchPartner l = latest.get(nuc);
-			ElasticSearchPartner p = partners.get(nuc);
+			ResourcePartner l = latest.get(nuc);
+			ResourcePartner p = partners.get(nuc);
 
 			boolean requiresUpdate = false;
 
@@ -79,76 +80,77 @@ public class HarvesterTepuna implements Harvester
 			{
 				l.setUpdated(sdf.format(new Date()));
 				updated.put(nuc, l);
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "partner", null, JaxbUtil.format(l)));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "partner", null, JaxbUtil.format(l)));
 
 				continue;
 			}
 
 			if (p.isEnabled() != l.isEnabled())
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "enabled",
-				                                          Boolean.toString(p.isEnabled()),
-				                                          Boolean.toString(l.isEnabled())));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "enabled",
+				                                            Boolean.toString(p.isEnabled()),
+				                                            Boolean.toString(l.isEnabled())));
 				p.setEnabled(l.isEnabled());
 				requiresUpdate = true;
 			}
 
-			if (!compareStrings(p.getStatus(), l.getStatus()))
+			if (!ObjectUtil.compareStrings(p.getStatus(), l.getStatus()))
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "status", p.getStatus(), l.getStatus()));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "status", p.getStatus(),
+				                                            l.getStatus()));
 				p.setStatus(l.getStatus());
 				requiresUpdate = true;
 			}
 
-			if (!compareStrings(p.getName(), l.getName()))
+			if (!ObjectUtil.compareStrings(p.getName(), l.getName()))
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "name", p.getName(), l.getName()));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "name", p.getName(), l.getName()));
 				p.setName(l.getName());
 				requiresUpdate = true;
 			}
 
-			if (!compareStrings(p.getEmailMain(), l.getEmailMain()))
+			if (!ObjectUtil.compareStrings(p.getEmailMain(), l.getEmailMain()))
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "email_main", p.getEmailMain(),
-				                                          l.getEmailMain()));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "email_main", p.getEmailMain(),
+				                                            l.getEmailMain()));
 				p.setEmailMain(l.getEmailMain());
 				requiresUpdate = true;
 			}
 
-			if (!compareStrings(p.getEmailIll(), l.getEmailIll()))
+			if (!ObjectUtil.compareStrings(p.getEmailIll(), l.getEmailIll()))
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "email_ill", p.getEmailIll(),
-				                                          l.getEmailIll()));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "email_ill", p.getEmailIll(),
+				                                            l.getEmailIll()));
 				p.setEmailIll(l.getEmailIll());
 				requiresUpdate = true;
 			}
 
-			if (!compareStrings(p.getPhoneMain(), l.getPhoneMain()))
+			if (!ObjectUtil.compareStrings(p.getPhoneMain(), l.getPhoneMain()))
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "phone_main", p.getPhoneMain(),
-				                                          l.getPhoneMain()));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "phone_main", p.getPhoneMain(),
+				                                            l.getPhoneMain()));
 				p.setPhoneMain(l.getPhoneMain());
 				requiresUpdate = true;
 			}
 
-			if (!compareStrings(p.getPhoneIll(), l.getPhoneIll()))
+			if (!ObjectUtil.compareStrings(p.getPhoneIll(), l.getPhoneIll()))
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "phone_ill", p.getPhoneIll(),
-				                                          l.getPhoneIll()));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "phone_ill", p.getPhoneIll(),
+				                                            l.getPhoneIll()));
 				p.setPhoneIll(l.getPhoneIll());
 				requiresUpdate = true;
 			}
 
-			if (!compareStrings(p.getPhoneFax(), l.getPhoneFax()))
+			if (!ObjectUtil.compareStrings(p.getPhoneFax(), l.getPhoneFax()))
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "phone_fax", p.getPhoneFax(),
-				                                          l.getPhoneFax()));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "phone_fax", p.getPhoneFax(),
+				                                            l.getPhoneFax()));
 				p.setPhoneFax(l.getPhoneFax());
 				requiresUpdate = true;
 			}
 
-			Map<String, ElasticSearchPartnerAddress> pAddresses = new HashMap<String, ElasticSearchPartnerAddress>();
-			for (ElasticSearchPartnerAddress ea : p.getAddresses())
+			Map<String, ResourcePartnerAddress> pAddresses = new HashMap<String, ResourcePartnerAddress>();
+			for (ResourcePartnerAddress ea : p.getAddresses())
 				pAddresses.put(ea.getAddressType(), ea);
 
 			if (l.getAddresses() == null || l.getAddresses().size() == 0)
@@ -162,20 +164,22 @@ public class HarvesterTepuna implements Harvester
 			}
 			else
 			{
-				for (ElasticSearchPartnerAddress la : l.getAddresses())
+				for (ResourcePartnerAddress la : l.getAddresses())
 				{
-					ElasticSearchPartnerAddress pa = pAddresses.remove(la.getAddressType());
+					ResourcePartnerAddress pa = pAddresses.remove(la.getAddressType());
 					if (pa == null)
 					{
-						changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + la.getAddressType(),
-						                                          null, JaxbUtil.format(la)));
+						changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc,
+						                                            "address:" + la.getAddressType(), null,
+						                                            JaxbUtil.format(la)));
 						p.getAddresses().add(la);
 						requiresUpdate = true;
 					}
 					else if (!la.equals(pa))
 					{
-						changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + la.getAddressType(),
-						                                          JaxbUtil.format(pa), JaxbUtil.format(la)));
+						changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc,
+						                                            "address:" + la.getAddressType(),
+						                                            JaxbUtil.format(pa), JaxbUtil.format(la)));
 						p.getAddresses().remove(pa);
 						p.getAddresses().add(la);
 						requiresUpdate = true;
@@ -185,8 +189,8 @@ public class HarvesterTepuna implements Harvester
 
 			for (String type : pAddresses.keySet())
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "address:" + type + ":status", "active",
-				                                          "inactive"));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "address:" + type + ":status", "active",
+				                                            "inactive"));
 				pAddresses.get(type).setAddressStatus("inactive");
 				requiresUpdate = true;
 			}
@@ -200,7 +204,7 @@ public class HarvesterTepuna implements Harvester
 
 		for (String nuc : removeList)
 		{
-			ElasticSearchPartner p = partners.get(nuc);
+			ResourcePartner p = partners.get(nuc);
 			if (p != null && p.isEnabled())
 			{
 				p.setUpdated(sdf.format(new Date()));

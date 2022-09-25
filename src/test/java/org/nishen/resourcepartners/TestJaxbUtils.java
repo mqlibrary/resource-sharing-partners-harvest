@@ -3,8 +3,8 @@ package org.nishen.resourcepartners;
 import java.util.Arrays;
 
 import org.junit.Test;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.model.Address.Country;
 import org.nishen.resourcepartners.model.ObjectFactory;
@@ -103,14 +103,14 @@ public class TestJaxbUtils
 
 		try
 		{
-			ElasticSearchPartner partner = new ElasticSearchPartner();
+			ResourcePartner partner = new ResourcePartner();
 			partner.setNuc("TEST");
 			partner.setEnabled(true);
 			partner.setName("Test Organisation");
 			partner.setUpdated("123123123");
 
-			ElasticSearchSuspension suspension = new ElasticSearchSuspension();
-			suspension.setSuspensionStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+			ResourcePartnerSuspension suspension = new ResourcePartnerSuspension();
+			suspension.setSuspensionStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
 			suspension.setSuspensionStart(null);
 			suspension.setSuspensionEnd(null);
 

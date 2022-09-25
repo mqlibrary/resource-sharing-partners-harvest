@@ -1,6 +1,5 @@
 package org.nishen.resourcepartners.dao;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,60 +7,56 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.nishen.resourcepartners.util.DataUtil;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 
-public class ConfigImpl implements Config
+public class ConfigImplElastic implements Config
 {
-	private static final Logger log = LoggerFactory.getLogger(ConfigImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ConfigImplElastic.class);
 
 	private String configId;
 
-	private String configFolder;
-
-	private String configFolderBackup;
-
-	private String configFilename;
-
-	private String configFilenameBackup;
-
 	private ConcurrentMap<String, String> config;
+
+	private WebTarget elasticTarget;
 
 	private ObjectMapper om = new ObjectMapper();
 
 	@Inject
-	public ConfigImpl(@Named("location.config") String configFolder, @Assisted String configId)
+	public ConfigImplElastic(@Named("ws.elastic") Provider<WebTarget> elasticTargetProvider, @Assisted String configId)
 	{
+		this.elasticTarget = elasticTargetProvider.get();
 		this.configId = configId;
-		this.configFolder = configFolder;
-		this.configFolderBackup = configFolder + File.separatorChar + "backups";
-		this.configFilename = configFolder + File.separatorChar + configId + ".json";
-		this.configFilenameBackup = this.configFolderBackup + File.separatorChar + configId + ".json";
-
-		File cf = new File(this.configFolder);
-		if (!cf.isDirectory())
-			cf.mkdir();
-
-		File cfb = new File(configFolderBackup);
-		if (!cfb.isDirectory())
-			cfb.mkdir();
-
 		this.config = new ConcurrentHashMap<String, String>();
-		fetchConfig().ifPresent(c -> this.config.putAll(c));
 		try
 		{
-			backupConfig();
+			Optional<Map<String, String>> fetched = fetchConfig();
+			if (fetched.isPresent())
+			{
+				this.config.putAll(fetched.get());
+			}
+			else
+			{
+				saveConfig();
+				log.info("created config: {}", configId);
+			}
 		}
 		catch (Exception e)
 		{
-			log.error("failed to backup config to: {}", this.configFilenameBackup);
+			log.error("unable to load config [{}]: {}", configId, e.getMessage(), e);
 		}
 	}
 
@@ -140,39 +135,34 @@ public class ConfigImpl implements Config
 
 	private void saveConfig() throws Exception
 	{
-		String esConfig = om.writeValueAsString(config);
-		DataUtil.saveFile(this.configFilename, esConfig.getBytes());
-	}
+		ObjectMapper mapper = new ObjectMapper();
+		String esConfig = mapper.writeValueAsString(config);
 
-	private void backupConfig() throws Exception
-	{
-		File backup = new File(this.configFilenameBackup);
-		if (backup.canWrite())
-			backup.delete();
+		WebTarget t = elasticTarget.path(Config.ES_INDEX).path(Config.ES_TYPE).path(configId);
+		Builder req = t.request(MediaType.APPLICATION_JSON);
+		String result = req.put(Entity.entity(esConfig, MediaType.APPLICATION_JSON), String.class);
 
-		String esConfig = om.writeValueAsString(config);
-		DataUtil.saveFile(this.configFilenameBackup, esConfig.getBytes());
+		log.debug("saveConfig: {}", result);
 	}
 
 	private Optional<Map<String, String>> fetchConfig()
 	{
-		File configFile = new File(this.configFilename);
-		if (!configFile.canRead())
-			return Optional.empty();
-
-		Map<String, String> config = new ConcurrentHashMap<>();
+		Map<String, String> config = null;
 		try
 		{
-			JsonNode root = om.readTree(configFile);
-			root.fields().forEachRemaining(e -> {
-				log.debug("{} = {}", e.getKey(), e.getValue().asText());
-				config.put(e.getKey(), e.getValue().asText());
-			});
+			WebTarget t = elasticTarget.path(Config.ES_INDEX).path(Config.ES_TYPE).path(configId).path("_source");
+			String esConfig = t.request().accept(MediaType.APPLICATION_JSON).get(String.class);
 
+			TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {};
+			config = om.readValue(esConfig, typeRef);
+		}
+		catch (NotFoundException nfe)
+		{
+			log.info("config does not yet exist: {}", configId);
 		}
 		catch (Exception e)
 		{
-			log.error("unable to retrieve config[{}]: {}", this.configId, e.getMessage(), e);
+			log.error("unable to retrieve config[{}]: {}", configId, e.getMessage(), e);
 		}
 
 		return Optional.ofNullable(config);

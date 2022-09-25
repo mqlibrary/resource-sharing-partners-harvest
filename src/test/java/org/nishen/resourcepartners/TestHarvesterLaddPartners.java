@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nishen.resourcepartners.dao.LaddDAOImpl;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.entity.ResourcePartner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ public class TestHarvesterLaddPartners
 		try
 		{
 			LaddDAOImpl dao = injector.getInstance(LaddDAOImpl.class);
-			Map<String, ElasticSearchPartner> partners = dao.getData();
+			Map<String, ResourcePartner> partners = dao.getData();
 			partners.values().stream().limit(3).forEach(System.out::println);
 		}
 		catch (Exception e)

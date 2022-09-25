@@ -16,7 +16,7 @@
         table tr th {
             border: 1px solid black;
             background-color: #dddd99;
-            font-colour: white;
+            color: white;
             text-align: left;
             vertical-align: top;
             font-weight: normal;

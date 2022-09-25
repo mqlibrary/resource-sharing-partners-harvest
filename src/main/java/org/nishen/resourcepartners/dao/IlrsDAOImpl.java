@@ -18,9 +18,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 
-import org.nishen.resourcepartners.model.Address;
-import org.nishen.resourcepartners.model.Address.Country;
-import org.nishen.resourcepartners.model.ObjectFactory;
+import org.nishen.resourcepartners.entity.ResourcePartnerAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,14 +73,10 @@ public class IlrsDAOImpl implements IlrsDAO
 
 	private Provider<WebTarget> webTargetProvider;
 
-	private ObjectFactory of = null;
-
 	@Inject
 	public IlrsDAOImpl(@Named("ws.ilrs") Provider<WebTarget> webTargetProvider)
 	{
 		this.webTargetProvider = webTargetProvider;
-
-		this.of = new ObjectFactory();
 
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
@@ -114,9 +108,9 @@ public class IlrsDAOImpl implements IlrsDAO
 	}
 
 	@Override
-	public Map<String, Address> getAddressesFromPage(String page)
+	public Map<String, ResourcePartnerAddress> getAddressesFromPage(String page)
 	{
-		Map<String, Address> addresses = new HashMap<String, Address>();
+		Map<String, ResourcePartnerAddress> addresses = new HashMap<>();
 
 		Matcher m = pAddress.matcher(page);
 		while (m.find())
@@ -201,9 +195,9 @@ public class IlrsDAOImpl implements IlrsDAO
 		return result;
 	}
 
-	private Address extractAddress(List<String> addressLines)
+	private ResourcePartnerAddress extractAddress(List<String> addressLines)
 	{
-		Address address = of.createAddress();
+		ResourcePartnerAddress address = new ResourcePartnerAddress();
 
 		List<String> left = new ArrayList<String>();
 		Collections.reverse(addressLines);
@@ -212,10 +206,7 @@ public class IlrsDAOImpl implements IlrsDAO
 			String s = addressLines.get(x);
 			if ("australia".equals(s.toLowerCase()))
 			{
-				Country c = new Country();
-				c.setValue("AUS");
-				c.setDesc("Australia");
-				address.setCountry(c);
+				address.setCountry("Australia");
 			}
 			else if (s.matches("\\d{4}"))
 			{

@@ -3,12 +3,11 @@ package org.nishen.resourcepartners;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nishen.resourcepartners.dao.TepunaDAO;
-import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.dao.Config;
+import org.nishen.resourcepartners.dao.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,18 +15,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-
 import static org.junit.Assert.fail;
 
-public class TestTepunaDAO
+public class TestConfig
 {
-	private static final Logger log = LoggerFactory.getLogger(TestTepunaDAO.class);
+	private static final Logger log = LoggerFactory.getLogger(TestConfig.class);
 
 	private static Injector injector = null;
-
-	private static TepunaDAO tepunaDAO = null;
 
 	@BeforeClass
 	public static void setup()
@@ -41,26 +35,41 @@ public class TestTepunaDAO
 		// create the injector
 		log.debug("creating injector");
 		injector = Guice.createInjector(modules);
-
-		tepunaDAO = injector.getInstance(TepunaDAO.class);
 	}
 
 	@Test
-	public void testGetData()
+	public void testFetchConfig()
 	{
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
+
 		try
 		{
-			Map<String, ResourcePartner> partners = tepunaDAO.getData();
-
-			for (String nuc : partners.keySet())
-				log.debug("{}:\n{}", nuc, partners.get(nuc));
-
-			assertThat(partners.size(), greaterThan(300));
+			ConfigFactory factory = injector.getInstance(ConfigFactory.class);
+			Config config = factory.create("OUTLOOK");
+			log.debug("config: {}", config.getAll());
+			// assertThat(actual, equalTo(expected));
 		}
 		catch (Exception e)
 		{
-			log.error("{}", e.getMessage(), e);
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testSetConfig()
+	{
+		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
+
+		try
+		{
+			ConfigFactory factory = injector.getInstance(ConfigFactory.class);
+			Config config = factory.create("OUTLOOK");
+			log.debug("config: {}", config.getAll());
+			config.set("nish", "was here");
+			// assertThat(actual, equalTo(expected));
+		}
+		catch (Exception e)
+		{
 			fail(e.getMessage());
 		}
 	}

@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.entity.ResourcePartner;
 import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterIlrs;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class TestHarvesterIlrs
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			Map<String, ElasticSearchPartner> partners = harvester.harvest();
+			Map<String, ResourcePartner> partners = harvester.harvest();
 			for (String nuc : partners.keySet())
 				log.debug("{}:\n{}", nuc, partners.get(nuc));
 

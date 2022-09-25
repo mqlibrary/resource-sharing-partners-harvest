@@ -11,10 +11,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.nishen.resourcepartners.dao.LaddDAO;
-import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerChangeRecord;
+import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
 import org.nishen.resourcepartners.util.JaxbUtil;
+import org.nishen.resourcepartners.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,17 +50,17 @@ public class HarvesterLadd implements Harvester
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> harvest()
+	public Map<String, ResourcePartner> harvest()
 	{
 		return ladd.getData();
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> update(Map<String, ElasticSearchPartner> partners,
-	                                                Map<String, ElasticSearchPartner> latest,
-	                                                List<ElasticSearchChangeRecord> changes)
+	public Map<String, ResourcePartner> update(Map<String, ResourcePartner> partners,
+	                                           Map<String, ResourcePartner> latest,
+	                                           List<ResourcePartnerChangeRecord> changes)
 	{
-		Map<String, ElasticSearchPartner> updated = new HashMap<String, ElasticSearchPartner>();
+		Map<String, ResourcePartner> updated = new HashMap<String, ResourcePartner>();
 
 		List<String> removeList = new ArrayList<String>();
 		for (String s : partners.keySet())
@@ -70,8 +71,8 @@ public class HarvesterLadd implements Harvester
 		{
 			removeList.remove(nuc);
 
-			ElasticSearchPartner l = latest.get(nuc);
-			ElasticSearchPartner p = partners.get(nuc);
+			ResourcePartner l = latest.get(nuc);
+			ResourcePartner p = partners.get(nuc);
 
 			boolean requiresUpdate = false;
 
@@ -79,40 +80,42 @@ public class HarvesterLadd implements Harvester
 			{
 				l.setUpdated(sdf.format(new Date()));
 				updated.put(nuc, l);
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "partner", null, JaxbUtil.format(l)));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "partner", null, JaxbUtil.format(l)));
 
 				continue;
 			}
 
 			if (p.isEnabled() != l.isEnabled())
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "enabled",
-				                                          Boolean.toString(p.isEnabled()),
-				                                          Boolean.toString(l.isEnabled())));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "enabled",
+				                                            Boolean.toString(p.isEnabled()),
+				                                            Boolean.toString(l.isEnabled())));
 				p.setEnabled(l.isEnabled());
 				requiresUpdate = true;
 			}
 
-			if (!compareStrings(p.getName(), l.getName()))
+			if (!ObjectUtil.compareStrings(p.getName(), l.getName()))
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "name", p.getName(), l.getName()));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "name", p.getName(), l.getName()));
 				p.setName(l.getName());
 				requiresUpdate = true;
 			}
 
-			if (!compareStrings(p.getStatus(), l.getStatus()))
+			if (!ObjectUtil.compareStrings(p.getStatus(), l.getStatus()))
 			{
-				changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "status", p.getStatus(), l.getStatus()));
+				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "status", p.getStatus(),
+				                                            l.getStatus()));
 				p.setStatus(l.getStatus());
 				requiresUpdate = true;
 			}
 
-			Set<ElasticSearchSuspension> lSuspensions = new LinkedHashSet<ElasticSearchSuspension>(l.getSuspensions());
-			for (ElasticSearchSuspension s : lSuspensions)
+			Set<ResourcePartnerSuspension> lSuspensions =
+			        new LinkedHashSet<ResourcePartnerSuspension>(l.getSuspensions());
+			for (ResourcePartnerSuspension s : lSuspensions)
 				if (!p.getSuspensions().contains(s))
 				{
-					changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null,
-					                                          JaxbUtil.format(s)));
+					changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null,
+					                                            JaxbUtil.format(s)));
 					p.getSuspensions().add(s);
 					requiresUpdate = true;
 				}
@@ -131,7 +134,7 @@ public class HarvesterLadd implements Harvester
 
 		for (String nuc : removeList)
 		{
-			ElasticSearchPartner p = partners.get(nuc);
+			ResourcePartner p = partners.get(nuc);
 			if (p != null && p.isEnabled())
 			{
 				p.setUpdated(sdf.format(new Date()));

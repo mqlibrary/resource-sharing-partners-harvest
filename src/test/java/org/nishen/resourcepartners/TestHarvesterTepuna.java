@@ -8,7 +8,8 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nishen.resourcepartners.dao.TepunaDAOImpl;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerAddress;
 import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterTepuna;
 import org.nishen.resourcepartners.model.Address;
@@ -54,7 +55,7 @@ public class TestHarvesterTepuna
 
 		try
 		{
-			Map<String, ElasticSearchPartner> changed = harvester.harvest();
+			Map<String, ResourcePartner> changed = harvester.harvest();
 			log.debug("changed count: {}", changed.size());
 		}
 		catch (Exception e)
@@ -72,7 +73,7 @@ public class TestHarvesterTepuna
 		try
 		{
 			TepunaDAOImpl dao = injector.getInstance(TepunaDAOImpl.class);
-			Map<String, ElasticSearchPartner> partners = dao.getData();
+			Map<String, ResourcePartner> partners = dao.getData();
 			log.debug("partner count: {}", partners.size());
 			partners.values().stream().limit(3).forEach(System.out::println);
 		}
@@ -93,7 +94,7 @@ public class TestHarvesterTepuna
 			String addressText =
 			        "41 Islington Street\n" + "Turnbull Thompson Park\n" + "Invercargill 9810\n" + "New Zealand";
 			TepunaDAOImpl dao = injector.getInstance(TepunaDAOImpl.class);
-			Address actual = dao.getAddress(addressText);
+			ResourcePartnerAddress actual = dao.getAddress(addressText);
 
 			Country country = new Country();
 			country.setDesc("New Zealand");
@@ -126,7 +127,7 @@ public class TestHarvesterTepuna
 		{
 			String addressText = "59-63 Huia Street\n" + "Taumarunui 3920";
 			TepunaDAOImpl dao = injector.getInstance(TepunaDAOImpl.class);
-			Address actual = dao.getAddress(addressText);
+			ResourcePartnerAddress actual = dao.getAddress(addressText);
 
 			Address expected = new Address();
 			expected.setLine1("59-63 Huia Street");
@@ -153,7 +154,7 @@ public class TestHarvesterTepuna
 		{
 			String addressText = "8A Miri Rd Auckland\n" + "Rothesay Bay\n" + "Auckland 630";
 			TepunaDAOImpl dao = injector.getInstance(TepunaDAOImpl.class);
-			Address actual = dao.getAddress(addressText);
+			ResourcePartnerAddress actual = dao.getAddress(addressText);
 
 			Address expected = new Address();
 			expected.setLine1("8A Miri Rd Auckland");
@@ -181,7 +182,7 @@ public class TestHarvesterTepuna
 		{
 			String addressText = "Le-Papaigalagala Campus\n" + "Apia\n" + "Samoa";
 			TepunaDAOImpl dao = injector.getInstance(TepunaDAOImpl.class);
-			Address actual = dao.getAddress(addressText);
+			ResourcePartnerAddress actual = dao.getAddress(addressText);
 
 			Country country = new Country();
 			country.setDesc("Samoa");

@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.nishen.resourcepartners.dao.ElasticSearchDAO;
-import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.dao.DatastoreDAO;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerChangeRecord;
 import org.nishen.resourcepartners.harvesters.Harvester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +25,14 @@ public class ResourcePartnerProcessorImpl implements ResourcePartnerProcessor
 {
 	private static final Logger log = LoggerFactory.getLogger(ResourcePartnerProcessorImpl.class);
 
-	private ElasticSearchDAO elastic;
+	private DatastoreDAO datastore;
 
 	private Set<Harvester> harvesters;
 
 	@Inject
-	public ResourcePartnerProcessorImpl(ElasticSearchDAO elastic, Set<Harvester> harvesters)
+	public ResourcePartnerProcessorImpl(DatastoreDAO datastore, Set<Harvester> harvesters)
 	{
-		this.elastic = elastic;
+		this.datastore = datastore;
 		this.harvesters = harvesters;
 
 		log.debug("instantiated ResourcePartnerProcessor");
@@ -41,7 +41,7 @@ public class ResourcePartnerProcessorImpl implements ResourcePartnerProcessor
 	@Override
 	public void process(Map<String, String> options) throws Exception
 	{
-		Map<String, ElasticSearchPartner> partners = elastic.getPartners();
+		Map<String, ResourcePartner> partners = datastore.getPartners();
 
 		Set<String> harvestersToProcess = new HashSet<String>();
 
@@ -80,20 +80,20 @@ public class ResourcePartnerProcessorImpl implements ResourcePartnerProcessor
 			try
 			{
 				log.info("harvesting from: {}", harvester.getSource());
-				Map<String, ElasticSearchPartner> harvestedPartners = harvester.harvest();
+				Map<String, ResourcePartner> harvestedPartners = harvester.harvest();
 
-				List<ElasticSearchChangeRecord> changes = new ArrayList<ElasticSearchChangeRecord>();
+				List<ResourcePartnerChangeRecord> changes = new ArrayList<ResourcePartnerChangeRecord>();
 
-				log.info("updating partners: {}", harvestedPartners.size());
-				Map<String, ElasticSearchPartner> changed = harvester.update(partners, harvestedPartners, changes);
+				log.info("partners found: {}", harvestedPartners.size());
+				Map<String, ResourcePartner> changed = harvester.update(partners, harvestedPartners, changes);
 				partners.putAll(changed);
-				log.info("partners updated: {}", changed.size());
+				log.info("partners changed:    {}", changed.size());
 
-				log.info("saving elasticsearch entities: {}", changed.size());
 				if (changed.size() > 0)
-					elastic.addEntities(new ArrayList<ElasticSearchPartner>(changed.values()));
-				if (changes.size() > 0)
-					elastic.addEntities(changes);
+				{
+					datastore.addEntities(changed.values());
+					log.info("partners saved:     {}", changed.size());
+				}
 			}
 			catch (SkipHarvestException sre)
 			{

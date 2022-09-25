@@ -14,10 +14,10 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
-import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
-import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerAddress;
+import org.nishen.resourcepartners.entity.ResourcePartnerChangeRecord;
+import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
 import org.nishen.resourcepartners.model.Address;
 import org.nishen.resourcepartners.model.Addresses;
 import org.slf4j.Logger;
@@ -41,8 +41,8 @@ public class JaxbUtil
 
 		try
 		{
-			Class<?>[] classes = new Class<?>[] { ElasticSearchPartner.class, ElasticSearchPartnerAddress.class,
-			                                      ElasticSearchChangeRecord.class, ElasticSearchSuspension.class,
+			Class<?>[] classes = new Class<?>[] { ResourcePartner.class, ResourcePartnerAddress.class,
+			                                      ResourcePartnerChangeRecord.class, ResourcePartnerSuspension.class,
 			                                      Addresses.class, Address.class };
 			context = JAXBContext.newInstance(classes);
 		}

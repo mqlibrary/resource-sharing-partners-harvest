@@ -17,12 +17,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.nishen.resourcepartners.dao.Config;
 import org.nishen.resourcepartners.dao.ConfigFactory;
 import org.nishen.resourcepartners.dao.ConfigImpl;
-import org.nishen.resourcepartners.dao.ElasticSearchDAO;
-import org.nishen.resourcepartners.dao.ElasticSearchDAOImpl;
+import org.nishen.resourcepartners.dao.DatastoreDAO;
+import org.nishen.resourcepartners.dao.DatastoreDAOImpl;
 import org.nishen.resourcepartners.dao.IlrsDAO;
 import org.nishen.resourcepartners.dao.IlrsDAOImpl;
 import org.nishen.resourcepartners.dao.LaddDAO;
@@ -53,8 +52,6 @@ public class ResourcePartnerModule extends AbstractModule
 	private static final String CONFIG_FILE = "app.properties";
 
 	private static final Properties config = new Properties();
-
-	private WebTarget elasticTarget = null;
 
 	private WebTarget ilrsTarget = null;
 
@@ -99,7 +96,7 @@ public class ResourcePartnerModule extends AbstractModule
 		// bind instances
 		bind(ResourcePartnerProcessor.class).to(ResourcePartnerProcessorImpl.class);
 
-		bind(ElasticSearchDAO.class).to(ElasticSearchDAOImpl.class);
+		bind(DatastoreDAO.class).to(DatastoreDAOImpl.class);
 		bind(IlrsDAO.class).to(IlrsDAOImpl.class);
 		bind(LaddDAO.class).to(LaddDAOImpl.class);
 		bind(TepunaDAO.class).to(TepunaDAOImpl.class);
@@ -120,36 +117,16 @@ public class ResourcePartnerModule extends AbstractModule
 
 		install(new FactoryModuleBuilder().implement(Config.class, ConfigImpl.class).build(ConfigFactory.class));
 
+		bind(String.class).annotatedWith(Names.named("location.config"))
+		                  .toInstance(config.getProperty("location.config"));
+		bind(String.class).annotatedWith(Names.named("location.partners"))
+		                  .toInstance(config.getProperty("location.partners"));
 		bind(String.class).annotatedWith(Names.named("outlook.client.email"))
 		                  .toInstance(config.getProperty("outlook.client.email"));
 		bind(String.class).annotatedWith(Names.named("outlook.client.id"))
 		                  .toInstance(config.getProperty("outlook.client.id"));
 		bind(String.class).annotatedWith(Names.named("outlook.client.secret"))
 		                  .toInstance(config.getProperty("outlook.client.secret"));
-	}
-
-	@Provides
-	@Named("ws.elastic")
-	protected WebTarget provideWebTargetElastic() throws Exception
-	{
-		if (elasticTarget == null)
-		{
-			String usr = config.getProperty("ws.url.elastic.username");
-			String pwd = config.getProperty("ws.url.elastic.password");
-			HttpAuthenticationFeature auth = HttpAuthenticationFeature.basic(usr, pwd);
-
-			SSLContext sslcontext = SSLContext.getInstance("TLS");
-			sslcontext.init(null, getTrustManager(), new java.security.SecureRandom());
-
-			Client client = ClientBuilder.newBuilder()
-			                             .sslContext(sslcontext)
-			                             .hostnameVerifier((s1, s2) -> true)
-			                             .register(auth)
-			                             .build();
-			elasticTarget = client.target(config.getProperty("ws.url.elastic.index"));
-		}
-
-		return elasticTarget;
 	}
 
 	@Provides

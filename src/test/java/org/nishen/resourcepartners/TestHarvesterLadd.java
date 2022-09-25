@@ -10,14 +10,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nishen.resourcepartners.dao.ElasticSearchDAO;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
-import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
+import org.nishen.resourcepartners.dao.DatastoreDAO;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerAddress;
+import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
 import org.nishen.resourcepartners.harvesters.Harvester;
 import org.nishen.resourcepartners.harvesters.HarvesterLadd;
-import org.nishen.resourcepartners.model.Address;
-import org.nishen.resourcepartners.model.Address.Country;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +36,9 @@ public class TestHarvesterLadd
 
 	private static Harvester harvester = null;
 
-	private static ElasticSearchDAO elastic = null;
+	private static DatastoreDAO elastic = null;
 
-	private static ElasticSearchPartner partner = null;
+	private static ResourcePartner partner = null;
 
 	@BeforeClass
 	public static void setupClass()
@@ -57,7 +55,7 @@ public class TestHarvesterLadd
 
 		harvester = injector.getInstance(HarvesterLadd.class);
 
-		elastic = injector.getInstance(ElasticSearchDAO.class);
+		elastic = injector.getInstance(DatastoreDAO.class);
 
 		Calendar c = Calendar.getInstance();
 		c.clear();
@@ -65,27 +63,20 @@ public class TestHarvesterLadd
 		c.set(Calendar.MONTH, Calendar.JULY);
 		c.set(Calendar.DAY_OF_MONTH, 21);
 
-		Country country = new Country();
-		country.setDesc("Australia");
-		country.setValue("AUS");
-
-		Address a = new Address();
-		a.setLine1("101 Test Street");
-		a.setLine2("Test Area");
-		a.setCity("Testville");
-		a.setPostalCode("5555");
-		a.setCountry(country);
-
-		ElasticSearchPartnerAddress ea = new ElasticSearchPartnerAddress();
+		ResourcePartnerAddress ea = new ResourcePartnerAddress();
 		ea.setAddressType("main");
-		ea.setAddressDetail(a);
+		ea.setLine1("101 Test Street");
+		ea.setLine2("Test Area");
+		ea.setCity("Testville");
+		ea.setPostalCode("5555");
+		ea.setCountry("AUS");
 
-		partner = new ElasticSearchPartner();
+		partner = new ResourcePartner();
 		partner.setNuc("TEST");
 		partner.setName("Test Organisation");
 
-		ElasticSearchSuspension suspension = new ElasticSearchSuspension();
-		suspension.setSuspensionStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+		ResourcePartnerSuspension suspension = new ResourcePartnerSuspension();
+		suspension.setSuspensionStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
 		suspension.setSuspensionStart(null);
 		suspension.setSuspensionEnd(null);
 
@@ -110,7 +101,7 @@ public class TestHarvesterLadd
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			Map<String, ElasticSearchPartner> laddPartners = harvester.harvest();
+			Map<String, ResourcePartner> laddPartners = harvester.harvest();
 
 			assertThat(laddPartners.size(), greaterThanOrEqualTo(500));
 		}

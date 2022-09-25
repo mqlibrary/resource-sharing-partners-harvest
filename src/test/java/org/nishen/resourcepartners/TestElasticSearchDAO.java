@@ -9,13 +9,11 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nishen.resourcepartners.dao.ElasticSearchDAO;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchPartnerAddress;
-import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
-import org.nishen.resourcepartners.model.Address;
-import org.nishen.resourcepartners.model.Address.Country;
-import org.nishen.resourcepartners.util.DataUtils;
+import org.nishen.resourcepartners.dao.DatastoreDAO;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerAddress;
+import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
+import org.nishen.resourcepartners.util.DataUtil;
 import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +34,7 @@ public class TestElasticSearchDAO
 
 	private static Injector injector = null;
 
-	private static ElasticSearchDAO elastic = null;
+	private static DatastoreDAO elastic = null;
 
 	@BeforeClass
 	public static void setup()
@@ -51,7 +49,7 @@ public class TestElasticSearchDAO
 		log.debug("creating injector");
 		injector = Guice.createInjector(modules);
 
-		elastic = injector.getInstance(ElasticSearchDAO.class);
+		elastic = injector.getInstance(DatastoreDAO.class);
 	}
 
 	@Test
@@ -67,27 +65,20 @@ public class TestElasticSearchDAO
 			c.set(Calendar.MONTH, Calendar.JULY);
 			c.set(Calendar.DAY_OF_MONTH, 21);
 
-			Country country = new Country();
-			country.setDesc("Australia");
-			country.setValue("AUS");
-
-			Address a = new Address();
-			a.setLine1("101 Test Street");
-			a.setLine2("Test Area");
-			a.setCity("Testville");
-			a.setPostalCode("5555");
-			a.setCountry(country);
-
-			ElasticSearchPartnerAddress ea = new ElasticSearchPartnerAddress();
+			ResourcePartnerAddress ea = new ResourcePartnerAddress();
 			ea.setAddressType("main");
-			ea.setAddressDetail(a);
+			ea.setLine1("101 Test Street");
+			ea.setLine2("Test Area");
+			ea.setCity("Testville");
+			ea.setPostalCode("5555");
+			ea.setCountry("AUS");
 
-			ElasticSearchPartner expected = new ElasticSearchPartner();
+			ResourcePartner expected = new ResourcePartner();
 			expected.setNuc("TEST");
 			expected.setName("Test Organisation");
 
-			ElasticSearchSuspension suspension = new ElasticSearchSuspension();
-			suspension.setSuspensionStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+			ResourcePartnerSuspension suspension = new ResourcePartnerSuspension();
+			suspension.setSuspensionStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
 			suspension.setSuspensionStart(null);
 			suspension.setSuspensionEnd(null);
 
@@ -95,7 +86,7 @@ public class TestElasticSearchDAO
 
 			elastic.addEntity(expected);
 
-			ElasticSearchPartner actual = elastic.getPartner("TEST").get();
+			ResourcePartner actual = elastic.getPartner("TEST").get();
 			log.debug("{}", actual.toString());
 			assertThat(actual, equalTo(expected));
 
@@ -114,7 +105,7 @@ public class TestElasticSearchDAO
 
 		try
 		{
-			ElasticSearchPartner partner = elastic.getPartner("TEST").orElse(null);
+			ResourcePartner partner = elastic.getPartner("TEST").orElse(null);
 			assertThat(partner, equalTo(null));
 		}
 		catch (IOException ioe)
@@ -129,7 +120,7 @@ public class TestElasticSearchDAO
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			Map<String, ElasticSearchPartner> p = elastic.getPartners();
+			Map<String, ResourcePartner> p = elastic.getPartners();
 
 			for (String nuc : p.keySet())
 				log.debug("{}:\n{}", nuc, JaxbUtil.format(p.get(nuc)));
@@ -149,11 +140,11 @@ public class TestElasticSearchDAO
 		try
 		{
 			String datafile = "target/test-classes/data/elastic-partner.json";
-			byte[] data = DataUtils.loadFile(datafile);
+			byte[] data = DataUtil.loadFile(datafile);
 
 			String json = new String(data, "UTF-8");
 			log.debug("json:\n{}", json);
-			ElasticSearchPartner e = JaxbUtil.get(json, ElasticSearchPartner.class);
+			ResourcePartner e = JaxbUtil.get(json, ResourcePartner.class);
 			log.debug("unmarshalled:\n{}", e);
 		}
 		catch (Exception e)

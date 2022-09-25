@@ -15,11 +15,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nishen.resourcepartners.SkipHarvestException;
-import org.nishen.resourcepartners.dao.ElasticSearchDAO;
+import org.nishen.resourcepartners.dao.DatastoreDAO;
 import org.nishen.resourcepartners.dao.OutlookDAO;
-import org.nishen.resourcepartners.entity.ElasticSearchChangeRecord;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
-import org.nishen.resourcepartners.entity.ElasticSearchSuspension;
+import org.nishen.resourcepartners.entity.ResourcePartner;
+import org.nishen.resourcepartners.entity.ResourcePartnerChangeRecord;
+import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
 import org.nishen.resourcepartners.util.JaxbUtil;
 import org.nishen.resourcepartners.util.ObjectUtil;
 import org.slf4j.Logger;
@@ -63,10 +63,10 @@ public class HarvesterTepunaStatus implements Harvester
 
 	private OutlookDAO outlook;
 
-	private ElasticSearchDAO elastic;
+	private DatastoreDAO elastic;
 
 	@Inject
-	public HarvesterTepunaStatus(OutlookDAO outlook, ElasticSearchDAO elastic)
+	public HarvesterTepunaStatus(OutlookDAO outlook, DatastoreDAO elastic)
 	{
 		this.outlook = outlook;
 
@@ -82,21 +82,21 @@ public class HarvesterTepunaStatus implements Harvester
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> harvest() throws IOException, SkipHarvestException
+	public Map<String, ResourcePartner> harvest() throws IOException, SkipHarvestException
 	{
-		Map<String, ElasticSearchPartner> partners = elastic.getPartners();
-		Map<String, ElasticSearchPartner> tepunaPartners = new TreeMap<String, ElasticSearchPartner>();
+		Map<String, ResourcePartner> partners = elastic.getPartners();
+		Map<String, ResourcePartner> tepunaPartners = new TreeMap<String, ResourcePartner>();
 
 		Map<String, JsonNode> messages = outlook.getMessages();
 
-		Map<String, Set<ElasticSearchSuspension>> suspensions = getSuspensions(messages);
+		Map<String, Set<ResourcePartnerSuspension>> suspensions = getSuspensions(messages);
 
 		Date now = new Date();
 
 		for (String nuc : suspensions.keySet())
 		{
-			Set<ElasticSearchSuspension> s = suspensions.get(nuc);
-			ElasticSearchPartner p = partners.get(nuc);
+			Set<ResourcePartnerSuspension> s = suspensions.get(nuc);
+			ResourcePartner p = partners.get(nuc);
 
 			if (p == null)
 			{
@@ -104,17 +104,17 @@ public class HarvesterTepunaStatus implements Harvester
 				continue;
 			}
 
-			ElasticSearchPartner l = ObjectUtil.deepClone(p);
+			ResourcePartner l = ObjectUtil.deepClone(p);
 
 			l.getSuspensions().addAll(s);
 
 			// initial state
-			l.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+			l.setStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
 
 			// process all suspensions in order - last one is the latest
-			for (ElasticSearchSuspension susp : l.getSuspensions())
+			for (ResourcePartnerSuspension susp : l.getSuspensions())
 			{
-				if (ElasticSearchSuspension.SUSPENDED.equals(susp.getSuspensionStatus()))
+				if (ResourcePartnerSuspension.SUSPENDED.equals(susp.getSuspensionStatus()))
 				{
 					try
 					{
@@ -122,9 +122,9 @@ public class HarvesterTepunaStatus implements Harvester
 						Date end = sdf.parse(susp.getSuspensionEnd());
 
 						if (now.after(start) && now.before(end))
-							l.setStatus(ElasticSearchSuspension.SUSPENDED);
+							l.setStatus(ResourcePartnerSuspension.SUSPENDED);
 						else
-							l.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+							l.setStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
 					}
 					catch (ParseException pe)
 					{
@@ -134,7 +134,7 @@ public class HarvesterTepunaStatus implements Harvester
 				}
 				else
 				{
-					l.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+					l.setStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
 				}
 			}
 
@@ -146,11 +146,11 @@ public class HarvesterTepunaStatus implements Harvester
 		return tepunaPartners;
 	}
 
-	public Map<String, Set<ElasticSearchSuspension>> getSuspensions(Map<String, JsonNode> messages)
+	public Map<String, Set<ResourcePartnerSuspension>> getSuspensions(Map<String, JsonNode> messages)
 	{
 		log.debug("getting suspensions");
 
-		Map<String, Set<ElasticSearchSuspension>> suspensions = new TreeMap<String, Set<ElasticSearchSuspension>>();
+		Map<String, Set<ResourcePartnerSuspension>> suspensions = new TreeMap<String, Set<ResourcePartnerSuspension>>();
 
 		for (String id : messages.keySet())
 		{
@@ -177,7 +177,7 @@ public class HarvesterTepunaStatus implements Harvester
 			}
 
 			if (suspensions.get(nuc) == null)
-				suspensions.put(nuc, new LinkedHashSet<ElasticSearchSuspension>());
+				suspensions.put(nuc, new LinkedHashSet<ResourcePartnerSuspension>());
 
 			m = pBody.matcher(body);
 			while (m.find())
@@ -188,17 +188,17 @@ public class HarvesterTepunaStatus implements Harvester
 
 				if ("NO SUSPENSIONS".equals(m.group(1)))
 				{
-					ElasticSearchSuspension s = new ElasticSearchSuspension();
+					ResourcePartnerSuspension s = new ResourcePartnerSuspension();
 					s.setSuspensionAdded(entry.get("receivedDateTime").asText());
-					s.setSuspensionStatus(ElasticSearchSuspension.NOT_SUSPENDED);
+					s.setSuspensionStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
 
 					suspensions.get(nuc).add(s);
 				}
 				else if (m.group(1) == null)
 				{
-					ElasticSearchSuspension s = new ElasticSearchSuspension();
+					ResourcePartnerSuspension s = new ResourcePartnerSuspension();
 					s.setSuspensionAdded(entry.get("receivedDateTime").asText());
-					s.setSuspensionStatus(ElasticSearchSuspension.SUSPENDED);
+					s.setSuspensionStatus(ResourcePartnerSuspension.SUSPENDED);
 					s.setSuspensionStart(formatDate(nuc, m.group(2)));
 					s.setSuspensionEnd(formatDate(nuc, m.group(3)));
 					s.setSuspensionCode(m.group(4));
@@ -213,25 +213,23 @@ public class HarvesterTepunaStatus implements Harvester
 	}
 
 	@Override
-	public Map<String, ElasticSearchPartner> update(Map<String, ElasticSearchPartner> partners,
-	                                                Map<String, ElasticSearchPartner> latest,
-	                                                List<ElasticSearchChangeRecord> changes)
+	public Map<String, ResourcePartner> update(Map<String, ResourcePartner> partners, Map<String, ResourcePartner> latest,
+	                                   List<ResourcePartnerChangeRecord> changes)
 	{
-		Map<String, ElasticSearchPartner> updated = new HashMap<String, ElasticSearchPartner>();
+		Map<String, ResourcePartner> updated = new HashMap<String, ResourcePartner>();
 
 		for (String nuc : latest.keySet())
 		{
-			ElasticSearchPartner l = latest.get(nuc);
-			ElasticSearchPartner p = partners.get(nuc);
+			ResourcePartner l = latest.get(nuc);
+			ResourcePartner p = partners.get(nuc);
 
 			boolean requiresUpdate = false;
 
-			for (ElasticSearchSuspension s : l.getSuspensions())
+			for (ResourcePartnerSuspension s : l.getSuspensions())
 			{
 				if (!p.getSuspensions().contains(s))
 				{
-					changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null,
-					                                          JaxbUtil.format(s)));
+					changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null, JaxbUtil.format(s)));
 					p.getSuspensions().add(s);
 					requiresUpdate = true;
 				}

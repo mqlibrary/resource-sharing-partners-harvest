@@ -9,9 +9,9 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nishen.resourcepartners.entity.ElasticSearchPartner;
+import org.nishen.resourcepartners.entity.ResourcePartner;
 import org.nishen.resourcepartners.harvesters.HarvesterTepunaStatus;
-import org.nishen.resourcepartners.util.DataUtils;
+import org.nishen.resourcepartners.util.DataUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,10 +65,10 @@ public class TestHarvesterTepunaStatus
 			// node = mapper.readTree(DataUtils.loadFile("target/test-classes/data/message01.txt"));
 			// messages.put("NLNZ:HP", node);
 
-			node = mapper.readTree(DataUtils.loadFile("target/test-classes/data/message02.txt"));
+			node = mapper.readTree(DataUtil.loadFile("target/test-classes/data/message02.txt"));
 			messages.put("NLNZ:NPM", node);
 
-			node = mapper.readTree(DataUtils.loadFile("target/test-classes/data/message03.txt"));
+			node = mapper.readTree(DataUtil.loadFile("target/test-classes/data/message03.txt"));
 			messages.put("NLNZ:WHP", node);
 
 			harvester.getSuspensions(messages);
@@ -87,7 +87,7 @@ public class TestHarvesterTepunaStatus
 
 		try
 		{
-			Map<String, ElasticSearchPartner> changed = harvester.harvest();
+			Map<String, ResourcePartner> changed = harvester.harvest();
 			if (changed != null)
 				log.debug("changed count: {}", changed.size());
 		}

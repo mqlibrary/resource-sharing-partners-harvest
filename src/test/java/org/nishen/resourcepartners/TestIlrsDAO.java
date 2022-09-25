@@ -8,10 +8,8 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nishen.resourcepartners.dao.IlrsDAO;
-import org.nishen.resourcepartners.model.Address;
-import org.nishen.resourcepartners.model.Address.Country;
-import org.nishen.resourcepartners.model.ObjectFactory;
-import org.nishen.resourcepartners.util.DataUtils;
+import org.nishen.resourcepartners.entity.ResourcePartnerAddress;
+import org.nishen.resourcepartners.util.DataUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +31,9 @@ public class TestIlrsDAO
 
 	private static IlrsDAO ilrsDAO = null;
 
-	private static ObjectFactory of = null;
-
 	@BeforeClass
 	public static void setup()
 	{
-		of = new ObjectFactory();
-
 		// list for injector modules
 		List<Module> modules = new ArrayList<Module>();
 
@@ -78,41 +72,37 @@ public class TestIlrsDAO
 		{
 			// String nuc = "NMQU";
 			// String page = ilrsDAO.getPage(nuc);
-			String page = new String(DataUtils.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
+			String page = new String(DataUtil.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
 
-			Map<String, Address> addresses = ilrsDAO.getAddressesFromPage(page);
+			Map<String, ResourcePartnerAddress> addresses = ilrsDAO.getAddressesFromPage(page);
 
-			Address actual = null;
-			Address expected = null;
+			ResourcePartnerAddress actual = null;
+			ResourcePartnerAddress expected = null;
 
-			Country country = of.createAddressCountry();
-			country.setValue("AUS");
-			country.setDesc("Australia");
-
-			expected = of.createAddress();
+			expected = new ResourcePartnerAddress();
 			expected.setLine1("Balaclava Rd, cnr Epping Rd");
 			expected.setCity("NORTH RYDE");
 			expected.setStateProvince("NSW");
 			expected.setPostalCode("2109");
-			expected.setCountry(country);
+			expected.setCountry("Australia");
 
 			actual = addresses.get("main");
 
 			assertThat(actual, equalTo(expected));
 
-			expected = of.createAddress();
+			expected = new ResourcePartnerAddress();
 			expected.setLine1("Building C3C");
 			expected.setLine2("Macquarie Drive");
 			expected.setCity("MACQUARIE UNIVERSITY");
 			expected.setStateProvince("NSW");
 			expected.setPostalCode("2109");
-			expected.setCountry(country);
+			expected.setCountry("Australia");
 
 			actual = addresses.get("postal");
 
 			assertThat(actual, equalTo(expected));
 
-			expected = of.createAddress();
+			expected = new ResourcePartnerAddress();
 			expected.setLine1("Same as Postal address");
 
 			actual = addresses.get("billing");
@@ -132,41 +122,37 @@ public class TestIlrsDAO
 		log.debug("running test: {}", Arrays.asList(new Throwable().getStackTrace()).get(0).getMethodName());
 		try
 		{
-			String page = new String(DataUtils.loadFile("target/test-classes/data/ilrs-data-aaar-raw.html"), "UTF-8");
+			String page = new String(DataUtil.loadFile("target/test-classes/data/ilrs-data-aaar-raw.html"), "UTF-8");
 
-			Map<String, Address> addresses = ilrsDAO.getAddressesFromPage(page);
+			Map<String, ResourcePartnerAddress> addresses = ilrsDAO.getAddressesFromPage(page);
 
-			Address actual = null;
-			Address expected = null;
+			ResourcePartnerAddress actual = null;
+			ResourcePartnerAddress expected = null;
 
-			Country country = of.createAddressCountry();
-			country.setValue("AUS");
-			country.setDesc("Australia");
-
-			expected = of.createAddress();
+			expected = new ResourcePartnerAddress();
 			expected.setLine1("Ground Floor");
 			expected.setLine2("National Archives Building / Queen Victoria Terrace");
 			expected.setCity("PARKES");
 			expected.setStateProvince("ACT");
 			expected.setPostalCode("2600");
-			expected.setCountry(country);
+			expected.setCountry("Australia");
 
 			actual = addresses.get("main");
 
 			assertThat(actual, equalTo(expected));
 
-			expected = of.createAddress();
+			expected = new ResourcePartnerAddress();
 			expected.setLine1("PO Box 7425");
 			expected.setCity("CANBERRA MAIL CENTRE");
 			expected.setStateProvince("ACT");
 			expected.setPostalCode("2610");
-			expected.setCountry(country);
+			expected.setCountry("Australia");
 
 			actual = addresses.get("postal");
 
 			assertThat(actual, equalTo(expected));
 
-			expected = of.createAddress();
+			expected = new ResourcePartnerAddress();
 			expected.setLine1("ATTN: Librarian");
 			expected.setLine2("Same as Postal address");
 
@@ -188,7 +174,7 @@ public class TestIlrsDAO
 
 		try
 		{
-			String page = new String(DataUtils.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
+			String page = new String(DataUtil.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
 
 			String expected = "lib.ill@mq.edu.au";
 
@@ -211,7 +197,7 @@ public class TestIlrsDAO
 
 		try
 		{
-			String page = new String(DataUtils.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
+			String page = new String(DataUtil.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
 
 			String expected = "02 9850 7514";
 
@@ -234,7 +220,7 @@ public class TestIlrsDAO
 
 		try
 		{
-			String page = new String(DataUtils.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
+			String page = new String(DataUtil.loadFile("target/test-classes/data/ilrs-data-nmqu-raw.html"), "UTF-8");
 
 			String expected = "02 9850 6516";
 

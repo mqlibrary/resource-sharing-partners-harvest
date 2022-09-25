@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nishen.resourcepartners.dao.OutlookDAO;
-import org.nishen.resourcepartners.util.DataUtils;
+import org.nishen.resourcepartners.util.DataUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +106,7 @@ public class TestOutlookDAO
 
 		try
 		{
-			String response = new String(DataUtils.loadFile("target/test-classes/data/outlook-response.json"), "UTF-8");
+			String response = new String(DataUtil.loadFile("target/test-classes/data/outlook-response.json"), "UTF-8");
 			log.debug("response:\n{}", response);
 
 			JsonNode root = mapper.readTree(response);

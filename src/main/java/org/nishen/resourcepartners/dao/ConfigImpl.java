@@ -47,11 +47,11 @@ public class ConfigImpl implements Config
 
 		File cf = new File(this.configFolder);
 		if (!cf.isDirectory())
-			cf.mkdir();
+			cf.mkdirs();
 
 		File cfb = new File(configFolderBackup);
 		if (!cfb.isDirectory())
-			cfb.mkdir();
+			cfb.mkdirs();
 
 		this.config = new ConcurrentHashMap<String, String>();
 		fetchConfig().ifPresent(c -> this.config.putAll(c));

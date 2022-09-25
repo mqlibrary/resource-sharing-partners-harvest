@@ -29,6 +29,10 @@ public class DatastoreDAOImpl implements DatastoreDAO
 	public DatastoreDAOImpl(@Named("location.partners") String dataFolder)
 	{
 		this.dataFolder = dataFolder;
+		File df = new File(this.dataFolder);
+		if (!df.isDirectory())
+			df.mkdirs();
+
 		this.om = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 	}
 

@@ -66,14 +66,14 @@ public class HarvesterTepunaStatus implements Harvester
 
 	private OutlookDAO outlook;
 
-	private DatastoreDAO elastic;
+	private DatastoreDAO datastoreDAO;
 
 	@Inject
-	public HarvesterTepunaStatus(OutlookDAO outlook, DatastoreDAO elastic)
+	public HarvesterTepunaStatus(OutlookDAO outlook, DatastoreDAO datastoreDAO)
 	{
 		this.outlook = outlook;
 
-		this.elastic = elastic;
+		this.datastoreDAO = datastoreDAO;
 
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
@@ -87,7 +87,7 @@ public class HarvesterTepunaStatus implements Harvester
 	@Override
 	public Map<String, ResourcePartner> harvest() throws IOException, SkipHarvestException
 	{
-		Map<String, ResourcePartner> partners = elastic.getPartners();
+		Map<String, ResourcePartner> partners = datastoreDAO.getPartners();
 		Map<String, ResourcePartner> tepunaPartners = new TreeMap<String, ResourcePartner>();
 
 		Map<String, JsonNode> messages = outlook.getMessages();
@@ -149,72 +149,6 @@ public class HarvesterTepunaStatus implements Harvester
 		return tepunaPartners;
 	}
 
-	public Map<String, Set<ResourcePartnerSuspension>> getSuspensions(Map<String, JsonNode> messages)
-	{
-		log.debug("getting suspensions");
-
-		Map<String, Set<ResourcePartnerSuspension>> suspensions = new TreeMap<String, Set<ResourcePartnerSuspension>>();
-
-		for (String id : messages.keySet())
-		{
-			JsonNode entry = messages.get(id);
-
-			String content = entry.get("body").get("content").asText().replace("\\r\\n", "\n");
-
-			Matcher m = pHeader.matcher(content);
-
-			String nuc = null;
-			String body = null;
-			if (m.find())
-			{
-				nuc = NZ_NUC_PREFIX + ":" + m.group(1);
-				body = m.group(2);
-
-				log.debug("regex [{}]: {}", nuc, body);
-			}
-
-			if (nuc == null || body == null)
-			{
-				log.debug("no applicable content: {}", content);
-				continue;
-			}
-
-			if (suspensions.get(nuc) == null)
-				suspensions.put(nuc, new LinkedHashSet<ResourcePartnerSuspension>());
-
-			m = pBody.matcher(body);
-			while (m.find())
-			{
-				if (log.isDebugEnabled())
-					for (int x = 0; x <= m.groupCount(); x++)
-						log.debug("found[{}]: {}", x, m.group(x));
-
-				if ("NO SUSPENSIONS".equals(m.group(1)))
-				{
-					ResourcePartnerSuspension s = new ResourcePartnerSuspension();
-					s.setSuspensionAdded(entry.get("receivedDateTime").asText());
-					s.setSuspensionStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
-
-					suspensions.get(nuc).add(s);
-				}
-				else if (m.group(1) == null)
-				{
-					ResourcePartnerSuspension s = new ResourcePartnerSuspension();
-					s.setSuspensionAdded(entry.get("receivedDateTime").asText());
-					s.setSuspensionStatus(ResourcePartnerSuspension.SUSPENDED);
-					s.setSuspensionStart(formatDate(nuc, m.group(2)));
-					s.setSuspensionEnd(formatDate(nuc, m.group(3)));
-					s.setSuspensionCode(m.group(4));
-					s.setSuspensionReason(m.group(4));
-
-					suspensions.get(nuc).add(s);
-				}
-			}
-		}
-
-		return suspensions;
-	}
-
 	@Override
 	public Map<String, ResourcePartner> update(Map<String, ResourcePartner> partners,
 	                                           Map<String, ResourcePartner> latest,
@@ -255,6 +189,72 @@ public class HarvesterTepunaStatus implements Harvester
 		}
 
 		return updated;
+	}
+
+	public Map<String, Set<ResourcePartnerSuspension>> getSuspensions(Map<String, JsonNode> messages)
+	{
+		log.debug("getting suspensions");
+	
+		Map<String, Set<ResourcePartnerSuspension>> suspensions = new TreeMap<String, Set<ResourcePartnerSuspension>>();
+	
+		for (String id : messages.keySet())
+		{
+			JsonNode entry = messages.get(id);
+	
+			String content = entry.get("body").get("content").asText().replace("\\r\\n", "\n");
+	
+			Matcher m = pHeader.matcher(content);
+	
+			String nuc = null;
+			String body = null;
+			if (m.find())
+			{
+				nuc = NZ_NUC_PREFIX + ":" + m.group(1);
+				body = m.group(2);
+	
+				log.debug("regex [{}]: {}", nuc, body);
+			}
+	
+			if (nuc == null || body == null)
+			{
+				log.debug("no applicable content: {}", content);
+				continue;
+			}
+	
+			if (suspensions.get(nuc) == null)
+				suspensions.put(nuc, new LinkedHashSet<ResourcePartnerSuspension>());
+	
+			m = pBody.matcher(body);
+			while (m.find())
+			{
+				if (log.isDebugEnabled())
+					for (int x = 0; x <= m.groupCount(); x++)
+						log.debug("found[{}]: {}", x, m.group(x));
+	
+				if ("NO SUSPENSIONS".equals(m.group(1)))
+				{
+					ResourcePartnerSuspension s = new ResourcePartnerSuspension();
+					s.setSuspensionAdded(entry.get("receivedDateTime").asText());
+					s.setSuspensionStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
+	
+					suspensions.get(nuc).add(s);
+				}
+				else if (m.group(1) == null)
+				{
+					ResourcePartnerSuspension s = new ResourcePartnerSuspension();
+					s.setSuspensionAdded(entry.get("receivedDateTime").asText());
+					s.setSuspensionStatus(ResourcePartnerSuspension.SUSPENDED);
+					s.setSuspensionStart(formatDate(nuc, m.group(2)));
+					s.setSuspensionEnd(formatDate(nuc, m.group(3)));
+					s.setSuspensionCode(m.group(4));
+					s.setSuspensionReason(m.group(4));
+	
+					suspensions.get(nuc).add(s);
+				}
+			}
+		}
+	
+		return suspensions;
 	}
 
 	private String formatDate(String nuc, String date)

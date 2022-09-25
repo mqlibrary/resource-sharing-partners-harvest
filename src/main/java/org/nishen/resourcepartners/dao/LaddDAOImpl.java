@@ -14,7 +14,6 @@ import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -22,8 +21,6 @@ import com.google.inject.name.Named;
 public class LaddDAOImpl implements LaddDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(LaddDAOImpl.class);
-
-	private static ObjectMapper om = new ObjectMapper();
 
 	private static Pattern p;
 

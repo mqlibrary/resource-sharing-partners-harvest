@@ -20,12 +20,13 @@ import org.nishen.resourcepartners.dao.OutlookDAO;
 import org.nishen.resourcepartners.entity.ResourcePartner;
 import org.nishen.resourcepartners.entity.ResourcePartnerChangeRecord;
 import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
-import org.nishen.resourcepartners.util.JaxbUtil;
 import org.nishen.resourcepartners.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 /**
@@ -41,6 +42,8 @@ public class HarvesterTepunaStatus implements Harvester
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ENGLISH);
 
 	private static final SimpleDateFormat idf = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+
+	private static ObjectMapper om = new ObjectMapper();
 
 	private static Pattern pHeader;
 
@@ -213,8 +216,9 @@ public class HarvesterTepunaStatus implements Harvester
 	}
 
 	@Override
-	public Map<String, ResourcePartner> update(Map<String, ResourcePartner> partners, Map<String, ResourcePartner> latest,
-	                                   List<ResourcePartnerChangeRecord> changes)
+	public Map<String, ResourcePartner> update(Map<String, ResourcePartner> partners,
+	                                           Map<String, ResourcePartner> latest,
+	                                           List<ResourcePartnerChangeRecord> changes)
 	{
 		Map<String, ResourcePartner> updated = new HashMap<String, ResourcePartner>();
 
@@ -227,11 +231,19 @@ public class HarvesterTepunaStatus implements Harvester
 
 			for (ResourcePartnerSuspension s : l.getSuspensions())
 			{
-				if (!p.getSuspensions().contains(s))
+				try
 				{
-					changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null, JaxbUtil.format(s)));
-					p.getSuspensions().add(s);
-					requiresUpdate = true;
+					if (!p.getSuspensions().contains(s))
+					{
+						changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null,
+						                                            om.writeValueAsString(s)));
+						p.getSuspensions().add(s);
+						requiresUpdate = true;
+					}
+				}
+				catch (JsonProcessingException jpe)
+				{
+					log.error("{}", jpe.getMessage(), jpe);
 				}
 			}
 

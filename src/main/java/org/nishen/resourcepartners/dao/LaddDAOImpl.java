@@ -11,10 +11,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.nishen.resourcepartners.entity.ResourcePartner;
 import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
-import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -22,6 +22,8 @@ import com.google.inject.name.Named;
 public class LaddDAOImpl implements LaddDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(LaddDAOImpl.class);
+
+	private static ObjectMapper om = new ObjectMapper();
 
 	private static Pattern p;
 
@@ -125,13 +127,10 @@ public class LaddDAOImpl implements LaddDAO
 				log.warn("unknown status [{}]: {}", nuc1, susp);
 			}
 
-			if (log.isDebugEnabled())
-				log.debug("elasticSearchPartner: {}", JaxbUtil.format(e));
-
 			data.put(nuc1, e);
 		}
 
-		log.debug("elasticSearchPartners found: {}", data.size());
+		log.debug("ResourceSharingPartners found: {}", data.size());
 
 		return data;
 	}

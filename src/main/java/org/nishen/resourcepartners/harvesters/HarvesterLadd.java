@@ -14,11 +14,12 @@ import org.nishen.resourcepartners.dao.LaddDAO;
 import org.nishen.resourcepartners.entity.ResourcePartner;
 import org.nishen.resourcepartners.entity.ResourcePartnerChangeRecord;
 import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
-import org.nishen.resourcepartners.util.JaxbUtil;
 import org.nishen.resourcepartners.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 /**
@@ -32,6 +33,8 @@ public class HarvesterLadd implements Harvester
 	private static final String SOURCE_SYSTEM = "LADD";
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ENGLISH);
+
+	private ObjectMapper om = new ObjectMapper();
 
 	private LaddDAO ladd;
 
@@ -76,59 +79,67 @@ public class HarvesterLadd implements Harvester
 
 			boolean requiresUpdate = false;
 
-			if (p == null)
+			try
 			{
-				l.setUpdated(sdf.format(new Date()));
-				updated.put(nuc, l);
-				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "partner", null, JaxbUtil.format(l)));
-
-				continue;
-			}
-
-			if (p.isEnabled() != l.isEnabled())
-			{
-				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "enabled",
-				                                            Boolean.toString(p.isEnabled()),
-				                                            Boolean.toString(l.isEnabled())));
-				p.setEnabled(l.isEnabled());
-				requiresUpdate = true;
-			}
-
-			if (!ObjectUtil.compareStrings(p.getName(), l.getName()))
-			{
-				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "name", p.getName(), l.getName()));
-				p.setName(l.getName());
-				requiresUpdate = true;
-			}
-
-			if (!ObjectUtil.compareStrings(p.getStatus(), l.getStatus()))
-			{
-				changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "status", p.getStatus(),
-				                                            l.getStatus()));
-				p.setStatus(l.getStatus());
-				requiresUpdate = true;
-			}
-
-			Set<ResourcePartnerSuspension> lSuspensions =
-			        new LinkedHashSet<ResourcePartnerSuspension>(l.getSuspensions());
-			for (ResourcePartnerSuspension s : lSuspensions)
-				if (!p.getSuspensions().contains(s))
+				if (p == null)
 				{
-					changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null,
-					                                            JaxbUtil.format(s)));
-					p.getSuspensions().add(s);
+					l.setUpdated(sdf.format(new Date()));
+					updated.put(nuc, l);
+					changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "partner", null,
+					                                            om.writeValueAsString(l)));
+
+					continue;
+				}
+
+				if (p.isEnabled() != l.isEnabled())
+				{
+					changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "enabled",
+					                                            Boolean.toString(p.isEnabled()),
+					                                            Boolean.toString(l.isEnabled())));
+					p.setEnabled(l.isEnabled());
 					requiresUpdate = true;
 				}
 
-			if (requiresUpdate)
-			{
-				if (log.isDebugEnabled())
+				if (!ObjectUtil.compareStrings(p.getName(), l.getName()))
 				{
-					log.debug("latest:\n{}\npartner:\n{}\n", JaxbUtil.format(l), JaxbUtil.format(p));
+					changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "name", p.getName(), l.getName()));
+					p.setName(l.getName());
+					requiresUpdate = true;
 				}
 
-				p.setUpdated(sdf.format(new Date()));
-				updated.put(nuc, p);
+				if (!ObjectUtil.compareStrings(p.getStatus(), l.getStatus()))
+				{
+					changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "status", p.getStatus(),
+					                                            l.getStatus()));
+					p.setStatus(l.getStatus());
+					requiresUpdate = true;
+				}
+
+				Set<ResourcePartnerSuspension> lSuspensions =
+				        new LinkedHashSet<ResourcePartnerSuspension>(l.getSuspensions());
+				for (ResourcePartnerSuspension s : lSuspensions)
+					if (!p.getSuspensions().contains(s))
+					{
+						changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null,
+						                                            om.writeValueAsString(s)));
+						p.getSuspensions().add(s);
+						requiresUpdate = true;
+					}
+
+				if (requiresUpdate)
+				{
+					if (log.isDebugEnabled())
+					{
+						log.debug("latest:\n{}\npartner:\n{}\n", om.writeValueAsString(l), om.writeValueAsString(p));
+					}
+
+					p.setUpdated(sdf.format(new Date()));
+					updated.put(nuc, p);
+				}
+			}
+			catch (JsonProcessingException jpe)
+			{
+				log.error("{}", jpe.getMessage(), jpe);
 			}
 		}
 

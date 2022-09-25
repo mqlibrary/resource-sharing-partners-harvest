@@ -14,10 +14,10 @@ import org.nishen.resourcepartners.entity.ResourcePartner;
 import org.nishen.resourcepartners.entity.ResourcePartnerAddress;
 import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
 import org.nishen.resourcepartners.util.DataUtil;
-import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -31,6 +31,8 @@ import static org.junit.Assert.fail;
 public class TestElasticSearchDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(TestElasticSearchDAO.class);
+
+	private static ObjectMapper om = new ObjectMapper();;
 
 	private static Injector injector = null;
 
@@ -123,7 +125,7 @@ public class TestElasticSearchDAO
 			Map<String, ResourcePartner> p = elastic.getPartners();
 
 			for (String nuc : p.keySet())
-				log.debug("{}:\n{}", nuc, JaxbUtil.format(p.get(nuc)));
+				log.debug("{}:\n{}", nuc, om.writeValueAsString(p.get(nuc)));
 
 			assertThat(p.size(), greaterThan(0));
 		}
@@ -144,7 +146,7 @@ public class TestElasticSearchDAO
 
 			String json = new String(data, "UTF-8");
 			log.debug("json:\n{}", json);
-			ResourcePartner e = JaxbUtil.get(json, ResourcePartner.class);
+			ResourcePartner e = om.readValue(json, ResourcePartner.class);
 			log.debug("unmarshalled:\n{}", e);
 		}
 		catch (Exception e)

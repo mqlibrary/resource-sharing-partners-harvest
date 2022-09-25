@@ -10,10 +10,10 @@ import org.junit.Test;
 import org.nishen.resourcepartners.dao.LaddDAO;
 import org.nishen.resourcepartners.entity.ResourcePartner;
 import org.nishen.resourcepartners.entity.ResourcePartnerSuspension;
-import org.nishen.resourcepartners.util.JaxbUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -27,6 +27,8 @@ import static org.junit.Assert.fail;
 public class TestLaddDAO
 {
 	private static final Logger log = LoggerFactory.getLogger(TestLaddDAO.class);
+
+	private static ObjectMapper om = new ObjectMapper();
 
 	private static Injector injector = null;
 
@@ -58,7 +60,7 @@ public class TestLaddDAO
 
 			if (log.isTraceEnabled())
 				for (String nuc : laddPartners.keySet())
-					log.trace("{}:\n{}", nuc, JaxbUtil.format(laddPartners.get(nuc)));
+					log.trace("{}:\n{}", nuc, om.writeValueAsString(laddPartners.get(nuc)));
 
 			assertThat(laddPartners.size(), greaterThan(650));
 

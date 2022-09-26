@@ -126,8 +126,6 @@ public class HarvesterTepunaStatus implements Harvester
 
 						if (now.after(start) && now.before(end))
 							l.setStatus(ResourcePartnerSuspension.SUSPENDED);
-						else
-							l.setStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
 					}
 					catch (ParseException pe)
 					{
@@ -158,8 +156,8 @@ public class HarvesterTepunaStatus implements Harvester
 
 		for (String nuc : latest.keySet())
 		{
-			ResourcePartner l = latest.get(nuc);
 			ResourcePartner p = partners.get(nuc);
+			ResourcePartner l = latest.get(nuc);
 
 			boolean requiresUpdate = false;
 
@@ -172,6 +170,7 @@ public class HarvesterTepunaStatus implements Harvester
 						changes.add(new ResourcePartnerChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null,
 						                                            om.writeValueAsString(s)));
 						p.getSuspensions().add(s);
+						p.setStatus(l.getStatus());
 						requiresUpdate = true;
 					}
 				}
@@ -194,49 +193,49 @@ public class HarvesterTepunaStatus implements Harvester
 	public Map<String, Set<ResourcePartnerSuspension>> getSuspensions(Map<String, JsonNode> messages)
 	{
 		log.debug("getting suspensions");
-	
+
 		Map<String, Set<ResourcePartnerSuspension>> suspensions = new TreeMap<String, Set<ResourcePartnerSuspension>>();
-	
+
 		for (String id : messages.keySet())
 		{
 			JsonNode entry = messages.get(id);
-	
+
 			String content = entry.get("body").get("content").asText().replace("\\r\\n", "\n");
-	
+
 			Matcher m = pHeader.matcher(content);
-	
+
 			String nuc = null;
 			String body = null;
 			if (m.find())
 			{
 				nuc = NZ_NUC_PREFIX + ":" + m.group(1);
 				body = m.group(2);
-	
+
 				log.debug("regex [{}]: {}", nuc, body);
 			}
-	
+
 			if (nuc == null || body == null)
 			{
 				log.debug("no applicable content: {}", content);
 				continue;
 			}
-	
+
 			if (suspensions.get(nuc) == null)
 				suspensions.put(nuc, new LinkedHashSet<ResourcePartnerSuspension>());
-	
+
 			m = pBody.matcher(body);
 			while (m.find())
 			{
 				if (log.isDebugEnabled())
 					for (int x = 0; x <= m.groupCount(); x++)
 						log.debug("found[{}]: {}", x, m.group(x));
-	
+
 				if ("NO SUSPENSIONS".equals(m.group(1)))
 				{
 					ResourcePartnerSuspension s = new ResourcePartnerSuspension();
 					s.setSuspensionAdded(entry.get("receivedDateTime").asText());
 					s.setSuspensionStatus(ResourcePartnerSuspension.NOT_SUSPENDED);
-	
+
 					suspensions.get(nuc).add(s);
 				}
 				else if (m.group(1) == null)
@@ -248,12 +247,12 @@ public class HarvesterTepunaStatus implements Harvester
 					s.setSuspensionEnd(formatDate(nuc, m.group(3)));
 					s.setSuspensionCode(m.group(4));
 					s.setSuspensionReason(m.group(4));
-	
+
 					suspensions.get(nuc).add(s);
 				}
 			}
 		}
-	
+
 		return suspensions;
 	}
 

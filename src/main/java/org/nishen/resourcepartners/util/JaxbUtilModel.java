@@ -135,15 +135,42 @@ public class JaxbUtilModel
 
 	public static <T> void format(T item, OutputStream out)
 	{
+		String classname = item != null ? item.getClass().getName() : "null";
 		try
 		{
 			Marshaller m = getMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
 
 			m.marshal(item, out);
 		}
 		catch (Exception e)
 		{
-			log.error("failed to obtain Address representation: {}", e.getMessage(), e);
+			log.error("failed to obtain {} representation: {}", classname, e.getMessage(), e);
+		}
+	}
+
+	public static <T> String formatPretty(T item)
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+		formatPretty(item, out);
+
+		return new String(out.toByteArray());
+	}
+
+	public static <T> void formatPretty(T item, OutputStream out)
+	{
+		String classname = item != null ? item.getClass().getName() : "null";
+		try
+		{
+			Marshaller m = getMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+			m.marshal(item, out);
+		}
+		catch (Exception e)
+		{
+			log.error("failed to obtain {} representation: {}", classname, e.getMessage(), e);
 		}
 	}
 }

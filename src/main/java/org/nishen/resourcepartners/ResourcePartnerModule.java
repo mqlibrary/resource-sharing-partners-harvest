@@ -17,6 +17,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import org.glassfish.jersey.jaxb.internal.JaxbMessagingBinder;
+import org.glassfish.jersey.jaxb.internal.JaxbParamConverterBinder;
+import org.nishen.resourcepartners.dao.AlmaDAO;
+import org.nishen.resourcepartners.dao.AlmaDAOFactory;
+import org.nishen.resourcepartners.dao.AlmaDAOImpl;
 import org.nishen.resourcepartners.dao.Config;
 import org.nishen.resourcepartners.dao.ConfigFactory;
 import org.nishen.resourcepartners.dao.ConfigImpl;
@@ -40,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
@@ -115,7 +121,11 @@ public class ResourcePartnerModule extends AbstractModule
 		if (harvesterSet == null || harvesterSet.contains("outlook"))
 			harvesterBinder.addBinding().to(HarvesterTepunaStatus.class);
 
-		install(new FactoryModuleBuilder().implement(Config.class, ConfigImpl.class).build(ConfigFactory.class));
+		FactoryModuleBuilder factoryModuleBuilder = new FactoryModuleBuilder();
+		install(factoryModuleBuilder.implement(Config.class, ConfigImpl.class).build(ConfigFactory.class));
+		install(factoryModuleBuilder.implement(AlmaDAO.class, AlmaDAOImpl.class).build(AlmaDAOFactory.class));
+		install(factoryModuleBuilder.implement(SyncProcessor.class, SyncProcessorImpl.class)
+		                            .build(SyncProcessorFactory.class));
 
 		bind(String.class).annotatedWith(Names.named("location.config"))
 		                  .toInstance(config.getProperty("location.config"));
@@ -220,5 +230,20 @@ public class ResourcePartnerModule extends AbstractModule
 				return new X509Certificate[0];
 			}
 		} };
+	}
+
+	@Provides
+	@Singleton
+	@Named("ws.alma")
+	protected WebTarget provideWebTargetAlma()
+	{
+		String url = System.getenv("ALMA_URL");
+
+		Client client =
+		        ClientBuilder.newClient().register(new JaxbMessagingBinder()).register(new JaxbParamConverterBinder());
+		log.info("using alma api: {}", url);
+		WebTarget almaTarget = client.target(url);
+
+		return almaTarget;
 	}
 }

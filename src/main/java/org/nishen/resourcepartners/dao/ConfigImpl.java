@@ -57,7 +57,8 @@ public class ConfigImpl implements Config
 		fetchConfig().ifPresent(c -> this.config.putAll(c));
 		try
 		{
-			backupConfig();
+			if (!this.config.isEmpty())
+				backupConfig();
 		}
 		catch (Exception e)
 		{

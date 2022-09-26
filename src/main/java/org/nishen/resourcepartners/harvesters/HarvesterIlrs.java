@@ -67,7 +67,7 @@ public class HarvesterIlrs implements Harvester
 	@Inject
 	public HarvesterIlrs(ConfigFactory configFactory, IlrsDAO ilrs, DatastoreDAO datastoreDAO)
 	{
-		this.config = configFactory.create(SOURCE_SYSTEM);
+		this.config = configFactory.fetch(SOURCE_SYSTEM);
 		log.debug("config[{}]: {}", SOURCE_SYSTEM, config.getAll());
 		this.ilrs = ilrs;
 		this.datastoreDAO = datastoreDAO;

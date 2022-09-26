@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +91,24 @@ public class ResourcePartnerLauncher
 			{
 				options.put("h", "true");
 			}
+			else if (args[x].equals("-harvest"))
+			{
+				if (options.containsKey("sync"))
+					throw new Exception("it is preferable to not run a harvest and sync at the same time");
+
+				options.put("harvest", "true");
+			}
+			else if (args[x].equals("-sync"))
+			{
+				if (options.containsKey("harvest"))
+					throw new Exception("it is preferable to not run a harvest and sync at the same time");
+
+				options.put("sync", "true");
+			}
+			else if (args[x].equals("-sync"))
+			{
+				options.put("sync", "true");
+			}
 			else if (args[x].equals("-harvesters"))
 			{
 				if (args.length > (x + 1))
@@ -99,6 +118,20 @@ public class ResourcePartnerLauncher
 				else
 				{
 					throw new Exception("list of harvesters required with -harvesters parameter.");
+				}
+			}
+			else if (args[x].equals("-action"))
+			{
+				if (args.length > (x + 1))
+				{
+					String action = args[++x].toLowerCase();
+					if (!Set.of("harvest", "sync", "changes", "preview").contains(action))
+						throw new Exception("invalid action: " + action);
+					options.put("action", action);
+				}
+				else
+				{
+					throw new Exception("you need to specify an action");
 				}
 			}
 			else
@@ -115,7 +148,13 @@ public class ResourcePartnerLauncher
 		System.out.println("java -jar resource-partner-sharing-harvest-x.y.z.jar [options]");
 		System.out.println("  -h                                        help");
 		System.out.println("  -?                                        help");
+		System.out.println("  -action (harvest|sync|preview|changes)");
+		System.out.println("      harvest                               run the harvest");
+		System.out.println("      sync                                  sync partner data with Alma");
+		System.out.println("      preview                               show what would happen without updating Alma");
+		System.out.println("      changes                               list differences between Alma and latest harvest");
 		System.out.println("  -harvesters harvester1,hearvester2,...    allows selection of harvesters to run by specifying");
 		System.out.println("                                            a comma separated list: [LADD,ILRS,TEPUNA,OUTLOOK]");
+		System.out.println("                                            (only works with the harvest action)");
 	}
 }

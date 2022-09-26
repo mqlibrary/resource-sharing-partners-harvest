@@ -55,7 +55,7 @@ public class OutlookDAOImpl implements OutlookDAO
 	                      @Named("ws.outlook.token") Provider<WebTarget> outlookTokenWebTarget) throws Exception
 	{
 		this.mapper = new ObjectMapper();
-		this.config = configFactory.create(SOURCE_SYSTEM);
+		this.config = configFactory.fetch(SOURCE_SYSTEM);
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 		this.email = email;

@@ -45,7 +45,7 @@ public class TestConfig
 		try
 		{
 			ConfigFactory factory = injector.getInstance(ConfigFactory.class);
-			Config config = factory.create("OUTLOOK");
+			Config config = factory.fetch("OUTLOOK");
 			log.debug("config: {}", config.getAll());
 			// assertThat(actual, equalTo(expected));
 		}
@@ -63,7 +63,7 @@ public class TestConfig
 		try
 		{
 			ConfigFactory factory = injector.getInstance(ConfigFactory.class);
-			Config config = factory.create("OUTLOOK");
+			Config config = factory.fetch("OUTLOOK");
 			log.debug("config: {}", config.getAll());
 			config.set("nish", "was here");
 			// assertThat(actual, equalTo(expected));

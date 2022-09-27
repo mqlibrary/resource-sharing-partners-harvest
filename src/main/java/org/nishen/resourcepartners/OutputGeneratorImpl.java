@@ -52,10 +52,11 @@ public class OutputGeneratorImpl implements OutputGenerator
 		changed.keySet().stream().sorted().forEach(c -> p.getPartner().add(changed.get(c)));
 
 		String filename = this.outputFolder.getAbsolutePath() + File.separatorChar + "partners-changed-" +
-		                  format.format(now) + ".xml";
+		                  format.format(now) + ".json";
 		OutputStream outputStream = new FileOutputStream(new File(filename));
 
 		JaxbUtilModel.formatPretty(p, outputStream);
+		log.info("generated changed partner file: {}", filename);
 	}
 
 	@Override
@@ -66,10 +67,11 @@ public class OutputGeneratorImpl implements OutputGenerator
 		deleted.keySet().stream().sorted().forEach(c -> p.getPartner().add(deleted.get(c)));
 
 		String filename = this.outputFolder.getAbsolutePath() + File.separatorChar + "partners-deleted-" +
-		                  format.format(now) + ".xml";
+		                  format.format(now) + ".json";
 		OutputStream outputStream = new FileOutputStream(new File(filename));
 
 		JaxbUtilModel.formatPretty(p, outputStream);
+		log.info("generated deleted partner file: {}", filename);
 	}
 
 	@Override
@@ -92,5 +94,7 @@ public class OutputGeneratorImpl implements OutputGenerator
 		{
 			log.error("{}", ioe.getMessage(), ioe);
 		}
+
+		log.info("generated field changes file: {}", filename);
 	}
 }

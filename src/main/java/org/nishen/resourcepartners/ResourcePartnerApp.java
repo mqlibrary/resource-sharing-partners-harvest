@@ -41,6 +41,7 @@ public class ResourcePartnerApp
 			return;
 		}
 
+		log.info("executing action: {}", action);
 		try
 		{
 			switch (action)
@@ -71,8 +72,14 @@ public class ResourcePartnerApp
 		try
 		{
 			output.savePartners(payload.getChanged());
+			log.info("partners changed: {}", payload.getChanged().size());
+
 			output.saveDeleted(payload.getDeleted());
+			log.info("partners deleted: {}", payload.getDeleted().size());
+
+			int count = payload.getChanges().values().stream().map(l -> l.size()).reduce(0, Integer::sum);
 			output.saveChanges(payload.getChanges());
+			log.info("field changes:    {}", count);
 		}
 		catch (FileNotFoundException fnfe)
 		{

@@ -91,10 +91,11 @@ public class ResourcePartnerSynchroniserImpl implements ResourcePartnerSynchroni
 			throw new ResourcePartnerSynchroniserException("configuration does not exist: " + nuc);
 
 		Map<String, ResourcePartner> resourcePartners = datastoreDAO.getPartners();
-		log.debug("resource partners found: {}", resourcePartners.size());
+		log.info("loaded partners from datastore: {}", resourcePartners.size());
 
+		log.info("fetching partners from alma...");
 		Map<String, Partner> almaPartners = almaDAO.getPartners();
-		log.debug("alma partners found: {}", almaPartners.size());
+		log.info("alma partners fetched: {}", almaPartners.size());
 
 		Map<String, Partner> changed = new HashMap<String, Partner>();
 		Map<String, Partner> deleted = new HashMap<String, Partner>();
@@ -128,7 +129,10 @@ public class ResourcePartnerSynchroniserImpl implements ResourcePartnerSynchroni
 
 				// skip record if we have a NOSYNC flag.
 				if (nosync)
+				{
+					log.info("{} is marked as NOSYNC - skipping", nuc);
 					continue;
+				}
 
 				// we keep notes from Alma - source of truth for notes.
 				a.setNotes(b.getNotes());

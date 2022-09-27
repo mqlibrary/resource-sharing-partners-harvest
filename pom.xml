@@ -12,7 +12,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<log.base>C:/Data/resource-partners/logs</log.base>
-		<log.level>DEBUG</log.level>
+		<log.level>INFO</log.level>
 	</properties>
 
 	<profiles>
@@ -236,6 +236,7 @@
 							</args>
 							<schemaDirectory>${basedir}/src/xsd</schemaDirectory>
 							<schemaIncludes>
+								<include>rest_contact_info.xsd</include>
 								<include>rest_notes.xsd</include>
 								<include>rest_partner.xsd</include>
 								<include>rest_partners.xsd</include>

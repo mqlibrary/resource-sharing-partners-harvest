@@ -42,6 +42,7 @@ public class ResourcePartnerHarvesterImpl implements ResourcePartnerHarvester
 	public void process(Map<String, String> options) throws Exception
 	{
 		Map<String, ResourcePartner> partners = datastore.getPartners();
+		log.info("loaded partners from datastore: {}", partners.size());
 
 		Set<String> harvestersToProcess = new HashSet<String>();
 

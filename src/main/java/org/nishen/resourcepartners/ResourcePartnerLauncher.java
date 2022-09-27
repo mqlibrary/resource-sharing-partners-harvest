@@ -1,6 +1,5 @@
 package org.nishen.resourcepartners;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 
 /**
  * @author nishen
@@ -45,15 +43,9 @@ public class ResourcePartnerLauncher
 			return;
 		}
 
-		// list for injector modules
-		List<Module> modules = new ArrayList<Module>();
-
-		// module (main configuration)
-		modules.add(new ResourcePartnerModule());
-
 		// create the injector
 		log.debug("creating injector");
-		Injector injector = Guice.createInjector(modules);
+		Injector injector = Guice.createInjector(List.of(new ResourcePartnerModule()));
 
 		// initialise the application object.
 		log.debug("creating application");
@@ -91,35 +83,6 @@ public class ResourcePartnerLauncher
 			{
 				options.put("h", "true");
 			}
-			else if (args[x].equals("-harvest"))
-			{
-				if (options.containsKey("sync"))
-					throw new Exception("it is preferable to not run a harvest and sync at the same time");
-
-				options.put("harvest", "true");
-			}
-			else if (args[x].equals("-sync"))
-			{
-				if (options.containsKey("harvest"))
-					throw new Exception("it is preferable to not run a harvest and sync at the same time");
-
-				options.put("sync", "true");
-			}
-			else if (args[x].equals("-sync"))
-			{
-				options.put("sync", "true");
-			}
-			else if (args[x].equals("-harvesters"))
-			{
-				if (args.length > (x + 1))
-				{
-					options.put("harvesters", args[++x].toUpperCase());
-				}
-				else
-				{
-					throw new Exception("list of harvesters required with -harvesters parameter.");
-				}
-			}
 			else if (args[x].equals("-action"))
 			{
 				if (args.length > (x + 1))
@@ -132,6 +95,17 @@ public class ResourcePartnerLauncher
 				else
 				{
 					throw new Exception("you need to specify an action");
+				}
+			}
+			else if (args[x].equals("-harvesters"))
+			{
+				if (args.length > (x + 1))
+				{
+					options.put("harvesters", args[++x].toUpperCase());
+				}
+				else
+				{
+					throw new Exception("list of harvesters required with -harvesters parameter.");
 				}
 			}
 			else

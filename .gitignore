@@ -12,3 +12,4 @@ pom.xml.versionsBackup
 pom.xml.next
 release.properties
 /app.properties*
+data/

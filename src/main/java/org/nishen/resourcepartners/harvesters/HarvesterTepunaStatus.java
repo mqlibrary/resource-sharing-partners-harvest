@@ -123,8 +123,6 @@ public class HarvesterTepunaStatus implements Harvester
 
 						if (now.after(start) && now.before(end))
 							l.setStatus(ElasticSearchSuspension.SUSPENDED);
-						else
-							l.setStatus(ElasticSearchSuspension.NOT_SUSPENDED);
 					}
 					catch (ParseException pe)
 					{
@@ -233,6 +231,7 @@ public class HarvesterTepunaStatus implements Harvester
 					changes.add(new ElasticSearchChangeRecord(SOURCE_SYSTEM, nuc, "suspension", null,
 					                                          JaxbUtil.format(s)));
 					p.getSuspensions().add(s);
+					p.setStatus(l.getStatus());
 					requiresUpdate = true;
 				}
 			}

@@ -22,6 +22,8 @@ public class ResourcePartnerLauncher
 
 	private static Map<String, String> options;
 
+	public static final Set<String> ACTIONS = Set.of("harvest", "sync", "preview");
+
 	public static void main(String[] args)
 	{
 		try
@@ -88,7 +90,7 @@ public class ResourcePartnerLauncher
 				if (args.length > (x + 1))
 				{
 					String action = args[++x].toLowerCase();
-					if (!Set.of("harvest", "sync", "changes", "preview").contains(action))
+					if (!ACTIONS.contains(action))
 						throw new Exception("invalid action: " + action);
 					options.put("action", action);
 				}
@@ -119,14 +121,13 @@ public class ResourcePartnerLauncher
 
 	private static void printUsage()
 	{
-		System.out.println("java -jar resource-partner-sharing-harvest-x.y.z.jar [options]");
+		System.out.println("java -jar resource-partner-sharing-x.y.z.jar [options]");
 		System.out.println("  -h                                        help");
 		System.out.println("  -?                                        help");
 		System.out.println("  -action (harvest|sync|preview|changes)");
 		System.out.println("      harvest                               run the harvest");
 		System.out.println("      sync                                  sync partner data with Alma");
 		System.out.println("      preview                               show what would happen without updating Alma");
-		System.out.println("      changes                               list differences between Alma and latest harvest");
 		System.out.println("  -harvesters harvester1,hearvester2,...    allows selection of harvesters to run by specifying");
 		System.out.println("                                            a comma separated list: [LADD,ILRS,TEPUNA,OUTLOOK]");
 		System.out.println("                                            (only works with the harvest action)");

@@ -20,7 +20,6 @@ import javax.ws.rs.client.WebTarget;
 import org.glassfish.jersey.jaxb.internal.JaxbMessagingBinder;
 import org.glassfish.jersey.jaxb.internal.JaxbParamConverterBinder;
 import org.nishen.resourcepartners.dao.AlmaDAO;
-import org.nishen.resourcepartners.dao.AlmaDAOFactory;
 import org.nishen.resourcepartners.dao.AlmaDAOImpl;
 import org.nishen.resourcepartners.dao.Config;
 import org.nishen.resourcepartners.dao.ConfigFactory;
@@ -100,13 +99,16 @@ public class ResourcePartnerModule extends AbstractModule
 			harvesterSet = new HashSet<String>(Arrays.asList(harvesters.toLowerCase().split(",")));
 
 		// bind instances
-		bind(ResourcePartnerProcessor.class).to(ResourcePartnerProcessorImpl.class);
+		bind(ResourcePartnerHarvester.class).to(ResourcePartnerHarvesterImpl.class);
 
 		bind(DatastoreDAO.class).to(DatastoreDAOImpl.class);
 		bind(IlrsDAO.class).to(IlrsDAOImpl.class);
 		bind(LaddDAO.class).to(LaddDAOImpl.class);
 		bind(TepunaDAO.class).to(TepunaDAOImpl.class);
 		bind(OutlookDAO.class).to(OutlookDAOImpl.class);
+		bind(ResourcePartnerSynchroniser.class).to(ResourcePartnerSynchroniserImpl.class);
+		bind(OutputGenerator.class).to(OutputGeneratorImpl.class);
+		bind(AlmaDAO.class).to(AlmaDAOImpl.class);
 
 		Multibinder<Harvester> harvesterBinder = Multibinder.newSetBinder(binder(), Harvester.class);
 		if (harvesterSet == null || harvesterSet.contains("ladd"))
@@ -123,14 +125,13 @@ public class ResourcePartnerModule extends AbstractModule
 
 		FactoryModuleBuilder factoryModuleBuilder = new FactoryModuleBuilder();
 		install(factoryModuleBuilder.implement(Config.class, ConfigImpl.class).build(ConfigFactory.class));
-		install(factoryModuleBuilder.implement(AlmaDAO.class, AlmaDAOImpl.class).build(AlmaDAOFactory.class));
-		install(factoryModuleBuilder.implement(SyncProcessor.class, SyncProcessorImpl.class)
-		                            .build(SyncProcessorFactory.class));
 
 		bind(String.class).annotatedWith(Names.named("location.config"))
 		                  .toInstance(config.getProperty("location.config"));
 		bind(String.class).annotatedWith(Names.named("location.partners"))
 		                  .toInstance(config.getProperty("location.partners"));
+		bind(String.class).annotatedWith(Names.named("location.output"))
+		                  .toInstance(config.getProperty("location.output"));
 		bind(String.class).annotatedWith(Names.named("outlook.client.email"))
 		                  .toInstance(config.getProperty("outlook.client.email"));
 		bind(String.class).annotatedWith(Names.named("outlook.client.id"))
@@ -216,6 +217,17 @@ public class ResourcePartnerModule extends AbstractModule
 		return outlookTokenTarget;
 	}
 
+	@Provides
+	@Singleton
+	@Named("ws.alma")
+	protected Client provideWebTargetAlma()
+	{
+		Client client =
+		        ClientBuilder.newClient().register(new JaxbMessagingBinder()).register(new JaxbParamConverterBinder());
+
+		return client;
+	}
+
 	private TrustManager[] getTrustManager()
 	{
 		return new TrustManager[] { new X509TrustManager() {
@@ -230,20 +242,5 @@ public class ResourcePartnerModule extends AbstractModule
 				return new X509Certificate[0];
 			}
 		} };
-	}
-
-	@Provides
-	@Singleton
-	@Named("ws.alma")
-	protected WebTarget provideWebTargetAlma()
-	{
-		String url = System.getenv("ALMA_URL");
-
-		Client client =
-		        ClientBuilder.newClient().register(new JaxbMessagingBinder()).register(new JaxbParamConverterBinder());
-		log.info("using alma api: {}", url);
-		WebTarget almaTarget = client.target(url);
-
-		return almaTarget;
 	}
 }

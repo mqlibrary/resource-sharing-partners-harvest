@@ -21,16 +21,16 @@ import com.google.inject.Inject;
  *
  */
 
-public class ResourcePartnerProcessorImpl implements ResourcePartnerProcessor
+public class ResourcePartnerHarvesterImpl implements ResourcePartnerHarvester
 {
-	private static final Logger log = LoggerFactory.getLogger(ResourcePartnerProcessorImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ResourcePartnerHarvesterImpl.class);
 
 	private DatastoreDAO datastore;
 
 	private Set<Harvester> harvesters;
 
 	@Inject
-	public ResourcePartnerProcessorImpl(DatastoreDAO datastore, Set<Harvester> harvesters)
+	public ResourcePartnerHarvesterImpl(DatastoreDAO datastore, Set<Harvester> harvesters)
 	{
 		this.datastore = datastore;
 		this.harvesters = harvesters;
@@ -95,7 +95,7 @@ public class ResourcePartnerProcessorImpl implements ResourcePartnerProcessor
 					log.info("partners saved:     {}", changed.size());
 				}
 			}
-			catch (SkipHarvestException sre)
+			catch (ResourcePartnerHarvesterSkipException sre)
 			{
 				log.info("skipping harvesting: {}", harvester.getSource());
 			}

@@ -14,7 +14,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nishen.resourcepartners.SkipHarvestException;
+import org.nishen.resourcepartners.ResourcePartnerHarvesterSkipException;
 import org.nishen.resourcepartners.dao.DatastoreDAO;
 import org.nishen.resourcepartners.dao.OutlookDAO;
 import org.nishen.resourcepartners.entity.ResourcePartner;
@@ -85,7 +85,7 @@ public class HarvesterTepunaStatus implements Harvester
 	}
 
 	@Override
-	public Map<String, ResourcePartner> harvest() throws IOException, SkipHarvestException
+	public Map<String, ResourcePartner> harvest() throws IOException, ResourcePartnerHarvesterSkipException
 	{
 		Map<String, ResourcePartner> partners = datastoreDAO.getPartners();
 		Map<String, ResourcePartner> tepunaPartners = new TreeMap<String, ResourcePartner>();

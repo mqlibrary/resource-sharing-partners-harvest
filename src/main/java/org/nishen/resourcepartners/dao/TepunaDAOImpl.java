@@ -54,7 +54,8 @@ public class TepunaDAOImpl implements TepunaDAO
 
 		Map<String, ResourcePartner> tepunaPartners = new HashMap<String, ResourcePartner>();
 
-		try (CSVParser parser = CSVParser.parse(data, CSVFormat.DEFAULT.withSkipHeaderRecord()))
+		CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build();
+		try (CSVParser parser = CSVParser.parse(data, csvFormat))
 		{
 			for (CSVRecord record : parser)
 			{

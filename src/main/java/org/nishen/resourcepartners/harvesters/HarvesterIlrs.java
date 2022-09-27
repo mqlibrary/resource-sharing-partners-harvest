@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.NotFoundException;
 
-import org.nishen.resourcepartners.SkipHarvestException;
+import org.nishen.resourcepartners.ResourcePartnerHarvesterSkipException;
 import org.nishen.resourcepartners.dao.Config;
 import org.nishen.resourcepartners.dao.ConfigFactory;
 import org.nishen.resourcepartners.dao.DatastoreDAO;
@@ -83,11 +83,11 @@ public class HarvesterIlrs implements Harvester
 	}
 
 	@Override
-	public Map<String, ResourcePartner> harvest() throws IOException, SkipHarvestException
+	public Map<String, ResourcePartner> harvest() throws IOException, ResourcePartnerHarvesterSkipException
 	{
 		config.set("last_run_attempt", sdf.format(new Date()));
 		if (!shouldHarvestRun())
-			throw new SkipHarvestException();
+			throw new ResourcePartnerHarvesterSkipException();
 
 		Map<String, ResourcePartner> esPartners = datastoreDAO.getPartners();
 

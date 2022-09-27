@@ -13,12 +13,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
 
-import org.nishen.resourcepartners.SyncException;
+import org.nishen.resourcepartners.ResourcePartnerSynchroniserException;
 import org.nishen.resourcepartners.model.ObjectFactory;
 import org.nishen.resourcepartners.model.Partner;
 import org.nishen.resourcepartners.model.Partners;
@@ -28,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 
 public class AlmaDAOImpl implements AlmaDAO
@@ -41,34 +41,42 @@ public class AlmaDAOImpl implements AlmaDAO
 
 	private static final ObjectFactory of = new ObjectFactory();
 
-	private WebTarget target;
+	private Config config;
+
+	private Client client;
+
+	private String apiurl;
 
 	private String apikey;
 
 	@Inject
-	public AlmaDAOImpl(@Named("ws.alma") Provider<WebTarget> webTargetProvider, @Assisted String apikey)
+	public AlmaDAOImpl(ConfigFactory configFactory, @Named("ws.alma") Provider<Client> clientProvider)
 	{
-		this.apikey = apikey;
+		this.config = configFactory.fetch("ALMA");
 
-		target = webTargetProvider.get();
+		this.apiurl = config.get("apiurl").orElse("https://api-ap.hosted.exlibrisgroup.com/almaws/v1");
+
+		this.apikey = config.get("apikey").orElseThrow(() -> new RuntimeException("ALMA apikey not found"));
+
+		this.client = clientProvider.get();
 
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
 
 	@Override
-	public ConcurrentMap<String, Partner> getPartners() throws SyncException
+	public ConcurrentMap<String, Partner> getPartners() throws ResourcePartnerSynchroniserException
 	{
 		ConcurrentMap<String, Partner> partnerMap = fetchPartners();
 		return partnerMap;
 	}
 
 	@Override
-	public Optional<Partner> getPartner(String nuc) throws SyncException
+	public Optional<Partner> getPartner(String nuc) throws ResourcePartnerSynchroniserException
 	{
 		return Optional.ofNullable(fetchPartner(nuc));
 	}
 
-	public void savePartner(Partner p) throws SyncException
+	public void savePartner(Partner p) throws ResourcePartnerSynchroniserException
 	{
 		Map<String, Partner> partners = new HashMap<String, Partner>();
 		partners.put(p.getPartnerDetails().getCode(), p);
@@ -76,9 +84,9 @@ public class AlmaDAOImpl implements AlmaDAO
 		savePartners(partners);
 	}
 
-	public void savePartners(Map<String, Partner> partners) throws SyncException
+	public void savePartners(Map<String, Partner> partners) throws ResourcePartnerSynchroniserException
 	{
-		WebTarget t = target.path("partners");
+		WebTarget t = client.target(apiurl).path("partners");
 
 		List<Future<Partner>> partnerUpdates = new ArrayList<Future<Partner>>();
 
@@ -104,11 +112,11 @@ public class AlmaDAOImpl implements AlmaDAO
 		}
 		catch (Exception e)
 		{
-			throw new SyncException(e);
+			throw new ResourcePartnerSynchroniserException(e);
 		}
 	}
 
-	private ConcurrentMap<String, Partner> fetchPartners() throws SyncException
+	private ConcurrentMap<String, Partner> fetchPartners() throws ResourcePartnerSynchroniserException
 	{
 		ConcurrentMap<String, Partner> partnerMap = new ConcurrentHashMap<String, Partner>();
 
@@ -116,7 +124,7 @@ public class AlmaDAOImpl implements AlmaDAO
 		long total = -1;
 		long count = 0;
 
-		WebTarget t = target.path("partners").queryParam("apikey", apikey).queryParam("limit", LIMIT);
+		WebTarget t = client.target(apiurl).path("partners").queryParam("limit", LIMIT);
 
 		try
 		{
@@ -154,7 +162,7 @@ public class AlmaDAOImpl implements AlmaDAO
 		catch (ExecutionException ee)
 		{
 			log.error("execution failed: {}", ee.getMessage(), ee);
-			throw new SyncException(ee.getMessage());
+			throw new ResourcePartnerSynchroniserException(ee.getMessage());
 		}
 		catch (InterruptedException ie)
 		{
@@ -166,10 +174,10 @@ public class AlmaDAOImpl implements AlmaDAO
 
 	private Partner fetchPartner(String nuc)
 	{
-		WebTarget t = target.path("partner").path(nuc).queryParam("apikey", apikey);
+		WebTarget t = client.target(apiurl).path("partner").path(nuc);
 		Partner partner = t.request(MediaType.APPLICATION_XML)
 		                   .accept(MediaType.APPLICATION_XML)
-		                   .header("Authorization", apikey)
+		                   .header("Authorization", "apikey " + apikey)
 		                   .get(Partner.class);
 		return partner;
 	}
@@ -192,7 +200,7 @@ public class AlmaDAOImpl implements AlmaDAO
 			String m = MediaType.APPLICATION_XML;
 
 			WebTarget t = target.queryParam("limit", LIMIT).queryParam("offset", offset);
-			Partners partners = t.request(m).accept(m).header("Authorization", apikey).get(Partners.class);
+			Partners partners = t.request(m).accept(m).header("Authorization", "apikey " + apikey).get(Partners.class);
 
 			log.debug("fetchResourcePartners [offset]: {}", offset);
 
@@ -236,12 +244,14 @@ public class AlmaDAOImpl implements AlmaDAO
 				{
 					result = target.path(code)
 					               .request(m)
-					               .header("Authorization", apikey)
+					               .header("Authorization", "apikey " + apikey)
 					               .put(Entity.entity(p, m), Partner.class);
 				}
 				else
 				{
-					result = target.request(m).header("Authorization", apikey).post(Entity.entity(p, m), Partner.class);
+					result = target.request(m)
+					               .header("Authorization", "apikey " + apikey)
+					               .post(Entity.entity(p, m), Partner.class);
 				}
 			}
 			catch (Exception e)

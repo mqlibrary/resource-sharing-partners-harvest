@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.nishen.resourcepartners.SkipHarvestException;
+import org.nishen.resourcepartners.ResourcePartnerHarvesterSkipException;
 import org.nishen.resourcepartners.entity.ResourcePartner;
 import org.nishen.resourcepartners.entity.ResourcePartnerChangeRecord;
 
@@ -14,7 +14,7 @@ public interface Harvester
 
 	public String getSource();
 
-	public Map<String, ResourcePartner> harvest() throws IOException, SkipHarvestException;
+	public Map<String, ResourcePartner> harvest() throws IOException, ResourcePartnerHarvesterSkipException;
 
 	public Map<String, ResourcePartner> update(Map<String, ResourcePartner> partners,
 	                                           Map<String, ResourcePartner> latest,

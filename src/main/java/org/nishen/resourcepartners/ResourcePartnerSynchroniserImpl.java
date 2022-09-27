@@ -11,7 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nishen.resourcepartners.dao.AlmaDAO;
-import org.nishen.resourcepartners.dao.AlmaDAOFactory;
 import org.nishen.resourcepartners.dao.Config;
 import org.nishen.resourcepartners.dao.ConfigFactory;
 import org.nishen.resourcepartners.dao.DatastoreDAO;
@@ -48,11 +47,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
-public class SyncProcessorImpl implements SyncProcessor
+public class ResourcePartnerSynchroniserImpl implements ResourcePartnerSynchroniser
 {
-	private static final Logger log = LoggerFactory.getLogger(SyncProcessorImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ResourcePartnerSynchroniserImpl.class);
 
 	private static final String REGEX_SAMEAS = "same as (.*) address";
 
@@ -62,7 +60,7 @@ public class SyncProcessorImpl implements SyncProcessor
 
 	private DatastoreDAO datastoreDAO;
 
-	private AlmaDAO alma;
+	private AlmaDAO almaDAO;
 
 	private String nuc;
 
@@ -73,29 +71,29 @@ public class SyncProcessorImpl implements SyncProcessor
 	private Pattern patternSameAs = Pattern.compile(REGEX_SAMEAS, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
 	@Inject
-	public SyncProcessorImpl(DatastoreDAO datastoreDAO, AlmaDAOFactory almaFactory, ConfigFactory configFactory,
-	                         @Assisted("nuc") String nuc, @Assisted("apikey") String apikey)
+	public ResourcePartnerSynchroniserImpl(ConfigFactory configFactory, DatastoreDAO datastoreDAO, AlmaDAO almaDAO)
 	{
 		this.config = configFactory.fetch("ALMA");
-		this.datastoreDAO = datastoreDAO;
-		this.alma = almaFactory.create(apikey);
 		this.nuc = this.config.get("nuc").orElseThrow(() -> new RuntimeException("ALMA configuration not found"));
+
+		this.almaDAO = almaDAO;
+		this.datastoreDAO = datastoreDAO;
 
 		log.debug("instantiated class: {}", this.getClass().getName());
 	}
 
 	@Override
-	public Optional<SyncPayload> sync(boolean preview) throws SyncException, IOException
+	public Optional<SyncPayload> sync(boolean preview) throws ResourcePartnerSynchroniserException, IOException
 	{
 		log.debug("sync nuc: {}", nuc);
 
 		if (config.getAll().isEmpty())
-			throw new SyncException("configuration does not exist: " + nuc);
+			throw new ResourcePartnerSynchroniserException("configuration does not exist: " + nuc);
 
 		Map<String, ResourcePartner> resourcePartners = datastoreDAO.getPartners();
 		log.debug("resource partners found: {}", resourcePartners.size());
 
-		Map<String, Partner> almaPartners = alma.getPartners();
+		Map<String, Partner> almaPartners = almaDAO.getPartners();
 		log.debug("alma partners found: {}", almaPartners.size());
 
 		Map<String, Partner> changed = new HashMap<String, Partner>();
@@ -178,7 +176,7 @@ public class SyncProcessorImpl implements SyncProcessor
 
 			if (!preview)
 			{
-				alma.savePartners(changed);
+				almaDAO.savePartners(changed);
 			}
 		}
 		catch (Exception e)
@@ -699,6 +697,10 @@ public class SyncProcessorImpl implements SyncProcessor
 
 		if (e.getPhoneIll() != null && !"".equals(e.getPhoneIll()))
 		{
+			String phoneTmp = e.getPhoneIll();
+			if (phoneTmp.length() > 40)
+				phoneTmp = phoneTmp.substring(0, 40);
+
 			PhoneTypes phoneTypes = of.createPhonePhoneTypes();
 			phoneTypes.getPhoneType().add("orderPhone");
 			phoneTypes.getPhoneType().add("claimPhone");
@@ -707,7 +709,7 @@ public class SyncProcessorImpl implements SyncProcessor
 
 			Phone phone = of.createPhone();
 			phone.setPhoneTypes(phoneTypes);
-			phone.setPhoneNumber(e.getPhoneIll());
+			phone.setPhoneNumber(phoneTmp);
 			phone.setPreferred(false);
 			if (!preferredPhoneTypeSet && phoneTypes.getPhoneType().contains(preferredPhoneType))
 			{
@@ -722,6 +724,10 @@ public class SyncProcessorImpl implements SyncProcessor
 
 		if (e.getPhoneFax() != null && !"".equals(e.getPhoneFax()))
 		{
+			String phoneTmp = e.getPhoneFax();
+			if (phoneTmp.length() > 40)
+				phoneTmp = phoneTmp.substring(0, 40);
+
 			PhoneTypes phoneTypes = of.createPhonePhoneTypes();
 			phoneTypes.getPhoneType().add("orderFax");
 			phoneTypes.getPhoneType().add("claimFax");
@@ -730,7 +736,7 @@ public class SyncProcessorImpl implements SyncProcessor
 
 			Phone phone = of.createPhone();
 			phone.setPhoneTypes(phoneTypes);
-			phone.setPhoneNumber(e.getPhoneFax());
+			phone.setPhoneNumber(phoneTmp);
 			phone.setPreferred(false);
 			if (!preferredPhoneTypeSet && phoneTypes.getPhoneType().contains(preferredPhoneType))
 			{
@@ -745,6 +751,10 @@ public class SyncProcessorImpl implements SyncProcessor
 
 		if (e.getPhoneMain() != null && !"".equals(e.getPhoneMain()))
 		{
+			String phoneTmp = e.getPhoneMain();
+			if (phoneTmp.length() > 40)
+				phoneTmp = phoneTmp.substring(0, 40);
+
 			PhoneTypes phoneTypes = of.createPhonePhoneTypes();
 			phoneTypes.getPhoneType().add("orderPhone");
 			phoneTypes.getPhoneType().add("claimPhone");
@@ -753,7 +763,7 @@ public class SyncProcessorImpl implements SyncProcessor
 
 			Phone phone = of.createPhone();
 			phone.setPhoneTypes(phoneTypes);
-			phone.setPhoneNumber(e.getPhoneMain());
+			phone.setPhoneNumber(phoneTmp);
 			phone.setPreferred(false);
 			if (!preferredPhoneTypeSet && phoneTypes.getPhoneType().contains(preferredPhoneType))
 			{
@@ -887,10 +897,15 @@ public class SyncProcessorImpl implements SyncProcessor
 		if (rpa.getCountry() != null && !"".equals(rpa.getCountry()))
 		{
 			Address.Country country = of.createAddressCountry();
+			if ("australia".equals(rpa.getCountry().toLowerCase()))
+			{
+				country.setDesc("Australia");
+				country.setValue("AUS");
+			}
 			if ("samoa".equals(rpa.getCountry().toLowerCase()))
 			{
 				country.setDesc("Samoa");
-				country.setValue("WSA");
+				country.setValue("WSM");
 			}
 			else if ("new zealand".equals(rpa.getCountry().toLowerCase()))
 			{
